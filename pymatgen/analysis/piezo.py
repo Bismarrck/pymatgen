@@ -52,6 +52,7 @@ class PiezoTensor(TensorBase):
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")
         return obj
+<<<<<<< HEAD
 
     def __array_finalize__(self, obj):
         if obj is None:
@@ -96,3 +97,5 @@ class PiezoTensor(TensorBase):
                 c_ip[i, p] = self[i, j, k]
 
         return c_ip
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

@@ -18,8 +18,13 @@ __date__ = "Aug 26, 2012"
 
 import unittest2 as unittest
 
+<<<<<<< HEAD
 from pymatgen.util.string_utils import generate_latex_table, str_delimited, \
     str_aligned, formula_double_format, latexify, latexify_spacegroup
+=======
+from pymatgen.util.string_utils import formula_double_format, latexify, \
+    latexify_spacegroup
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class FuncTest(unittest.TestCase):

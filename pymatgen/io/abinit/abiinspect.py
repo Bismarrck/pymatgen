@@ -7,6 +7,10 @@ by extracting information from the main output file (text format).
 """
 from __future__ import unicode_literals, division, print_function
 
+<<<<<<< HEAD
+=======
+import os
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 import collections
 import numpy as np
 import yaml
@@ -423,7 +427,23 @@ class YamlTokenizer(collections.Iterator):
     def __init__(self, filename):
         # The position inside the file.
         self.linepos = 0
+<<<<<<< HEAD
         self.stream = open(filename, "r")
+=======
+        self.filename = filename
+
+        try:
+            self.stream = open(filename, "r")
+        except IOError as exc:
+            # Look for associated error file.
+            root, ext = os.path.splitext(self.filename)
+            errfile = root + ".err"
+            if os.path.exists(errfile) and errfile != self.filename:
+                print("Found error file: %s" % errfile)
+                with open(errfile, "rt") as fh:
+                    print(fh.read())
+            raise exc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __iter__(self):
         return self
@@ -442,6 +462,10 @@ class YamlTokenizer(collections.Iterator):
             self.stream.close()
         except:
             print("Exception in YAMLTokenizer.close()")
+<<<<<<< HEAD
+=======
+            print("Python traceback:")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             print(straceback())
 
     def seek(self, offset, whence=0):
@@ -505,7 +529,11 @@ class YamlTokenizer(collections.Iterator):
             if in_doc and line.startswith("..."):
                 return YamlDoc(text="".join(lines), lineno=lineno, tag=doc_tag)
 
+<<<<<<< HEAD
         raise StopIteration("Cannot find next YAML document")
+=======
+        raise StopIteration("Cannot find next YAML document in %s" % self.filename)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def all_yaml_docs(self):
         """

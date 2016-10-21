@@ -6,6 +6,11 @@
 Introduction
 ============
 
+<<<<<<< HEAD
+=======
+.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
 
@@ -33,7 +38,11 @@ Matgenie & Examples
 ===================
 
 The `Materials Virtual Lab`_ has developed a
+<<<<<<< HEAD
 `matgenie web app <http://www.materialsvirtuallab.org/matgenie>`_ which
+=======
+`matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 demonstrates some of the basic functionality of pymatgen.
 
 Another good way to explore the functionality of pymatgen is to look at the
@@ -97,6 +106,7 @@ compatible. Our approach is to have a single codebase support Python 2.7 and
 Getting pymatgen
 ================
 
+<<<<<<< HEAD
 Guided install
 --------------
 
@@ -126,12 +136,25 @@ to be installed for matplotlib.
 
 Stable version
 --------------
+=======
+For absolute newbies
+--------------------
+
+If you are absolutely new to Python and/or are using Windows, the easiest
+installation process is using conda. Please go to the
+:doc:`installation page </installation>` for step-by-step instructions for
+all platforms.
+
+Standard install
+----------------
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 .. note:: Preparation
 
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
+<<<<<<< HEAD
     1. Installation has been tested to be most successful with gcc,
        and several dependencies have issues with icc. Use gcc where
        possible and do "export CC=gcc" prior to installation.
@@ -228,6 +251,70 @@ your files in the /Users/myname/research directory. You may then run docker
 as follows::
 
     docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
+=======
+    1. It is highly recommended that you use Python>=2.7.9 or >=3.5+. In
+       fact, unless you are very sure you have dependencies that require Python
+       2, it is highly recommended that you use Python >=3.5+.
+    2. Installation has been tested to be most successful with gcc. Use gcc
+       where possible and do "export CC=gcc" prior to installation.
+    3. Numpy's distutils is needed to compile the spglib and pyhull
+       dependencies. This should be the first thing you install.
+    4. One of the best things you can do is to use conda to manage all this.
+       The instructions for `Shared cluster installation`_ pretty much
+       applies to any machine as well.
+
+The version at the Python Package Index (PyPI) is always the latest stable
+release that is relatively bug-free. The easiest way to install pymatgen on
+any system is to use pip::
+
+    pip install pymatgen
+
+Wheels for Mac and Windows have been built for convenience.
+
+The bleeding edge developmental version is at the pymatgen `Github repo
+<https://github.com/materialsproject/pymatgen>`_. The developmental
+version is likely to be more buggy, but may contain new features. The
+Github version include complete test files. After
+cloning the source, you can type in the root of the repo::
+
+    pip install .
+
+or to install the package in developmental mode::
+
+    pip install -e .
+
+Detailed installation instructions for various platforms (Mac and Windows)
+are given on this :doc:`page </installation>`, including installation of
+option dependencies, set up for POTCAR generation, Materials Project REST
+interface usage, setup for developers, etc.
+
+.. toctree::
+   :maxdepth: 2
+
+   installation
+
+Shared cluster installation
+---------------------------
+
+If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
+or NERSC resources in the US, the best way is to use conda to perform a local
+install. This guarantees the right version of python and all dependencies::
+
+    # Here, Python 3.5+ is assumed.
+    # You can change the following to Miniconda2 if you prefer Python 2.7
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b
+
+    # Reload bash profile.
+    source $HOME/.bashrc
+    source $HOME/.bash_profile
+
+    # Install numpy and other pydata stack packages via conda.
+    conda install --yes numpy scipy matplotlib jupyter
+
+    # Install pymatgen using pip.
+    pip install pymatgen
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Using pymatgen
 ==============
@@ -262,14 +349,24 @@ some quick examples of the core capabilities and objects:
     >>> si = mg.Element("Si")
     >>> si.atomic_mass
     28.0855
+<<<<<<< HEAD
     >>> si.melting_point
     u'1687 K'
+=======
+    >>> print(si.melting_point)
+    1687.0 K
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     >>>
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
+<<<<<<< HEAD
     >>> #Note that Composition conveniently allows strings to be treated just
     >>> #like an Element object.
+=======
+    >>> # Note that Composition conveniently allows strings to be treated just
+    >>> # like an Element object.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     >>> comp["Fe"]
     2.0
     >>> comp.get_atomic_fraction("Fe")
@@ -287,7 +384,11 @@ some quick examples of the core capabilities and objects:
                                             ["Li", "O"],
                                             [[0.25, 0.25, 0.25], [0, 0, 0]])
     >>>
+<<<<<<< HEAD
     >>> #Integrated symmetry analysis tools from spglib.
+=======
+    >>> # Integrated symmetry analysis tools from spglib.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
@@ -323,7 +424,11 @@ some quick examples of the core capabilities and objects:
     1 Cs     0.000000     0.000000     0.000000
     2 F     0.500000     0.500000     0.500000
     >>>
+<<<<<<< HEAD
     >>> #Changes species and coordinates (fractional assumed for structures)
+=======
+    >>> # Changes species and coordinates (fractional assumed for structures)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
     >>> print(structure)
     Structure Summary (Cs1 Cl1)
@@ -334,6 +439,34 @@ some quick examples of the core capabilities and objects:
     1 Cs     0.000000     0.000000     0.000000
     2 Cl     0.510000     0.510000     0.510000
     >>>
+<<<<<<< HEAD
+=======
+    >>> # Replaces all Cs in the structure with K
+    >>> structure["Cs"] = "K"
+    >>> print(structure)
+    Structure Summary (K1 Cl1)
+    Reduced Formula: KCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 K     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+    >>>
+    >>> # Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,
+    >>> # a disordered structure is created.
+    >>> structure["K"] = "K0.5Na0.5"
+    >>> print(structure)
+    Full Formula (K0.5 Na0.5 Cl1)
+    Reduced Formula: K0.5Na0.5Cl1
+    abc   :   4.209000   4.209000   4.209000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+      #  SP                   a    b    c
+    ---  -----------------  ---  ---  ---
+      0  K:0.500, Na:0.500  0    0    0
+      1  Cl                 0.5  0.5  0.5
+    >>>
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     >>> # Because structure is like a list, it supports most list-like methods
     >>> # such as sort, reverse, etc.
     >>> structure.reverse()
@@ -386,7 +519,11 @@ typical installation routes.
 Here, we will discuss the most versatile of these scripts, known as
 pmg. The typical usage of pmg is::
 
+<<<<<<< HEAD
     pmg {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+=======
+    pmg {setup, config, analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.

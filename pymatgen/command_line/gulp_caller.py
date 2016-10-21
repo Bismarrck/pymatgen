@@ -152,7 +152,11 @@ class GulpIO(object):
 
         if symm_flg:
             gin += "space\n"
+<<<<<<< HEAD
             gin += str(SpacegroupAnalyzer(structure).get_spacegroup_number()) + "\n"
+=======
+            gin += str(SpacegroupAnalyzer(structure).get_space_group_number()) + "\n"
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return gin
 
     def specie_potential_lines(self, structure, potential, **kwargs):
@@ -656,7 +660,11 @@ class BuckinghamPotential(object):
     def __init__(self, bush_lewis_flag):
         assert bush_lewis_flag in {'bush', 'lewis'}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
+<<<<<<< HEAD
         with open(os.path.join(os.environ["GULP_LIB"], pot_file), 'rU') as f:
+=======
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file), 'rt') as f:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False

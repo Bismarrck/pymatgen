@@ -24,6 +24,10 @@ __all__ = [
     "Mrgscr",
     "Mrggkk",
     "Mrgddb",
+<<<<<<< HEAD
+=======
+    "Mrgdvdb",
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 ]
 
 
@@ -159,12 +163,20 @@ class Mrggkk(ExecWrapper):
         #out_gkk = out_gkk if cwd is None else os.path.join(os.path.abspath(cwd), out_gkk)
 
         # We work with absolute paths.
+<<<<<<< HEAD
         gswfk_file = absath(gswfk_file)
+=======
+        gswfk_file = os.path.absath(gswfk_file)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         dfpt_files = [os.path.abspath(s) for s in list_strings(dfpt_files)]
         gkk_files = [os.path.abspath(s) for s in list_strings(gkk_files)]
 
         print("Will merge %d 1WF files, %d GKK file in output %s" %
+<<<<<<< HEAD
               (len(dfpt_nfiles), len_gkk_files, out_gkk))
+=======
+              (len(dfpt_files), len(gkk_files), out_gkk))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if self.verbose:
             for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
@@ -249,3 +261,96 @@ class Mrgddb(ExecWrapper):
                     pass
 
         return out_ddb
+<<<<<<< HEAD
+=======
+
+
+class Mrgdvdb(ExecWrapper):
+    _name = "mrgdv"
+
+    def merge(self, workdir, pot_files, out_dvdb, delete_source=True):
+        """
+        Merge POT files containing 1st order DFPT potential
+        return the absolute path of the new database in workdir.
+        """
+        # We work with absolute paths.
+        pot_files = [os.path.abspath(s) for s in list_strings(pot_files)]
+        if not os.path.isabs(out_dvdb):
+            out_dvdb = os.path.join(os.path.abspath(workdir), os.path.basename(out_dvdb))
+
+        if self.verbose:
+            print("Will merge %d files into output DVDB %s" % (len(pot_files), out_dvdb))
+            for i, f in enumerate(pot_files):
+                print(" [%d] %s" % (i, f))
+
+        # Handle the case of a single file since mrgddb uses 1 to denote GS files!
+        if len(pot_files) == 1:
+            with open(pot_files[0], "r") as inh, open(out_dvdb, "w") as out:
+                for line in inh:
+                    out.write(line)
+            return out_dvdb
+
+        self.stdin_fname, self.stdout_fname, self.stderr_fname = \
+            map(os.path.join, 3 * [workdir], ["mrgdvdb.stdin", "mrgdvdb.stdout", "mrgdvdb.stderr"])
+
+        inp = cStringIO()
+        inp.write(out_dvdb + "\n")              # Name of the output file.
+        inp.write(str(len(pot_files)) + "\n")  # Number of input POT files.
+
+        # Names of the POT files.
+        for fname in pot_files:
+            inp.write(fname + "\n")
+
+        self.stdin_data = [s for s in inp.getvalue()]
+
+        with open(self.stdin_fname, "wt") as fh:
+            fh.writelines(self.stdin_data)
+
+        retcode = self.execute(workdir)
+        if retcode == 0 and delete_source:
+            # Remove pot files.
+            for f in pot_files:
+                try:
+                    os.remove(f)
+                except IOError:
+                    pass
+
+        return out_dvdb
+
+
+class Cut3D(ExecWrapper):
+    _name = "cut3d"
+
+    def cut3d(self, cut3d_input, workdir):
+        """
+        Runs cut3d with a Cut3DInput
+
+        Args:
+            cut3d_input: a Cut3DInput object.
+            workdir: directory where cut3d is executed.
+
+        Returns:
+            (string) absolute path to the standard output of the cut3d execution.
+            (string) absolute path to the output filepath. None if output is required.
+        """
+        self.stdin_fname, self.stdout_fname, self.stderr_fname = \
+            map(os.path.join, 3 * [os.path.abspath(workdir)], ["cut3d.stdin", "cut3d.stdout", "cut3d.stderr"])
+
+        cut3d_input.write(self.stdin_fname)
+
+        retcode = self._execute(workdir, with_mpirun=False)
+
+        if retcode != 0:
+            raise RuntimeError("Error while running cut3d.")
+
+        output_filepath = cut3d_input.output_filepath
+
+        if output_filepath is not None:
+            if not os.path.isabs(output_filepath):
+                output_filepath = os.path.abspath(os.path.join(workdir, output_filepath))
+
+            if not os.path.isfile(output_filepath):
+                raise RuntimeError("The file was not converted correctly.")
+
+        return self.stdout_fname, output_filepath
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

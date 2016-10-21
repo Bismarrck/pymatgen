@@ -20,8 +20,11 @@ __date__ = "Sep 23, 2011"
 
 from enum import Enum, unique
 
+<<<<<<< HEAD
 from monty.dev import deprecated
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 @unique
 class Spin(Enum):
@@ -37,6 +40,7 @@ class Spin(Enum):
     def __str__(self):
         return str(self.value)
 
+<<<<<<< HEAD
     @staticmethod
     @deprecated(message="from_int has been deprecated. Please use the Enum's "
                         "default API of calling Spin(1). Will be removed in "
@@ -55,6 +59,8 @@ class Spin(Enum):
         else:
             raise ValueError("Spin integers must be 1 or -1")
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 @unique
 class OrbitalType(Enum):
@@ -108,6 +114,7 @@ class Orbital(Enum):
         Returns OrbitalType of an orbital.
         """
         return OrbitalType[self.name[0]]
+<<<<<<< HEAD
 
     @staticmethod
     @deprecated(message="from_vasp_index has been deprecated. Please use the "
@@ -119,3 +126,5 @@ class Orbital(Enum):
         """
         return Orbital(i)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

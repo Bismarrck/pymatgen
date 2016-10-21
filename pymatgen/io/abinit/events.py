@@ -41,15 +41,24 @@ def straceback():
     return traceback.format_exc()
 
 
+<<<<<<< HEAD
 class AbinitEvent(yaml.YAMLObject): 
+=======
+class AbinitEvent(yaml.YAMLObject):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
     Example (YAML syntax)::
 
         Normal warning without any handler:
 
         --- !Warning
+<<<<<<< HEAD
         message: | 
             This is a normal warning that won't 
+=======
+        message: |
+            This is a normal warning that won't
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             trigger any handler in the python code!
         src_file: routine_name
         src_line:  112
@@ -70,18 +79,32 @@ class AbinitEvent(yaml.YAMLObject):
 
     The algorithm to extract the YAML sections is very simple.
 
+<<<<<<< HEAD
     1) We use YamlTokenizer to extract the documents from the output file 
     2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
        we know we have encountered a new ABINIT event 
+=======
+    1) We use YamlTokenizer to extract the documents from the output file
+    2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
+       we know we have encountered a new ABINIT event
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     3) We parse the document with yaml.load(doc.text) and we get the object
 
     Note that:
         # --- and ... become reserved words (whey they are placed at
+<<<<<<< HEAD
           the begining of a line) since they are used to mark the beginning and 
           the end of YAML documents.
 
         # All the possible events should subclass `AbinitEvent` and define 
           the class attribute yaml_tag so that yaml.load will know how to 
+=======
+          the begining of a line) since they are used to mark the beginning and
+          the end of YAML documents.
+
+        # All the possible events should subclass `AbinitEvent` and define
+          the class attribute yaml_tag so that yaml.load will know how to
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
           build the instance.
     """
     color = None
@@ -95,6 +118,7 @@ class AbinitEvent(yaml.YAMLObject):
             src_file: String with the name of the Fortran file where the event is raised.
             src_line Integer giving the line number in src_file.
         """
+<<<<<<< HEAD
         self.message = message
         self._src_file = src_file
         self._src_line = src_line
@@ -103,15 +127,40 @@ class AbinitEvent(yaml.YAMLObject):
     @pmg_serialize
     def as_dict(self):
         return dict(message=self.message, src_file=self.src_file, src_line=self.src_line, yaml_tag=self.yaml_tag)
+=======
+        #print("src_file", src_file, "src_line", src_line)
+        self.message = message
+        self.src_file = src_file
+        self.src_line = src_line
+
+    @pmg_serialize
+    def as_dict(self):
+        # This is needed because the events printed in the main output file do not define scr_file and src_line
+        src_file = getattr(self, "src_file", "Unknown")
+        src_line = getattr(self, "src_line", 0)
+        return dict(message=self.message, src_file=src_file, src_line=src_line, yaml_tag=self.yaml_tag)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @classmethod
     def from_dict(cls, d):
         cls = as_event_class(d.get("yaml_tag"))
+<<<<<<< HEAD
         return cls(**{k: v for k,v in d.items() if k != "yaml_tag" and not k.startswith("@")})
 
     @property
     def header(self):
         return "<%s at %s:%s>" % (self.name, self.src_file, self.src_line)
+=======
+        return cls(**{k: v for k, v in d.items() if k != "yaml_tag" and not k.startswith("@")})
+
+    @property
+    def header(self):
+        try:
+            return "<%s at %s:%s>" % (self.name, self.src_file, self.src_line)
+        except AttributeError:
+            # This is needed because the events printed in the main output file do not define scr_file and src_line
+            return "<%s at %s:%s>" % (self.name, "Unknown", 0)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.header
@@ -127,6 +176,7 @@ class AbinitEvent(yaml.YAMLObject):
         return not self.__eq__(other)
 
     @property
+<<<<<<< HEAD
     def src_file(self):
         """String with the name of the Fortran file where the event is raised."""
         try:
@@ -143,12 +193,18 @@ class AbinitEvent(yaml.YAMLObject):
             return "Unknown"
 
     @property
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def name(self):
         """Name of the event (class name)"""
         return self.__class__.__name__
 
     @property
+<<<<<<< HEAD
     def baseclass(self): 
+=======
+    def baseclass(self):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """The baseclass of self."""
         for cls in _BASE_CLASSES:
             if isinstance(self, cls):
@@ -158,9 +214,15 @@ class AbinitEvent(yaml.YAMLObject):
 
     def correct(self, task):
         """
+<<<<<<< HEAD
         This method is called when an error is detected in a :class:`Task` 
         It should perform any corrective measures relating to the detected error.
         The idea is similar to the one used in custodian but the handler receives 
+=======
+        This method is called when an error is detected in a :class:`Task`
+        It should perform any corrective measures relating to the detected error.
+        The idea is similar to the one used in custodian but the handler receives
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         a :class:`Task` object so that we have access to its methods.
 
         Returns:
@@ -203,7 +265,11 @@ class AbinitWarning(AbinitEvent):
     raised by the code and the possible actions that can be performed.
     """
     yaml_tag = '!WARNING'
+<<<<<<< HEAD
     color = None
+=======
+    color = "magenta"
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class AbinitCriticalWarning(AbinitWarning):
@@ -215,7 +281,13 @@ class AbinitYamlWarning(AbinitCriticalWarning):
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
+<<<<<<< HEAD
 # Warnings that trigger restart.
+=======
+###############################
+# Warnings triggering restart #
+###############################
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class ScfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS SCF cycle did not converge."""
@@ -329,8 +401,13 @@ class EventReport(collections.Iterable, MSONable):
             # end_datetime: Sat Feb 28 23:54:30 2015
             try:
                 fmt = "%a %b %d %H:%M:%S %Y"
+<<<<<<< HEAD
                 self.start_datetime = datetime.datetime.strptime(start_datetime, fmt) 
                 self.end_datetime = datetime.datetime.strptime(end_datetime, fmt) 
+=======
+                self.start_datetime = datetime.datetime.strptime(start_datetime, fmt)
+                self.end_datetime = datetime.datetime.strptime(end_datetime, fmt)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             except Exception as exc:
                 # Maybe LOCALE != en_US
                 logger.warning(str(exc))
@@ -424,8 +501,11 @@ class EventsParser(object):
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
+<<<<<<< HEAD
         # TODO Use CamelCase for the Fortran messages.
         # Bug is still an error of class SoftwareError
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
@@ -437,7 +517,11 @@ class EventsParser(object):
                         event = yaml.load(doc.text)
                         #print(event.yaml_tag, type(event))
                     except:
+<<<<<<< HEAD
                         #raise 
+=======
+                        #raise
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
@@ -457,8 +541,15 @@ class EventsParser(object):
 
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
+<<<<<<< HEAD
                     run_completed = True
                     d = doc.as_dict()
+=======
+                    #print(doc)
+                    run_completed = True
+                    d = doc.as_dict()
+                    #print(d)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     start_datetime, end_datetime = d["start_datetime"], d["end_datetime"]
 
         report.set_run_completed(run_completed, start_datetime, end_datetime)
@@ -474,11 +565,19 @@ class EventsParser(object):
         return EventReport(filename, events=[event])
 
 
+<<<<<<< HEAD
 class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface for an EventHandler.
 
     The__init__ should always provide default values for its arguments so that we can 
+=======
+class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
+    """
+    Abstract base class defining the interface for an EventHandler.
+
+    The__init__ should always provide default values for its arguments so that we can
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     easily instantiate the handlers with:
 
         handlers = [cls() for cls in get_event_handler_classes()]
@@ -486,6 +585,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     The defaul values should be chosen so to cover the most typical cases.
 
     Each EventHandler should define the class attribute `can_change_physics`
+<<<<<<< HEAD
     that is true if the handler changes `important` parameters of the 
     run that are tightly connected to the physics of the system.
 
@@ -497,15 +597,34 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     there's an explicit agreement between the user and the code.
 
     The default handlers are those that do not change the physics,  
+=======
+    that is true if the handler changes `important` parameters of the
+    run that are tightly connected to the physics of the system.
+
+    For example, an `EventHandler` that changes the value of `dilatmx` and
+    prepare the restart is not changing the physics. Similarly a handler
+    that changes the mixing algorithm. On the contrary, a handler that
+    changes the value of the smearing is modifying an important physical
+    parameter, and the user should be made aware of this so that
+    there's an explicit agreement between the user and the code.
+
+    The default handlers are those that do not change the physics,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     other handlers can be installed by the user when constructing with the flow with
 
         TODO
 
     .. warning::
 
+<<<<<<< HEAD
         The EventHandler should perform any action at the level of the input files 
         needed to solve the problem and then prepare the task for a new submission
         The handler should never try to resubmit the task. The submission must be 
+=======
+        The EventHandler should perform any action at the level of the input files
+        needed to solve the problem and then prepare the task for a new submission
+        The handler should never try to resubmit the task. The submission must be
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         delegated to the scheduler or Fireworks.
     """
 
@@ -517,6 +636,13 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     FIXED = 1
     NOT_FIXED = 0
 
+<<<<<<< HEAD
+=======
+    def __init__(self):
+        """Simple init for compatibility with introspection in as_dict/from_dict"""
+        return super(EventHandler,self).__init__()
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @classmethod
     def cls2str(cls):
         lines = []
@@ -542,7 +668,11 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     def count(self, task):
         """
+<<<<<<< HEAD
         Return the number of times the event associated to this handler 
+=======
+        Return the number of times the event associated to this handler
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         has been already fixed in the :class:`Task`.
         """
         return len([c for c in task.corrections if c["event"]["@class"] == self.event_class])
@@ -654,7 +784,11 @@ _ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
 # Public API
 def autodoc_event_handlers(stream=sys.stdout):
     """
+<<<<<<< HEAD
     Print to the given string, the documentation for the events 
+=======
+    Print to the given string, the documentation for the events
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     and the associated handlers.
     """
     lines = []
@@ -663,7 +797,11 @@ def autodoc_event_handlers(stream=sys.stdout):
         event_class = cls.event_class
         lines.extend(cls.cls2str().split("\n"))
 
+<<<<<<< HEAD
         # Here we enforce the abstract protocol of the class 
+=======
+        # Here we enforce the abstract protocol of the class
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # The unit test in tests_events will detect the problem.
         if not hasattr(cls, "can_change_physics"):
             raise RuntimeError("%s: can_change_physics must be defined" % cls)
@@ -679,14 +817,22 @@ def get_event_handler_classes(categories=None):
 
 def as_event_class(obj):
     """
+<<<<<<< HEAD
     Convert obj into a subclass of AbinitEvent. 
+=======
+    Convert obj into a subclass of AbinitEvent.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     obj can be either a class or a string with the class name or the YAML tag
     """
     if is_string(obj):
         for c in all_subclasses(AbinitEvent):
             if c.__name__ == obj or c.yaml_tag == obj: return c
         raise ValueError("Cannot find event class associated to %s" % obj)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     # Assume class.
     assert obj in all_subclasses(AbinitEvent)
     return obj
@@ -698,11 +844,16 @@ def as_event_class(obj):
 
 class DilatmxError(AbinitError):
     """
+<<<<<<< HEAD
     This Error occurs in variable cell calculations when the increase in the 
+=======
+    This Error occurs in variable cell calculations when the increase in the
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     unit cell volume is too large.
     """
     yaml_tag = '!DilatmxError'
 
+<<<<<<< HEAD
     #def correct(self, task):
     #    #Idea: decrease dilatxm and restart from the last structure.
     #    #We would like to end up with a structures optimized with dilatmx 1.01
@@ -723,6 +874,8 @@ class DilatmxError(AbinitError):
     #    task.log_correction(self, action)
     #    return 1
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class DilatmxErrorHandler(ErrorHandler):
     """
@@ -764,13 +917,19 @@ class DilatmxErrorHandler(ErrorHandler):
             last_structure = Structure.from_file(filepath)
             abiinput.set_structure(last_structure)
             #FIXME restart from DEN files not always working with interpolation
+<<<<<<< HEAD
             return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, True)
             # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+=======
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=True)
+            # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, event=False)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
 
 
+<<<<<<< HEAD
 """
 class DilatmxErrorHandlerTest(ErrorHandler):
     def __init__(self, max_dilatmx=1.3):
@@ -799,6 +958,8 @@ class DilatmxErrorHandlerTest(ErrorHandler):
 """
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class TolSymError(AbinitError):
     """
     Class of errors raised by Abinit when it cannot detect the symmetries of the system.
@@ -823,12 +984,20 @@ class TolSymErrorHandler(ErrorHandler):
     def handle_task_event(self, task, event):
         # TODO: Add limit on the number of fixes one can do for the same error
         # For example in this case, the scheduler will stop after 20 submissions
+<<<<<<< HEAD
         if self.count(task) > self.max_nfixes: 
+=======
+        if self.count(task) > self.max_nfixes:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return self.NOT_FIXED
 
         old_tolsym = task.get_inpvar("tolsym")
         new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
+<<<<<<< HEAD
         task._set_inpvars(tolsym=new_tolsym)
+=======
+        task.set_vars(tolsym=new_tolsym)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
         return self.FIXED
@@ -839,7 +1008,73 @@ class TolSymErrorHandler(ErrorHandler):
             old_tolsym = abiinput["tolsym"]
             new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
             abiinput.set_vars(tolsym=new_tolsym)
+<<<<<<< HEAD
             return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
         except Exception as exc:
             logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
             return None
+=======
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=False)
+        except Exception as exc:
+            logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
+            return None
+
+
+class MemanaError(AbinitError):
+    """
+    Class of errors raised by the memory analyzer.
+    (the section that estimates the memory requirements from the input parameters).
+    """
+    yaml_tag = '!MemanaError'
+
+
+class MemanaErrorHandler(ErrorHandler):
+    """
+    Set mem_test to 0 to bypass the memory check.
+    """
+    event_class = MemanaError
+
+    can_change_physics = False
+
+    def handle_task_event(self, task, event):
+        task.set_vars(mem_test=0)
+        task.log_correction(event, "Find MemanaError. Setting mem_test to 0 in input file.")
+        return self.FIXED
+
+    def handle_input_event(self, abiinput, outdir, event):
+        try:
+            old_abiinput = abiinput.deepcopy()
+            abiinput.set_vars(mem_test=0)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=False)
+        except Exception as exc:
+            logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
+            return None
+
+
+class MemoryError(AbinitError):
+    """
+    This error occurs when a checked allocation fails in Abinit
+    The only way to go is to increase memory
+    """
+    yaml_tag = '!MemoryError'
+
+
+class MemoryErrorHandler(ErrorHandler):
+    """
+    Handle MemoryError. Increase the resources requirements
+    """
+    event_class = MemoryError
+
+    can_change_physics = False
+
+    def handle_task_event(self, task, event):
+
+      task.manager.increase_resources()
+      return self.FIXED
+
+    def handle_input_event(self, abiinput, outdir, event):
+      """
+      Shouldn't do anything on the input
+      """
+      return None
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

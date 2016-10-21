@@ -204,12 +204,21 @@ class BVAnalyzer(object):
             if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
                 u = data["mean"]
                 sigma = data["std"]
+<<<<<<< HEAD
                 #Calculate posterior probability. Note that constant
                 #factors are ignored. They have no effect on the results.
                 prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 /
                                          (sigma ** 2)) \
                     / sigma * PRIOR_PROB[sp]
         #Normalize the probabilities
+=======
+                # Calculate posterior probability. Note that constant
+                # factors are ignored. They have no effect on the results.
+                prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 /
+                                         (sigma ** 2)) \
+                    / sigma * PRIOR_PROB[sp]
+        # Normalize the probabilities
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         except ZeroDivisionError:

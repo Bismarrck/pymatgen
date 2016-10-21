@@ -67,7 +67,11 @@ cdef void dot_2d_mod(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, :
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
+<<<<<<< HEAD
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, frac_tol=None):
+=======
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -80,7 +84,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (int_ array): Mask of matches that are not allowed.
             i.e. if mask[1,2] == True, then subset[1] cannot be matched
             to superset[2]
+<<<<<<< HEAD
         frac_tol (float_ array of length 3): Fractional tolerance (per lattice vector) over which
+=======
+        lll_frac_tol (float_ array of length 3): Fractional tolerance (per LLL lattice vector) over which
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             the calculation of minimum vectors will be skipped.
             Can speed up calculation considerably for large structures.
 
@@ -92,7 +100,15 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
+<<<<<<< HEAD
     cdef np.float_t[:, ::1] lat = np.array(lattice._matrix, dtype=np.float_, copy=False, order='C')
+=======
+
+    fcoords1 = lattice.get_lll_frac_coords(fcoords1)
+    fcoords2 = lattice.get_lll_frac_coords(fcoords2)
+
+    cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     cdef int i, j, k, l, I, J, bestK
 
@@ -111,10 +127,17 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     if has_mask:
         m = np.array(mask, dtype=np.int_, copy=False, order='C')
 
+<<<<<<< HEAD
     cdef bint has_ftol = (frac_tol is not None)
     cdef np.float_t[:] ftol = frac_tol
     if has_ftol:
         ftol = np.array(frac_tol, dtype=np.float_, order='C', copy=False)
+=======
+    cdef bint has_ftol = (lll_frac_tol is not None)
+    cdef np.float_t[:] ftol
+    if has_ftol:
+        ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
     dot_2d_mod(fc1, lat, cart_f1)
@@ -267,6 +290,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
         raise ValueError("subset is not a subset of superset")
 
     return inds
+<<<<<<< HEAD
 
 
 @cython.boundscheck(False)
@@ -288,3 +312,5 @@ def det3x3(matrix):
         o_l = m_l[0, 0] * m_l[1, 1] * m_l[2, 2] + m_l[1, 0] * m_l[2, 1] * m_l[0, 2] + m_l[2, 0] * m_l[0, 1] * m_l[1, 2] \
             - m_l[0, 2] * m_l[1, 1] * m_l[2, 0] - m_l[1, 2] * m_l[2, 1] * m_l[0, 0] - m_l[2, 2] * m_l[0, 1] * m_l[1, 0]
         return o_l
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

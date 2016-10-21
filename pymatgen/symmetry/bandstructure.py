@@ -49,7 +49,11 @@ class HighSymmKpath(object):
         self._kpath = None
 
         lattice_type = self._sym.get_lattice_type()
+<<<<<<< HEAD
         spg_symbol = self._sym.get_spacegroup_symbol()
+=======
+        spg_symbol = self._sym.get_space_group_symbol()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if lattice_type == "cubic":
             if "P" in spg_symbol:

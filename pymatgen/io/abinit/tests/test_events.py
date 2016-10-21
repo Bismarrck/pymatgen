@@ -5,7 +5,11 @@ import os
 import datetime
 
 from pymatgen.util.testing import PymatgenTest
+<<<<<<< HEAD
 from pymatgen.io.abinit import events 
+=======
+from pymatgen.io.abinit import events
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
@@ -50,7 +54,11 @@ class EventsParserTest(PymatgenTest):
             #self.assertMSONable(warning, check_inst=False)
 
         report = parser.report_exception(ref_file("mgb2_scf.log"), "exception")
+<<<<<<< HEAD
         assert len(report.errors) == 1 
+=======
+        assert len(report.errors) == 1
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def test_parse_bad_yaml_doc(self):
         """Parsing Abinit log file with wrong YAML document."""
@@ -63,7 +71,10 @@ class EventsParserTest(PymatgenTest):
         # The event parser should have registered a AbinitYamlWarning and an AbinitYamlError
         assert len(report.get_events_of_type(events.AbinitYamlWarning)) == 1
         assert len(report.get_events_of_type(events.AbinitYamlError)) == 1
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         #assert 0
 
 
@@ -76,6 +87,10 @@ class EventHandlersTest(PymatgenTest):
             # Test pickle
             handler = cls()
             self.serialize_with_pickle(handler, test_eq=False)
+<<<<<<< HEAD
+=======
+            self.assertMSONable(handler)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         assert events.as_event_class(events.AbinitWarning) == events.AbinitWarning
         assert events.as_event_class('!WARNING') == events.AbinitWarning

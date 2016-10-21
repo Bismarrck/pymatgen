@@ -41,12 +41,150 @@ class StructureEnvironments(MSONable):
     """
     AC = AdditionalConditions()
 
+<<<<<<< HEAD
     def __init__(self, voronoi, bva_valences, sites_map, equivalent_sites,
                  ce_list, structure):
         """
         Constructor for the StructureEnvironments object.
         :param voronoi: VoronoiContainer object for the structure
         :param bva_valences: Valences obtained using the bond-valence analysis
+=======
+    class NeighborsSet():
+        """
+        Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).
+        """
+        def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
+            self.structure = structure
+            self.isite = isite
+            self.voronoi = detailed_voronoi.voronoi_list2[isite]
+            myset = set(site_voronoi_indices)
+            if len(myset) != len(site_voronoi_indices):
+                raise ValueError('Set of neighbors contains duplicates !')
+            self.site_voronoi_indices = sorted(myset)
+            if sources is None:
+                self.sources = [{'origin': 'UNKNOWN'}]
+            elif isinstance(sources, list):
+                self.sources = sources
+            else:
+                self.sources = [sources]
+
+        def get_neighb_voronoi_indices(self, permutation):
+            return [self.site_voronoi_indices[ii] for ii in permutation]
+
+        @property
+        def neighb_coords(self):
+            return [self.voronoi[inb]['site'].coords for inb in self.site_voronoi_indices]
+
+        @property
+        def neighb_sites(self):
+            return [self.voronoi[inb]['site'] for inb in self.site_voronoi_indices]
+
+        @property
+        def neighb_sites_and_indices(self):
+            return [{'site': self.voronoi[inb]['site'],
+                     'index': self.voronoi[inb]['index']} for inb in self.site_voronoi_indices]
+
+        @property
+        def coords(self):
+            coords = [self.structure[self.isite].coords]
+            coords.extend(self.neighb_coords)
+            return coords
+
+        @property
+        def normalized_distances(self):
+            return [self.voronoi[inb]['normalized_distance'] for inb in self.site_voronoi_indices]
+
+        @property
+        def normalized_angles(self):
+            return [self.voronoi[inb]['normalized_angle'] for inb in self.site_voronoi_indices]
+
+        @property
+        def distances(self):
+            return [self.voronoi[inb]['distance'] for inb in self.site_voronoi_indices]
+
+        @property
+        def angles(self):
+            return [self.voronoi[inb]['angle'] for inb in self.site_voronoi_indices]
+
+        @property
+        def info(self):
+            was = self.normalized_angles
+            wds = self.normalized_distances
+            angles = self.angles
+            distances = self.distances
+            return {'normalized_angles': was,
+                    'normalized_distances': wds,
+                    'normalized_angles_sum': np.sum(was),
+                    'normalized_angles_mean': np.mean(was),
+                    'normalized_angles_std': np.std(was),
+                    'normalized_angles_min': np.min(was),
+                    'normalized_angles_max': np.max(was),
+                    'normalized_distances_mean': np.mean(wds),
+                    'normalized_distances_std': np.std(wds),
+                    'normalized_distances_min': np.min(wds),
+                    'normalized_distances_max': np.max(wds),
+                    'angles': angles,
+                    'distances': distances,
+                    'angles_sum': np.sum(angles),
+                    'angles_mean': np.mean(angles),
+                    'angles_std': np.std(angles),
+                    'angles_min': np.min(angles),
+                    'angles_max': np.max(angles),
+                    'distances_mean': np.mean(distances),
+                    'distances_std': np.std(distances),
+                    'distances_min': np.min(distances),
+                    'distances_max': np.max(distances)
+                    }
+
+        @property
+        def source(self):
+            if len(self.sources) != 1:
+                raise RuntimeError('Number of sources different from 1 !')
+            return self.sources[0]
+
+        def add_source(self, source):
+            if source not in self.sources:
+                self.sources.append(source)
+
+        def __len__(self):
+            return len(self.site_voronoi_indices)
+
+        def __hash__(self):
+            return len(self.site_voronoi_indices)
+
+        def __eq__(self, other):
+            return self.isite == other.isite and self.site_voronoi_indices == other.site_voronoi_indices
+
+        def __ne__(self, other):
+            return not self == other
+
+        def __str__(self):
+            out = 'Neighbors Set for site #{:d} :\n'.format(self.isite)
+            out += ' - Coordination number : {:d}\n'.format(len(self))
+            out += ' - Voronoi indices : {}\n'.format(', '.join(['{:d}'.format(site_voronoi_index)
+                                                                 for site_voronoi_index in self.site_voronoi_indices]))
+            return out
+
+        def as_dict(self):
+            return {'isite': self.isite,
+                    'site_voronoi_indices': self.site_voronoi_indices,
+                    'sources': self.sources}
+
+        @classmethod
+        def from_dict(cls, dd, structure, detailed_voronoi):
+            return cls(structure=structure,
+                       isite=dd['isite'],
+                       detailed_voronoi=detailed_voronoi,
+                       site_voronoi_indices=dd['site_voronoi_indices'],
+                       sources=dd['sources'])
+
+    def __init__(self, voronoi, valences, sites_map, equivalent_sites,
+                 ce_list, structure, neighbors_sets=None, info=None):
+        """
+        Constructor for the StructureEnvironments object.
+        :param voronoi: VoronoiContainer object for the structure
+        :param valences: Valences provided
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         :param sites_map: Mapping of equivalent sites to the unequivalent sites that have been computed.
         :param equivalent_sites: List of list of equivalent sites of the structure
         :param struct_sites_to_irreducible_site_list_map: Maps the index of a site to the index of the item in the
@@ -55,12 +193,119 @@ class StructureEnvironments(MSONable):
         :param structure: Structure object
         """
         self.voronoi = voronoi
+<<<<<<< HEAD
         self.bva_valences = bva_valences
+=======
+        self.valences = valences
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.sites_map = sites_map
         self.equivalent_sites = equivalent_sites
         #self.struct_sites_to_irreducible_site_list_map = struct_sites_to_irreducible_site_list_map
         self.ce_list = ce_list
         self.structure = structure
+<<<<<<< HEAD
+=======
+        if neighbors_sets is None:
+            self.neighbors_sets = [None] * len(self.structure)
+        else:
+            self.neighbors_sets = neighbors_sets
+        self.info = info
+
+    def init_neighbors_sets(self, isite, additional_conditions=None, valences=None):
+        site_voronoi = self.voronoi.voronoi_list2[isite]
+        if site_voronoi is None:
+            return
+        if additional_conditions is None:
+            additional_conditions = self.AC.ALL
+        if (self.AC.ONLY_ACB in additional_conditions or
+                self.AC.ONLY_ACB_AND_NO_E2SEB) and valences is None:
+            raise ChemenvError('StructureEnvironments', 'init_neighbors_sets',
+                               'Valences are not given while only_anion_cation_bonds are allowed. Cannot continue')
+        site_distance_parameters = self.voronoi.neighbors_normalized_distances[isite]
+        site_angle_parameters = self.voronoi.neighbors_normalized_angles[isite]
+        # Precompute distance conditions
+        distance_conditions = []
+        for idp, dp_dict in enumerate(site_distance_parameters):
+            distance_conditions.append([])
+            for inb, voro_nb_dict in enumerate(site_voronoi):
+                cond = inb in dp_dict['nb_indices']
+                distance_conditions[idp].append(cond)
+        # Precompute angle conditions
+        angle_conditions = []
+        for iap, ap_dict in enumerate(site_angle_parameters):
+            angle_conditions.append([])
+            for inb, voro_nb_dict in enumerate(site_voronoi):
+                cond = inb in ap_dict['nb_indices']
+                angle_conditions[iap].append(cond)
+        # Precompute additional conditions
+        precomputed_additional_conditions = {ac: [] for ac in additional_conditions}
+        for inb, voro_nb_dict in enumerate(site_voronoi):
+            for ac in additional_conditions:
+                cond = self.AC.check_condition(condition=ac, structure=self.structure,
+                                               parameters={'valences': valences,
+                                                           'neighbor_index': voro_nb_dict['index'],
+                                                           'site_index': isite})
+                precomputed_additional_conditions[ac].append(cond)
+        # Add the neighbors sets based on the distance/angle/additional parameters
+        for idp, dp_dict in enumerate(site_distance_parameters):
+            for iap, ap_dict in enumerate(site_angle_parameters):
+                for iac, ac in enumerate(additional_conditions):
+                    src = {'origin': 'dist_ang_ac_voronoi',
+                           'idp': idp, 'iap': iap, 'dp_dict': dp_dict, 'ap_dict': ap_dict,
+                           'iac': iac, 'ac': ac, 'ac_name': self.AC.CONDITION_DESCRIPTION[ac]}
+                    site_voronoi_indices = [inb for inb, voro_nb_dict in enumerate(site_voronoi)
+                                            if (distance_conditions[idp][inb] and
+                                                angle_conditions[iap][inb] and
+                                                precomputed_additional_conditions[ac][inb])]
+                    nb_set = self.NeighborsSet(structure=self.structure,
+                                               isite=isite,
+                                               detailed_voronoi=self.voronoi,
+                                               site_voronoi_indices=site_voronoi_indices,
+                                               sources=src)
+                    self.add_neighbors_set(isite=isite, nb_set=nb_set)
+
+    def add_neighbors_set(self, isite, nb_set):
+        if self.neighbors_sets[isite] is None:
+            self.neighbors_sets[isite] = {}
+            self.ce_list[isite] = {}
+        cn = len(nb_set)
+        if cn not in self.neighbors_sets[isite]:
+            self.neighbors_sets[isite][cn] = []
+            self.ce_list[isite][cn] = []
+        try:
+            nb_set_index = self.neighbors_sets[isite][cn].index(nb_set)
+            self.neighbors_sets[isite][cn][nb_set_index].add_source(nb_set.source)
+        except ValueError:
+            self.neighbors_sets[isite][cn].append(nb_set)
+            self.ce_list[isite][cn].append(None)
+
+    def update_coordination_environments(self, isite, cn, nb_set, ce):
+        if self.ce_list[isite] is None:
+            self.ce_list[isite] = {}
+        if cn not in self.ce_list[isite]:
+            self.ce_list[isite][cn] = []
+        try:
+            nb_set_index = self.neighbors_sets[isite][cn].index(nb_set)
+        except ValueError:
+            raise ValueError('Neighbors set not found in the structure environments')
+        if nb_set_index == len(self.ce_list[isite][cn]):
+            self.ce_list[isite][cn].append(ce)
+        elif nb_set_index < len(self.ce_list[isite][cn]):
+            self.ce_list[isite][cn][nb_set_index] = ce
+        else:
+            raise ValueError('Neighbors set not yet in ce_list !')
+
+    def get_coordination_environments(self, isite, cn, nb_set):
+        if self.ce_list[isite] is None:
+            return None
+        if cn not in self.ce_list[isite]:
+            return None
+        try:
+            nb_set_index = self.neighbors_sets[isite][cn].index(nb_set)
+        except ValueError:
+            return None
+        return self.ce_list[isite][cn][nb_set_index]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def get_csm(self, isite, mp_symbol):
         csms = self.get_csms(isite, mp_symbol)
@@ -91,12 +336,20 @@ class StructureEnvironments(MSONable):
         else:
             return [envs[mp_symbol] for envs in self.ce_list[isite][cn]]
 
+<<<<<<< HEAD
     def get_environments_figure(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
                                 additional_condition=AC.ONLY_ACB, colormap=None, figsize=None):
         """
         Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
         chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
         region as the value for the color of that distfactor/angfactor region (using a colormap).
+=======
+    def plot_csm_and_maps(self, isite, max_csm=8.0):
+        """
+        Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+        chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+        as the value for the color of that distfactor/angfactor set.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         :param isite: Index of the site for which the plot has to be done
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
@@ -105,6 +358,7 @@ class StructureEnvironments(MSONable):
                          the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
                          normalized distance while in the second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
+<<<<<<< HEAD
         :return: The figure object to be plotted or saved to file
         """
         try:
@@ -112,10 +366,29 @@ class StructureEnvironments(MSONable):
             from matplotlib import cm
             from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
             from matplotlib.patches import Rectangle, Polygon
+=======
+        :return: Nothing returned, just plot the figure
+        """
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
+            return
+        fig = self.get_csm_and_maps(isite=isite, max_csm=max_csm)
+        if fig is None:
+            return
+        plt.show()
+
+    def get_csm_and_maps(self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None):
+        try:
+            import matplotlib.pyplot as plt
+            from matplotlib.gridspec import GridSpec
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
             return
 
+<<<<<<< HEAD
         #Initializes the figure
         if figsize is None:
             fig = mpl.figure()
@@ -220,6 +493,125 @@ class StructureEnvironments(MSONable):
         if fig is None:
             return
         fig.savefig(imagename)
+=======
+        if symmetry_measure_type is None:
+            symmetry_measure_type = 'csm_wcs_ctwcc'
+        # Initializes the figure
+        if figsize is None:
+            fig = plt.figure()
+        else:
+            fig = plt.figure(figsize=figsize)
+        gs = GridSpec(2, 1, hspace=0.0, wspace=0.0)
+        subplot = fig.add_subplot(gs[:])
+        subplot_distang = subplot.twinx()
+
+        ix = 0
+        cn_maps = []
+        all_wds = []
+        all_was = []
+        max_wd = 0.0
+        for cn, nb_sets in self.neighbors_sets[isite].items():
+            for inb_set, nb_set in enumerate(nb_sets):
+                ce = self.ce_list[isite][cn][inb_set]
+                if ce is None:
+                    continue
+                mingeoms = ce.minimum_geometries(max_csm=max_csm)
+                if len(mingeoms) == 0:
+                    continue
+                wds = nb_set.normalized_distances
+                max_wd = max(max_wd, max(wds))
+                all_wds.append(wds)
+                all_was.append(nb_set.normalized_angles)
+                for mp_symbol, cg_dict in mingeoms:
+                    csm = cg_dict['other_symmetry_measures'][symmetry_measure_type]
+                    subplot.plot(ix, csm, 'ob')
+                    subplot.annotate(mp_symbol, xy = (ix, csm))
+                cn_maps.append((cn, inb_set))
+                ix += 1
+
+        if max_wd < 1.225:
+            ymax_wd = 1.25
+            yticks_wd = np.linspace(1.0, ymax_wd, 6)
+        elif max_wd < 1.36:
+            ymax_wd = 1.4
+            yticks_wd = np.linspace(1.0, ymax_wd, 5)
+        elif max_wd < 1.45:
+            ymax_wd = 1.5
+            yticks_wd = np.linspace(1.0, ymax_wd, 6)
+        elif max_wd < 1.55:
+            ymax_wd = 1.6
+            yticks_wd = np.linspace(1.0, ymax_wd, 7)
+        elif max_wd < 1.75:
+            ymax_wd = 1.8
+            yticks_wd = np.linspace(1.0, ymax_wd, 5)
+        elif max_wd < 1.95:
+            ymax_wd = 2.0
+            yticks_wd = np.linspace(1.0, ymax_wd, 6)
+        elif max_wd < 2.35:
+            ymax_wd = 2.5
+            yticks_wd = np.linspace(1.0, ymax_wd, 7)
+        else:
+            ymax_wd = np.ceil(1.1*max_wd)
+            yticks_wd = np.linspace(1.0, ymax_wd, 6)
+
+        yticks_wa = np.linspace(0.0, 1.0, 6)
+
+        frac_bottom = 0.05
+        frac_top = 0.05
+        frac_middle = 0.1
+        yamin = frac_bottom
+        yamax = 0.5 - frac_middle / 2
+        ydmin = 0.5 + frac_middle / 2
+        ydmax = 1.0 - frac_top
+
+        def yang(wa):
+            return (yamax-yamin) * np.array(wa) + yamin
+
+        def ydist(wd):
+            return (np.array(wd) - 1.0) / (ymax_wd - 1.0) * (ydmax - ydmin) + ydmin
+
+        for ix, was in enumerate(all_was):
+            subplot_distang.plot(0.2+ix*np.ones_like(was), yang(was), '<g')
+            if np.mod(ix, 2) == 0:
+                alpha = 0.3
+            else:
+                alpha = 0.1
+            subplot_distang.fill_between([-0.5+ix, 0.5+ix],
+                                         [1.0, 1.0], 0.0,
+                                         facecolor='k', alpha=alpha, zorder=-1000)
+        for ix, wds in enumerate(all_wds):
+            subplot_distang.plot(0.2+ix*np.ones_like(wds), ydist(wds), 'sm')
+
+
+
+        subplot_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], 'k--', alpha=0.5)
+
+        yticks = yang(yticks_wa).tolist()
+        yticks.extend(ydist(yticks_wd).tolist())
+        yticklabels = yticks_wa.tolist()
+        yticklabels.extend(yticks_wd.tolist())
+        subplot_distang.set_yticks(yticks)
+        subplot_distang.set_yticklabels(yticklabels)
+
+        fake_subplot_ang = fig.add_subplot(gs[1], frame_on=False)
+        fake_subplot_dist = fig.add_subplot(gs[0], frame_on=False)
+        fake_subplot_ang.set_yticks([])
+        fake_subplot_dist.set_yticks([])
+        fake_subplot_ang.set_xticks([])
+        fake_subplot_dist.set_xticks([])
+        fake_subplot_ang.set_ylabel('Angle parameter', labelpad=45, rotation=-90)
+        fake_subplot_dist.set_ylabel('Distance parameter', labelpad=45, rotation=-90)
+        fake_subplot_ang.yaxis.set_label_position("right")
+        fake_subplot_dist.yaxis.set_label_position("right")
+
+
+        subplot_distang.set_ylim([0.0, 1.0])
+        subplot.set_xticks(range(len(cn_maps)))
+        subplot.set_ylabel('Continuous symmetry measure')
+        subplot.set_xlim([-0.5, len(cn_maps)-0.5])
+        subplot_distang.set_xlim([-0.5, len(cn_maps)-0.5])
+        subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def to_bv_dict(self, isite):
         out = {"neighbours_lists": [], "continuous_symmetry_measures": []}
@@ -229,9 +621,15 @@ class StructureEnvironments(MSONable):
                 for ineighb, neighb in enumerate(coordnbs[0]):
                     mydict = {'neighbour': neighb.as_dict(),
                               'distance': coordnbs[2][ineighb]['distance'],
+<<<<<<< HEAD
                               'normalized_distance': coordnbs[2][ineighb]['weighted_distance'],
                               'angle': coordnbs[2][ineighb]['angle'],
                               'normalized_angle': coordnbs[2][ineighb]['weighted_angle']}
+=======
+                              'normalized_distance': coordnbs[2][ineighb]['normalized_distance'],
+                              'angle': coordnbs[2][ineighb]['angle'],
+                              'normalized_angle': coordnbs[2][ineighb]['normalized_angle']}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     neighbours.append(mydict)
                 ce = self.ce_list[isite][cn][i_coordnbs]
                 mingeoms = ce.minimum_geometries()
@@ -239,6 +637,7 @@ class StructureEnvironments(MSONable):
                 out["neighbours_lists"].append(neighbours)
                 out["continuous_symmetry_measures"].append(csm_dict)
         return out
+<<<<<<< HEAD
       #           - "neighbour": the PeriodicSite object, as a dictionary
       # - "distance": the distance to the site X
       # - "angle": the angle from the site X
@@ -247,10 +646,92 @@ class StructureEnvironments(MSONable):
 
     def unique_coordinated_neighbors(self, isite=None, cn_map=None):
         return self.voronoi.unique_coordinated_neighbors(isite=isite, cn_map=cn_map)
+=======
+
+    def differences_wrt(self, other):
+        differences = []
+        if self.structure != other.structure:
+            differences.append({'difference': 'structure',
+                                'comparison': '__eq__',
+                                'self': self.structure,
+                                'other': other.structure})
+            differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                'comparison': 'differences_wrt'})
+            return differences
+        if self.valences != other.valences:
+            differences.append({'difference': 'valences',
+                                'comparison': '__eq__',
+                                'self': self.valences,
+                                'other': other.valences})
+        if self.info != other.info:
+            differences.append({'difference': 'info',
+                                'comparison': '__eq__',
+                                'self': self.info,
+                                'other': other.info})
+        if self.voronoi != other.voronoi:
+            if self.voronoi.is_close_to(other.voronoi):
+                differences.append({'difference': 'voronoi',
+                                    'comparison': '__eq__',
+                                    'self': self.voronoi,
+                                    'other': other.voronoi})
+                differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                    'comparison': 'differences_wrt'})
+                return differences
+            else:
+                differences.append({'difference': 'voronoi',
+                                    'comparison': 'is_close_to',
+                                    'self': self.voronoi,
+                                    'other': other.voronoi})
+                # TODO: make it possible to have "close" voronoi's
+                differences.append({'difference': 'PREVIOUS DIFFERENCE IS DISMISSIVE',
+                                    'comparison': 'differences_wrt'})
+                return differences
+        for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
+            other_site_nb_sets = other.neighbors_sets[isite]
+            self_site_cns = set(self_site_nb_sets.keys())
+            other_site_cns = set(other_site_nb_sets.keys())
+            if self_site_cns != other_site_cns:
+                differences.append({'difference': 'neighbors_sets[isite={:d}]'.format(isite),
+                                    'comparison': 'coordination_numbers',
+                                    'self': self_site_cns,
+                                    'other': other_site_cns})
+            common_cns = self_site_cns.intersection(other_site_cns)
+            for cn in common_cns:
+                other_site_cn_nb_sets = other_site_nb_sets[cn]
+                self_site_cn_nb_sets = self_site_nb_sets[cn]
+                set_self_site_cn_nb_sets = set(self_site_cn_nb_sets)
+                set_other_site_cn_nb_sets = set(other_site_cn_nb_sets)
+                if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
+                    differences.append({'difference': 'neighbors_sets[isite={:d}][cn={:d}]'.format(isite, cn),
+                                        'comparison': 'neighbors_sets',
+                                        'self': self_site_cn_nb_sets,
+                                        'other': other_site_cn_nb_sets})
+                common_nb_sets = set_self_site_cn_nb_sets.intersection(set_other_site_cn_nb_sets)
+                for nb_set in common_nb_sets:
+                    inb_set_self = self_site_cn_nb_sets.index(nb_set)
+                    inb_set_other = other_site_cn_nb_sets.index(nb_set)
+                    self_ce = self.ce_list[isite][cn][inb_set_self]
+                    other_ce = other.ce_list[isite][cn][inb_set_other]
+                    if self_ce != other_ce:
+                        if self_ce.is_close_to(other_ce):
+                            differences.append({'difference': 'ce_list[isite={:d}][cn={:d}]'
+                                                              '[inb_set={:d}]'.format(isite, cn, inb_set_self),
+                                                'comparison': '__eq__',
+                                                'self': self_ce,
+                                                'other': other_ce})
+                        else:
+                            differences.append({'difference': 'ce_list[isite={:d}][cn={:d}]'
+                                                              '[inb_set={:d}]'.format(isite, cn, inb_set_self),
+                                                'comparison': 'is_close_to',
+                                                'self': self_ce,
+                                                'other': other_ce})
+        return differences
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __eq__(self, other):
         if len(self.ce_list) != len(other.ce_list):
             return False
+<<<<<<< HEAD
         for ii in range(len(self.ce_list)):
             if self.ce_list[ii] is not None:
                 if other.ce_list[ii] is None:
@@ -266,12 +747,38 @@ class StructureEnvironments(MSONable):
         return (self.voronoi == other.voronoi and self.bva_valences == other.bva_valences and
                 self.sites_map == other.sites_map and self.equivalent_sites == other.equivalent_sites and
                 self.ce_list == other.ce_list and self.structure == other.structure)
+=======
+        if self.voronoi != other.voronoi:
+            return False
+        if len(self.valences) != len(other.valences):
+            return False
+        if self.sites_map != other.sites_map:
+            return False
+        if self.equivalent_sites != other.equivalent_sites:
+            return False
+        if self.structure != other.structure:
+            return False
+        if self.info != other.info:
+            return False
+        for isite, site_ces in enumerate(self.ce_list):
+            site_nb_sets_self = self.neighbors_sets[isite]
+            site_nb_sets_other = other.neighbors_sets[isite]
+            if site_nb_sets_self != site_nb_sets_other:
+                return False
+            if site_ces != other.ce_list[isite]:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def as_dict(self):
         """
         Bson-serializable dict representation of the StructureEnvironments object.
         :return: Bson-serializable dict representation of the StructureEnvironments object.
         """
+<<<<<<< HEAD
         ce_list_dict = [{str(cn): [ce.as_dict() for ce in ce_dict[cn]]
                          for cn in ce_dict} if ce_dict is not None else None for ce_dict in self.ce_list]
         return {"@module": self.__class__.__module__,
@@ -282,6 +789,24 @@ class StructureEnvironments(MSONable):
                 "equivalent_sites": [[ps.as_dict() for ps in psl] for psl in self.equivalent_sites],
                 "ce_list": ce_list_dict,
                 "structure": self.structure.as_dict()}
+=======
+        ce_list_dict = [{str(cn): [ce.as_dict() if ce is not None else None for ce in ce_dict[cn]]
+                         for cn in ce_dict} if ce_dict is not None else None for ce_dict in self.ce_list]
+        nbs_sets_dict = [{str(cn): [nb_set.as_dict() for nb_set in nb_sets]
+                          for cn, nb_sets in site_nbs_sets.items()}
+                         if site_nbs_sets is not None else None
+                         for site_nbs_sets in self.neighbors_sets]
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "voronoi": self.voronoi.as_dict(),
+                "valences": self.valences,
+                "sites_map": self.sites_map,
+                "equivalent_sites": [[ps.as_dict() for ps in psl] for psl in self.equivalent_sites],
+                "ce_list": ce_list_dict,
+                "structure": self.structure.as_dict(),
+                "neighbors_sets": nbs_sets_dict,
+                "info": self.info}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @classmethod
     def from_dict(cls, d):
@@ -292,11 +817,32 @@ class StructureEnvironments(MSONable):
         :return: StructureEnvironments object
         """
         ce_list = [None if (ce_dict == 'None' or ce_dict is None) else {
+<<<<<<< HEAD
             int(cn): [ChemicalEnvironments.from_dict(ced) for ced in ce_dict[cn]]
             for cn in ce_dict} for ce_dict in d['ce_list']]
         return cls(DetailedVoronoiContainer.from_dict(d['voronoi']), d['bva_valences'], d['sites_map'],
                    [[PeriodicSite.from_dict(psd) for psd in psl] for psl in d['equivalent_sites']],
                    ce_list, Structure.from_dict(d['structure']))
+=======
+            int(cn): [None if (ced is None or ced == 'None') else
+                      ChemicalEnvironments.from_dict(ced) for ced in ce_dict[cn]]
+            for cn in ce_dict} for ce_dict in d['ce_list']]
+        voronoi = DetailedVoronoiContainer.from_dict(d['voronoi'])
+        structure = Structure.from_dict(d['structure'])
+        neighbors_sets = [{int(cn): [cls.NeighborsSet.from_dict(dd=nb_set_dict,
+                                                                structure=structure,
+                                                                detailed_voronoi=voronoi)
+                                     for nb_set_dict in nb_sets]
+                           for cn, nb_sets in site_nbs_sets_dict.items()}
+                          if site_nbs_sets_dict is not None else None
+                          for site_nbs_sets_dict in d['neighbors_sets']]
+        return cls(voronoi=voronoi, valences=d['valences'],
+                   sites_map=d['sites_map'],
+                   equivalent_sites=[[PeriodicSite.from_dict(psd) for psd in psl] for psl in d['equivalent_sites']],
+                   ce_list=ce_list, structure=structure,
+                   neighbors_sets=neighbors_sets,
+                   info=d['info'])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class LightStructureEnvironments(MSONable):
@@ -310,16 +856,22 @@ class LightStructureEnvironments(MSONable):
     DEFAULT_STATISTICS_FIELDS = ['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list',
                                  'neutral_list', 'neutral_atom_list',
                                  'atom_coordination_environments_present',
+<<<<<<< HEAD
                                  'bva_ion_coordination_environments_present',
                                  'structure_ion_coordination_environments_present',
                                  'ion_coordination_environments_present',
                                  'fraction_atom_coordination_environments_present',
                                  'fraction_bva_ion_coordination_environments_present',
                                  'fraction_structure_ion_coordination_environments_present',
+=======
+                                 'ion_coordination_environments_present',
+                                 'fraction_atom_coordination_environments_present',
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                  'fraction_ion_coordination_environments_present',
                                  'coordination_environments_atom_present',
                                  'coordination_environments_ion_present']
 
+<<<<<<< HEAD
     def __init__(self, strategy, structure_environments=None, bva_valences=None,
                  coordination_environments=None, neighbors=None, structure=None, setup_neighbors_by_indices=False,
                  neighbors_by_indices=None):
@@ -413,6 +965,148 @@ class LightStructureEnvironments(MSONable):
 
     def setup_statistic_lists(self):
         self.statistics_dict = {'anion_list': {},                                                    # OK
+=======
+    class NeighborsSet():
+        """
+        Class used to store a given set of neighbors of a given site (based on a list of sites, the voronoi
+        container is not part of the LightStructureEnvironments object).
+        """
+        def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
+            self.structure = structure
+            self.isite = isite
+            self.all_nbs_sites = all_nbs_sites
+            myset = set(all_nbs_sites_indices)
+            if len(myset) != len(all_nbs_sites_indices):
+                raise ValueError('Set of neighbors contains duplicates !')
+            self.all_nbs_sites_indices = sorted(myset)
+            self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
+
+        @property
+        def neighb_coords(self):
+            return [self.all_nbs_sites[inb]['site'].coords for inb in self.all_nbs_sites_indices_unsorted]
+
+        @property
+        def neighb_sites(self):
+            return [self.all_nbs_sites[inb]['site'] for inb in self.all_nbs_sites_indices_unsorted]
+
+        @property
+        def neighb_sites_and_indices(self):
+            return [{'site': self.all_nbs_sites[inb]['site'],
+                     'index': self.all_nbs_sites[inb]['index']} for inb in self.all_nbs_sites_indices_unsorted]
+
+        def __len__(self):
+            return len(self.all_nbs_sites_indices)
+
+        def __hash__(self):
+            return len(self.all_nbs_sites_indices)
+
+        def __eq__(self, other):
+            return self.isite == other.isite and self.all_nbs_sites_indices == other.all_nbs_sites_indices
+
+        def __ne__(self, other):
+            return not self == other
+
+        def __str__(self):
+            out = 'Neighbors Set for site #{:d} :\n'.format(self.isite)
+            out += ' - Coordination number : {:d}\n'.format(len(self))
+            out += ' - Neighbors sites indices : {}' \
+                   '\n'.format(', '.join(['{:d}'.format(nb_list_index)
+                                          for nb_list_index in self.all_nbs_sites_indices]))
+            return out
+
+        def as_dict(self):
+            return {'isite': self.isite,
+                    'all_nbs_sites_indices': self.all_nbs_sites_indices_unsorted}
+                    # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
+
+        @classmethod
+        def from_dict(cls, dd, structure, all_nbs_sites):
+            return cls(structure=structure,
+                       isite=dd['isite'],
+                       all_nbs_sites=all_nbs_sites,
+                       all_nbs_sites_indices=dd['all_nbs_sites_indices'])
+
+    def __init__(self, strategy,
+                 coordination_environments=None, all_nbs_sites=None, neighbors_sets=None,
+                 structure=None, valences=None, valences_origin=None):
+        """
+        Constructor for the LightStructureEnvironments object.
+        """
+        self.strategy = strategy
+        self.statistics_dict = None
+        self.coordination_environments = coordination_environments
+        self._all_nbs_sites = all_nbs_sites
+        self.neighbors_sets = neighbors_sets
+        self.structure = structure
+        self.valences = valences
+        self.valences_origin = valences_origin
+
+    @classmethod
+    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None):
+        structure = structure_environments.structure
+        strategy.set_structure_environments(structure_environments=structure_environments)
+        coordination_environments = [None] * len(structure)
+        neighbors_sets = [None] * len(structure)
+        _all_nbs_sites = []
+        my_all_nbs_sites = []
+        if valences is None:
+            valences = structure_environments.valences
+            if valences_origin is None:
+                valences_origin = 'from_structure_environments'
+        else:
+            if valences_origin is None:
+                valences_origin = 'user-specified'
+
+        for isite, site in enumerate(structure):
+            site_ces_and_nbs_list = strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
+            if site_ces_and_nbs_list is None:
+                continue
+            coordination_environments[isite] = []
+            neighbors_sets[isite] = []
+            site_ces = []
+            site_nbs_sets = []
+            for ce_and_neighbors in site_ces_and_nbs_list:
+                _all_nbs_sites_indices = []
+                # Coordination environment
+                ce_dict = {'ce_symbol': ce_and_neighbors['ce_symbol'],
+                           'ce_fraction': ce_and_neighbors['ce_fraction']}
+                if ce_and_neighbors['ce_dict'] is not None:
+                    csm = ce_and_neighbors['ce_dict']['other_symmetry_measures'][strategy.symmetry_measure_type]
+                else:
+                    csm = None
+                ce_dict['csm'] = csm
+                ce_dict['permutation'] = ce_and_neighbors['ce_dict']['permutation']
+                site_ces.append(ce_dict)
+                # Neighbors
+                neighbors = ce_and_neighbors['neighbors']
+                for nb_site_and_index in neighbors:
+                    nb_site = nb_site_and_index['site']
+                    nb_index_unitcell = nb_site_and_index['index']
+                    try:
+                        nb_allnbs_sites_index = my_all_nbs_sites.index(nb_site)
+                    except ValueError:
+                        nb_allnbs_sites_index = len(_all_nbs_sites)
+                        _all_nbs_sites.append({'site': nb_site, 'index': nb_index_unitcell})
+                        my_all_nbs_sites.append(nb_site)
+                    _all_nbs_sites_indices.append(nb_allnbs_sites_index)
+
+                nb_set = cls.NeighborsSet(structure=structure, isite=isite,
+                                          all_nbs_sites=_all_nbs_sites,
+                                          all_nbs_sites_indices=_all_nbs_sites_indices)
+                site_nbs_sets.append(nb_set)
+            coordination_environments[isite] = site_ces
+            neighbors_sets[isite] = site_nbs_sets
+        return cls(strategy=strategy,
+                   coordination_environments=coordination_environments,
+                   all_nbs_sites=_all_nbs_sites,
+                   neighbors_sets=neighbors_sets,
+                   structure=structure, valences=valences,
+                   valences_origin=valences_origin)
+
+    def setup_statistic_lists(self):
+        self.statistics_dict = {'valences_origin': self.valences_origin,
+                                'anion_list': {},                                                    # OK
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                 'anion_number': None,                                                # OK
                                 'anion_atom_list': {},                                               # OK
                                 'anion_atom_number': None,                                           # OK
@@ -420,6 +1114,7 @@ class LightStructureEnvironments(MSONable):
                                 'cation_number': None,                                               # OK
                                 'cation_atom_list': {},                                              # OK
                                 'cation_atom_number': None,                                          # OK
+<<<<<<< HEAD
                                 'structure_anion_list': {},                                          # OK
                                 'structure_anion_number': None,                                      # OK
                                 'structure_anion_undefined_oxidation_list': [],                      # OK
@@ -440,10 +1135,13 @@ class LightStructureEnvironments(MSONable):
                                 'bva_cation_number': None,                                           # OK
                                 'bva_cation_atom_list': {},                                          # OK
                                 'bva_cation_atom_number': None,                                      # OK
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                 'neutral_list': {},                                                  # OK
                                 'neutral_number': None,                                              # OK
                                 'neutral_atom_list': {},                                             # OK
                                 'neutral_atom_number': None,                                         # OK
+<<<<<<< HEAD
                                 'structure_neutral_list': {},                                        # OK
                                 'structure_neutral_number': None,                                    # OK
                                 'structure_neutral_atom_list': {},                                   # OK
@@ -474,12 +1172,26 @@ class LightStructureEnvironments(MSONable):
                                 'count_atom_present': {},                                            # OK
                                 'count_coordination_environments_present': {}}
         structure_has_species = isinstance(self._structure[0].species_and_occu.elements[0], Specie)
+=======
+                                'atom_coordination_environments_present': {},                        # OK
+                                'ion_coordination_environments_present': {},                         # OK
+                                'coordination_environments_ion_present': {},                         # OK
+                                'coordination_environments_atom_present': {},                        # OK
+                                'fraction_ion_coordination_environments_present': {},                # OK
+                                'fraction_atom_coordination_environments_present': {},               # OK
+                                'fraction_coordination_environments_ion_present': {},                # OK
+                                'fraction_coordination_environments_atom_present': {},               # OK
+                                'count_ion_present': {},                                             # OK
+                                'count_atom_present': {},                                            # OK
+                                'count_coordination_environments_present': {}}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         atom_stat = self.statistics_dict['atom_coordination_environments_present']
         ce_atom_stat = self.statistics_dict['coordination_environments_atom_present']
         fraction_atom_stat = self.statistics_dict['fraction_atom_coordination_environments_present']
         fraction_ce_atom_stat = self.statistics_dict['fraction_coordination_environments_atom_present']
         count_atoms = self.statistics_dict['count_atom_present']
         count_ce = self.statistics_dict['count_coordination_environments_present']
+<<<<<<< HEAD
         for isite, site in enumerate(self._structure):
             #Building anion and cation list
             site_species = {'bva_oxistates': [],
@@ -497,6 +1209,24 @@ class LightStructureEnvironments(MSONable):
                         specielist = self.statistics_dict['bva_neutral_list']
                         atomlist = self.statistics_dict['bva_neutral_atom_list']
                     strspecie = str(Specie(sp.symbol, valence))
+=======
+        for isite, site in enumerate(self.structure):
+            # Building anion and cation list
+            site_species = []
+            if self.valences != 'undefined':
+                for sp, occ in site.species_and_occu.items():
+                    valence = self.valences[isite]
+                    strspecie = str(Specie(sp.symbol, valence))
+                    if valence < 0:
+                        specielist = self.statistics_dict['anion_list']
+                        atomlist = self.statistics_dict['anion_atom_list']
+                    elif valence > 0:
+                        specielist = self.statistics_dict['cation_list']
+                        atomlist = self.statistics_dict['cation_atom_list']
+                    else:
+                        specielist = self.statistics_dict['neutral_list']
+                        atomlist = self.statistics_dict['neutral_atom_list']
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if strspecie not in specielist:
                         specielist[strspecie] = occ
                     else:
@@ -505,6 +1235,7 @@ class LightStructureEnvironments(MSONable):
                         atomlist[sp.symbol] = occ
                     else:
                         atomlist[sp.symbol] += occ
+<<<<<<< HEAD
                     site_species['bva_oxistates'].append((sp.symbol, valence, occ))
                 self.statistics_dict['bva_anion_number'] = len(self.statistics_dict['bva_anion_list'])
                 self.statistics_dict['bva_anion_atom_number'] = len(self.statistics_dict['bva_anion_atom_list'])
@@ -594,6 +1325,13 @@ class LightStructureEnvironments(MSONable):
             if self._coordination_environments[isite] is not None:
                 site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['fraction'])
                              for ce_piece_dict in self._coordination_environments[isite]]
+=======
+                    site_species.append((sp.symbol, valence, occ))
+            # Building environments lists
+            if self.coordination_environments[isite] is not None:
+                site_envs = [(ce_piece_dict['ce_symbol'], ce_piece_dict['ce_fraction'])
+                             for ce_piece_dict in self.coordination_environments[isite]]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 for ce_symbol, fraction in site_envs:
                     if fraction is None:
                         continue
@@ -619,11 +1357,19 @@ class LightStructureEnvironments(MSONable):
                             ce_atom_stat[ce_symbol][elmt] = 0.0
                         ce_atom_stat[ce_symbol][elmt] += occ * fraction
 
+<<<<<<< HEAD
                 if self._bva_valences != 'undefined':
                     ion_stat = self.statistics_dict['bva_ion_coordination_environments_present']
                     ce_ion_stat = self.statistics_dict['coordination_environments_bva_ion_present']
                     count_ions = self.statistics_dict['count_bva_ion_present']
                     for elmt, oxi_state, occ in site_species['bva_oxistates']:
+=======
+                if self.valences != 'undefined':
+                    ion_stat = self.statistics_dict['ion_coordination_environments_present']
+                    ce_ion_stat = self.statistics_dict['coordination_environments_ion_present']
+                    count_ions = self.statistics_dict['count_ion_present']
+                    for elmt, oxi_state, occ in site_species:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         if elmt not in ion_stat:
                             ion_stat[elmt] = {}
                             count_ions[elmt] = {}
@@ -644,6 +1390,7 @@ class LightStructureEnvironments(MSONable):
                             if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
                                 ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
                             ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
+<<<<<<< HEAD
                 if structure_has_species:
                     ion_stat = self.statistics_dict['structure_ion_coordination_environments_present']
                     ce_ion_stat = self.statistics_dict['coordination_environments_structure_ion_present']
@@ -705,12 +1452,22 @@ class LightStructureEnvironments(MSONable):
                 #             if oxi_state not in ce_ion_stat[ce_symbol][elmt]:
                 #                 ce_ion_stat[ce_symbol][elmt][oxi_state] = 0.0
                 #             ce_ion_stat[ce_symbol][elmt][oxi_state] += occ * fraction
+=======
+        self.statistics_dict['anion_number'] = len(self.statistics_dict['anion_list'])
+        self.statistics_dict['anion_atom_number'] = len(self.statistics_dict['anion_atom_list'])
+        self.statistics_dict['cation_number'] = len(self.statistics_dict['cation_list'])
+        self.statistics_dict['cation_atom_number'] = len(self.statistics_dict['cation_atom_list'])
+        self.statistics_dict['neutral_number'] = len(self.statistics_dict['neutral_list'])
+        self.statistics_dict['neutral_atom_number'] = len(self.statistics_dict['neutral_atom_list'])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         for elmt, envs in atom_stat.items():
             sumelement = count_atoms[elmt]
             fraction_atom_stat[elmt] = {env: fraction / sumelement for env, fraction in envs.items()}
         for ce_symbol, atoms in ce_atom_stat.items():
             sumsymbol = count_ce[ce_symbol]
             fraction_ce_atom_stat[ce_symbol] = {atom: fraction / sumsymbol for atom, fraction in atoms.items()}
+<<<<<<< HEAD
         for prefix in ['structure_', 'bva_']:
             ion_stat = self.statistics_dict['{}ion_coordination_environments_present'.format(prefix)]
             fraction_ion_stat = self.statistics_dict['fraction_{}ion_coordination_environments_present'.format(prefix)]
@@ -795,6 +1552,25 @@ class LightStructureEnvironments(MSONable):
             if not self.site_has_clear_environment(isite=isite, min_fraction=min_fraction):
                 return False
         return True
+=======
+        ion_stat = self.statistics_dict['ion_coordination_environments_present']
+        fraction_ion_stat = self.statistics_dict['fraction_ion_coordination_environments_present']
+        ce_ion_stat = self.statistics_dict['coordination_environments_ion_present']
+        fraction_ce_ion_stat = self.statistics_dict['fraction_coordination_environments_ion_present']
+        count_ions = self.statistics_dict['count_ion_present']
+        for elmt, oxi_states_envs in ion_stat.items():
+            fraction_ion_stat[elmt] = {}
+            for oxi_state, envs in oxi_states_envs.items():
+                sumspecie = count_ions[elmt][oxi_state]
+                fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie
+                                                      for env, fraction in envs.items()}
+        for ce_symbol, ions in ce_ion_stat.items():
+            fraction_ce_ion_stat[ce_symbol] = {}
+            sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
+            for elmt, oxistates in ions.items():
+                fraction_ce_ion_stat[ce_symbol][elmt] = {oxistate: fraction / sum_ce
+                                                         for oxistate, fraction in oxistates.items()}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def get_site_info_for_specie_ce(self, specie, ce_symbol, min_fraction=0.0):
         element = specie.symbol
@@ -802,6 +1578,7 @@ class LightStructureEnvironments(MSONable):
         isites = []
         csms = []
         fractions = []
+<<<<<<< HEAD
         for isite, site in enumerate(self._structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
                 if oxi_state == self._bva_valences[isite]:
@@ -810,27 +1587,56 @@ class LightStructureEnvironments(MSONable):
                             isites.append(isite)
                             csms.append(ce_dict['ce_symbol'])
                             fractions.append(ce_dict['fraction'])
+=======
+        for isite, site in enumerate(self.structure):
+            if element in [sp.symbol for sp in site.species_and_occu]:
+                if oxi_state == self.valences[isite]:
+                    for ce_dict in self.coordination_environments[isite]:
+                        if ce_symbol == ce_dict['ce_symbol']:
+                            isites.append(isite)
+                            csms.append(ce_dict['ce_symbol'])
+                            fractions.append(ce_dict['ce_fraction'])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
         allces = {}
         element = specie.symbol
         oxi_state = specie.oxi_state
+<<<<<<< HEAD
         for isite, site in enumerate(self._structure):
             if element in [sp.symbol for sp in site.species_and_occu]:
                 if oxi_state == self._bva_valences[isite]:
                     for ce_dict in self._coordination_environments[isite]:
                         if ce_dict['fraction'] < min_fraction:
+=======
+        for isite, site in enumerate(self.structure):
+            if element in [sp.symbol for sp in site.species_and_occu]:
+                if oxi_state == self.valences[isite]:
+                    if self.coordination_environments[isite] is None:
+                        continue
+                    for ce_dict in self.coordination_environments[isite]:
+                        if ce_dict['ce_fraction'] < min_fraction:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                             continue
                         if ce_dict['ce_symbol'] not in allces:
                             allces[ce_dict['ce_symbol']] = {'isites': [], 'fractions': [], 'csms': []}
                         allces[ce_dict['ce_symbol']]['isites'].append(isite)
+<<<<<<< HEAD
                         allces[ce_dict['ce_symbol']]['fractions'].append(ce_dict['fraction'])
+=======
+                        allces[ce_dict['ce_symbol']]['fractions'].append(ce_dict['ce_fraction'])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         allces[ce_dict['ce_symbol']]['csms'].append(ce_dict['csm'])
         return allces
 
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
         if self.statistics_dict is None:
             self.setup_statistic_lists()
+<<<<<<< HEAD
+=======
+        if statistics_fields == 'ALL':
+            statistics_fields = [key for key in self.statistics_dict]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if bson_compatible:
             dd = jsanitize({field: self.statistics_dict[field] for field in statistics_fields})
         else:
@@ -845,7 +1651,11 @@ class LightStructureEnvironments(MSONable):
         return len(self.statistics_dict['anion_list']) == 1 and anion in self.statistics_dict['anion_list']
 
     def site_contains_environment(self, isite, ce_symbol):
+<<<<<<< HEAD
         return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self._coordination_environments[isite]]
+=======
+        return ce_symbol in [ce_dict['ce_symbol'] for ce_dict in self.coordination_environments[isite]]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def structure_contains_atom_environment(self, atom_symbol, ce_symbol):
         """
@@ -854,13 +1664,18 @@ class LightStructureEnvironments(MSONable):
         :param ce_symbol: Symbol of the coordination environment
         :return: True if the coordination environment is found, False otherwise
         """
+<<<<<<< HEAD
         for isite, site in enumerate(self._structure):
+=======
+        for isite, site in enumerate(self.structure):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if (Element(atom_symbol) in site.species_and_occu.
                     element_composition and self.site_contains_environment(isite, ce_symbol)):
                 return True
         return False
 
     @property
+<<<<<<< HEAD
     def coordination_environments(self):
         """
         Coordination environments determined by the strategy
@@ -868,10 +1683,13 @@ class LightStructureEnvironments(MSONable):
         return self._coordination_environments
 
     @property
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def uniquely_determined_coordination_environments(self):
         """
         True if the coordination environments are uniquely determined.
         """
+<<<<<<< HEAD
         return self._uniquely_determined_coordination_environments
 
     @property
@@ -897,6 +1715,9 @@ class LightStructureEnvironments(MSONable):
         :return: Structure
         """
         return self._structure
+=======
+        return self.strategy.uniquely_determined_coordination_environments
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __eq__(self, other):
         """
@@ -907,10 +1728,22 @@ class LightStructureEnvironments(MSONable):
         :param other: LightStructureEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
+<<<<<<< HEAD
         return (self._strategy == other._strategy and self._structure == other._structure and
                 self._bva_valences == other._bva_valences and
                 self._coordination_environments == other._coordination_environments and
                 self._neighbors == other._neighbors)
+=======
+        return (self.strategy == other.strategy and
+                self.structure == other.structure and
+                self.coordination_environments == other.coordination_environments and
+                self.valences == other.valences and
+                self.neighbors_sets == other.neighbors_sets and
+                self._all_nbs_sites == other._all_nbs_sites)
+
+    def __ne__(self, other):
+        return not self == other
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def as_dict(self):
         """
@@ -919,6 +1752,7 @@ class LightStructureEnvironments(MSONable):
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
+<<<<<<< HEAD
                 "strategy": self._strategy.as_dict(),
                 "structure": self._structure.as_dict(),
                 "bva_valences": self._bva_valences,
@@ -928,6 +1762,16 @@ class LightStructureEnvironments(MSONable):
                               for isite in range(len(self._structure))],
                 "neighbors_by_indices": jsanitize([None if item is None else list(item)
                                                    for item in self.neighbors_by_indices])}
+=======
+                "strategy": self.strategy.as_dict(),
+                "structure": self.structure.as_dict(),
+                "coordination_environments": self.coordination_environments,
+                "all_nbs_sites": [{'site': nb_site['site'].as_dict(),
+                                   'index': nb_site['index']} for nb_site in self._all_nbs_sites],
+                "neighbors_sets": [[nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
+                                   for site_nb_sets in self.neighbors_sets],
+                "valences": self.valences}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @classmethod
     def from_dict(cls, d):
@@ -937,6 +1781,7 @@ class LightStructureEnvironments(MSONable):
         :param d: dict representation of the LightStructureEnvironments object
         :return: LightStructureEnvironments object
         """
+<<<<<<< HEAD
         dec = MontyDecoder()
         neighbors = [{(int(cnmap.split('_')[0]), int(cnmap.split('_')[1])): dec.process_decoded(cnmap_neighbours)
                       for cnmap, cnmap_neighbours in neighbs_site.items()} for neighbs_site in d['neighbors']]
@@ -1228,6 +2073,25 @@ class LightStructureEnvironments(MSONable):
 #                    coordination_environments=d['coordination_environments'],
 #                    neighbors=dec.process_decoded(d['neighbors']))
 
+=======
+        # from_dict(cls, dd, structure, all_nbs_sites):
+        dec = MontyDecoder()
+        # coordination_environments = [[{key: val if key != 'cn_map' else tuple(val) for key, val in item.items()}
+        #                               for item in ces_site] for ces_site in d['coordination_environments']]
+        all_nbs_sites = [{'site': dec.process_decoded(nb_site['site']),
+                          'index': nb_site['index']} for nb_site in d['all_nbs_sites']]
+        structure = dec.process_decoded(d['structure'])
+        neighbors_sets = [[cls.NeighborsSet.from_dict(dd=nb_set, structure=structure,
+                                                      all_nbs_sites=all_nbs_sites)
+                           for nb_set in site_nb_sets] if site_nb_sets is not None else None
+                          for site_nb_sets in d['neighbors_sets']]
+        return cls(strategy=dec.process_decoded(d['strategy']),
+                   coordination_environments=d['coordination_environments'],
+                   all_nbs_sites=all_nbs_sites,
+                   neighbors_sets=neighbors_sets,
+                   structure=structure,
+                   valences=d['valences'])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class ChemicalEnvironments(MSONable):
     """
@@ -1259,6 +2123,13 @@ class ChemicalEnvironments(MSONable):
         """
         return len(self.coord_geoms)
 
+<<<<<<< HEAD
+=======
+    def __iter__(self):
+        for cg, cg_dict in self.coord_geoms.items():
+            yield (cg, cg_dict)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def minimum_geometry(self, symmetry_measure_type=None, max_csm=None):
         """
         Returns the geometry with the minimum continuous symmetry measure of this ChemicalEnvironments
@@ -1296,9 +2167,15 @@ class ChemicalEnvironments(MSONable):
         isorted = np.argsort(csms)
         if max_csm is not None:
             if n is None:
+<<<<<<< HEAD
                 return [(cglist[ii], csmlist[ii]) for ii in isorted if csmlist[ii] <= max_csm]
             else:
                 return [(cglist[ii], csmlist[ii]) for ii in isorted[:n] if csmlist[ii] <= max_csm]
+=======
+                return [(cglist[ii], csmlist[ii]) for ii in isorted if csms[ii] <= max_csm]
+            else:
+                return [(cglist[ii], csmlist[ii]) for ii in isorted[:n] if csms[ii] <= max_csm]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         else:
             if n is None:
                 return [(cglist[ii], csmlist[ii]) for ii in isorted]
@@ -1307,7 +2184,11 @@ class ChemicalEnvironments(MSONable):
 
     def add_coord_geom(self, mp_symbol, symmetry_measure, algo='UNKNOWN', permutation=None, override=False,
                        local2perfect_map=None, perfect2local_map=None, detailed_voronoi_index=None,
+<<<<<<< HEAD
                        other_symmetry_measures=None):
+=======
+                       other_symmetry_measures=None, rotation_matrix=None, scaling_factor=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Adds a coordination geometry to the ChemicalEnvironments object
         :param mp_symbol: Symbol (internal) of the coordination geometry added
@@ -1332,7 +2213,13 @@ class ChemicalEnvironments(MSONable):
                                            'local2perfect_map': local2perfect_map,
                                            'perfect2local_map': perfect2local_map,
                                            'detailed_voronoi_index': detailed_voronoi_index,
+<<<<<<< HEAD
                                            'other_symmetry_measures': other_symmetry_measures}
+=======
+                                           'other_symmetry_measures': other_symmetry_measures,
+                                           'rotation_matrix': rotation_matrix,
+                                           'scaling_factor': scaling_factor}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __str__(self):
         """
@@ -1364,6 +2251,22 @@ class ChemicalEnvironments(MSONable):
             out += '       perfect2local : {}\n'.format(str(self.coord_geoms[mp_symbol]['perfect2local_map']))
         return out
 
+<<<<<<< HEAD
+=======
+    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+            return False
+        for mp_symbol, cg_dict_self in self.coord_geoms.items():
+            cg_dict_other = other[mp_symbol]
+            other_csms_self = cg_dict_self['other_symmetry_measures']
+            other_csms_other = cg_dict_other['other_symmetry_measures']
+            for csmtype in ['csm_wcs_ctwcc', 'csm_wcs_ctwocc', 'csm_wcs_csc',
+                            'csm_wocs_ctwcc', 'csm_wocs_ctwocc', 'csm_wocs_csc']:
+                if not np.isclose(other_csms_self[csmtype], other_csms_other[csmtype], rtol=rtol, atol=atol):
+                    return False
+        return True
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def __eq__(self, other):
         """
         Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments
@@ -1371,7 +2274,32 @@ class ChemicalEnvironments(MSONable):
         :param other: ChemicalEnvironments object to compare with
         :return: True if both objects are equal, False otherwise
         """
+<<<<<<< HEAD
         return self.coord_geoms == other.coord_geoms
+=======
+        if set(self.coord_geoms.keys()) != set(other.coord_geoms.keys()):
+            return False
+        for mp_symbol, cg_dict_self in self.coord_geoms.items():
+            cg_dict_other = other.coord_geoms[mp_symbol]
+            if cg_dict_self['symmetry_measure'] != cg_dict_other['symmetry_measure']:
+                return False
+            if cg_dict_self['algo'] != cg_dict_other['algo']:
+                return False
+            if cg_dict_self['permutation'] != cg_dict_other['permutation']:
+                return False
+            if cg_dict_self['detailed_voronoi_index'] != cg_dict_other['detailed_voronoi_index']:
+                return False
+            other_csms_self = cg_dict_self['other_symmetry_measures']
+            other_csms_other = cg_dict_other['other_symmetry_measures']
+            for csmtype in ['csm_wcs_ctwcc', 'csm_wcs_ctwocc', 'csm_wcs_csc',
+                            'csm_wocs_ctwcc', 'csm_wocs_ctwocc', 'csm_wocs_csc']:
+                if other_csms_self[csmtype] != other_csms_other[csmtype]:
+                    return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def as_dict(self):
         """
@@ -1412,5 +2340,12 @@ class ChemicalEnvironments(MSONable):
                               local2perfect_map=l2p_map,
                               perfect2local_map=p2l_map,
                               detailed_voronoi_index=d['coord_geoms'][cg]['detailed_voronoi_index'],
+<<<<<<< HEAD
                               other_symmetry_measures=other_csms)
         return ce
+=======
+                              other_symmetry_measures=other_csms,
+                              rotation_matrix=d['coord_geoms'][cg]['rotation_matrix'],
+                              scaling_factor=d['coord_geoms'][cg]['scaling_factor'])
+        return ce
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

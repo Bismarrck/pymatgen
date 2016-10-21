@@ -172,7 +172,11 @@ queue:
     qname: localhost
     qtype: shell
 job:
+<<<<<<< HEAD
     mpi_runner: /home/my_mpirun
+=======
+    mpi_runner: /home/local/bin/mpirun
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     pre_run:
         - "source ~/env1.sh"
 limits:
@@ -201,6 +205,7 @@ hardware:
                                stdin="stdin", stdout="stdout", stderr="stderr")
         self.assertMultiLineEqual(s, """\
 #!/bin/bash
+<<<<<<< HEAD
 # OpenMp Environment
 export OMP_NUM_THREADS=1
 
@@ -209,6 +214,16 @@ cd /launch_dir
 source ~/env1.sh
 
 /home/my_mpirun -n 1 executable < stdin > stdout 2> stderr
+=======
+cd /launch_dir
+# OpenMp Environment
+export OMP_NUM_THREADS=1
+
+# Commands before execution
+source ~/env1.sh
+
+/home/local/bin/mpirun -n 1 executable < stdin > stdout 2> stderr
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """)
 
 
@@ -274,12 +289,17 @@ hardware:
 #SBATCH --mail-user=user@mail.com
 #SBATCH --output=qout_path
 #SBATCH --error=qerr_path
+<<<<<<< HEAD
+=======
+cd /launch_dir
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 # Setup section
 echo ${SLURM_JOB_NODELIST}
 ulimit -s unlimited
 
 # Load Modules
 module purge
+<<<<<<< HEAD
 module load intel/compilerpro/13.0.1.117
 module load fftw3/intel/3.3
 
@@ -287,6 +307,16 @@ module load fftw3/intel/3.3
 export PATH=/home/user/bin:$PATH
 
 cd /launch_dir
+=======
+module load intel/compilerpro/13.0.1.117 2>> mods.err
+module load fftw3/intel/3.3 2>> mods.err
+
+# OpenMp Environment
+export OMP_NUM_THREADS=1
+# Shell Environment
+export PATH=/home/user/bin:$PATH
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 mpirun -n 4 executable < stdin > stdout 2> stderr
 """)
         #assert 0
@@ -386,6 +416,11 @@ hardware:
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
+<<<<<<< HEAD
+=======
+# OpenMp Environment
+export OMP_NUM_THREADS=1
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 mpirun -n 3 executable < stdin > stdout 2> stderr
 """)
         mem = 1024

@@ -5,6 +5,7 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
+<<<<<<< HEAD
 1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
    have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
    not. If you do not need those features, you can choose to work with Python 3.
@@ -12,6 +13,16 @@ be available on `PyPI <http://pypi.python.org>`_.
 3. scipy>0.14
 4. monty>=0.7.0
 5. requests 2.0+
+=======
+1. Python 2.7-3.x supported. **It is highly recommended that you use Python 3.5
+   unless you know you need other dependencies that works with Python 2.x
+   only.**
+2. numpy>=1.9
+3. scipy>0.14
+4. matplotlib>=1.5+
+4. monty>=0.9.6
+5. requests>=2.0+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 6. pybtex
 7. pyyaml
 8. tabulate
@@ -27,6 +38,7 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
+<<<<<<< HEAD
 1. pyhull 1.5.2+ (highly recommended): For electronic structure, generation of
    Pourbaix diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
@@ -43,6 +55,22 @@ Optional libraries that are required if you need certain features.
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
 7. nose - For unittesting. Not optional for developers.
+=======
+1. pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.
+2. sympy: For defect generation and analysis.
+3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+   crystal structures using the pymatgen.vis package. Note that the VTK
+   package is incompatible with Python 3.x at the moment.
+4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+   adapters in pymatgen.io.aseio between pymatgen's core Structure object and
+   the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+   Note that the ASE package is incompatible with Python 3.x at the moment.
+5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+   usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
+   and OpenBabel's OBMol. Opens up input and output support for the very large
+   number of input and output formats supported by OpenBabel.
+6. nose - For unittesting. Not optional for developers.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Optional non-Python programs
 ----------------------------
@@ -59,7 +87,11 @@ the moment) required only for certain features:
    used to completely enumerate all symmetrically distinct ordered structures
    of disordered structures via EnumerateStructureTransformation. Many other
    advanced transformations (e.g., MagOrderingTransformation) use
+<<<<<<< HEAD
    EnumerateStructureTransformation. The multienum.x and makestr.x
+=======
+   EnumerateStructureTransformation. The enum.x and makestr.x
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
    executables must be in the path. Get it at http://enum.sourceforge.net and
    follow the instructions to compile multienum.x and makestr.x.
 3. bader: For use with :class:`pymatgen.command_line.bader.BaderAnalysis`.
@@ -74,6 +106,7 @@ the moment) required only for certain features:
    generation. This is required in addition to installing the zeo Python
    package.
 
+<<<<<<< HEAD
 Detailed installation instructions
 ==================================
 
@@ -193,6 +226,104 @@ where you do not have administrator priveleges, there are two options.
 
 For most users, option 1 is simpler. Option 2 is useful if you foresee
 potential conflicts with many different python packages.
+=======
+
+Step-by-step installation instructions
+======================================
+
+For these instructions, we will assume the 64-bit versions of all OSes and
+using Python 3.5. For Windows, we only support Python 3.5, though using
+Python 2.7 should be possible if you install a different Visual Studio
+version. For Mac OS and Linux, all instructions can be trivially modified for
+Python 2.7.
+
+Step 1: Preparing your system
+-----------------------------
+
+Windows
+~~~~~~~
+
+1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
+2. Install Visual Studio 2015, but *make sure that you select More Options ->
+   Programming Languages -> Visual C++ during the installation process*. By
+   default, Visual Studio does not install Visual C++, which is needed.
+
+Mac OSX
+~~~~~~~
+
+1. Download and install Xcode. Afterwards, install the XCode command line
+   tools by typing the following in a terminal::
+
+        xcode-select --install
+
+2. (Optional) Install gfortran.  Get an installer at
+   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
+
+Linux
+~~~~~
+
+1. Usually no preparation is needed as most of the standard compilers should
+   already be available.
+
+Step 2: Install conda
+---------------------
+
+Download and install the version of conda for your operating system from
+http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
+Miniconda3 installer**, and simply double-click the exe file. For Linux or Mac,
+run::
+
+    # If Mac
+    bash Miniconda3-latest-MacOSX-x86_64.sh
+
+    # If Linux
+    bash Miniconda3-latest-Linux-x86_64.sh
+
+Note that you may need to create a new terminal after this step in order for
+the environmental variables added by conda to be loaded.
+
+Step 2b: (Optional) Create a conda environment
+----------------------------------------------
+
+If you are working with many python packages, it is generally recommended you
+create a separate environment for each of your packages. For example::
+
+    conda create --name my_pymatgen python
+    source activate my_pymatgen
+
+Step 3: Install pymatgen
+------------------------
+
+Use conda to install some critical dependencies as follows::
+
+    conda install --yes numpy scipy matplotlib
+
+If you are on OSX or Windows, you can install pymatgen via conda as well via
+the matsci channel maintained by the Materials Virtual Lab::
+
+    conda install --channel matsci pymatgen
+
+If you are on Linux, pip install should work just fine::
+
+    pip install pymatgen
+
+Step 4: (Optional) Install enumlib and bader
+--------------------------------------------
+
+For Windows, use conda to install fortran and some requirements first::
+
+    conda install --yes git m2w64-gcc-fortran make
+
+If you would like to use the enumeration capabilities powered by Gus Hart's
+enumlib or perform Bader charge analysis powered by the Bader analysis code
+of the Henkelmann group, you can install it using the pmg command line tool
+as follows::
+
+   pmg setup --install enum
+   pmg setup --install bader
+
+Then put these in your PATH somewhere.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 POTCAR Setup
 ============
@@ -204,7 +335,11 @@ setup functionality.
 
 After installation, do::
 
+<<<<<<< HEAD
     pmg setup --input_potcar_dir <EXTRACTED_VASP_POTCAR> --output_potcar_dir <MY_PSP>
+=======
+    pmg setup -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
@@ -236,10 +371,18 @@ resources directory with the following directory structure::
 	|- POT_GGA_PAW_PW91
 	...
 
+<<<<<<< HEAD
 After generating the resources directory, you should add a VASP_PSP_DIR
 environment variable pointing to the generated directory and you should then be
 able to generate POTCARs. The setup also provides options to do this
 automatically and setup for Materials API usage as well.
+=======
+After generating the resources directory, you should add a VASP_PSP_DIR config
+variable pointing to the generated directory and you should then be
+able to generate POTCARs::
+
+    pmg config --add VASP_PSP_DIR <MY_PSP>
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Setup for Developers (using GitHub)
 ===================================
@@ -249,7 +392,11 @@ Setup for Developers (using GitHub)
 2. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
 
+<<<<<<< HEAD
       python setup.py develop
+=======
+      pip install -e .
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 3. Install any missing python libraries that are necessary.
 
@@ -270,11 +417,16 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
+<<<<<<< HEAD
 VTK (tested on v5.10.0 - 6.1.0)
 -------------------------------
 
 Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
+=======
+VTK on Mac OS X (tested on v7.0)
+--------------------------------
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -288,11 +440,16 @@ Type the following::
 
 Press "t" to toggle advanced mode. Then press "c" to do an initial
 configuration. After the list of parameters come out, ensure that the
+<<<<<<< HEAD
 PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+=======
+PYTHON_VERSION is set to 3, the VTK_WRAP_PYTHON is set to ON, and
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
+<<<<<<< HEAD
 links. Example configuration for Python 2.7 is given below (only variables that
 need to be modified are shown):
 
@@ -323,10 +480,25 @@ Then press "c" again to configure and finally "g" to generate the required
 make files After the CMakeCache.txt file is generated, type:
 
 ::
+=======
+links. Example configuration for Python 3.5 installed using conda is given
+below (only variables that need to be modified/checked are shown)::
+
+    PYTHON_EXECUTABLE:FILEPATH=/Users/<username>/miniconda3/bin/python3
+    PYTHON_INCLUDE_DIR:PATH=/Users/<username>/miniconda3/include/python3.5m
+    PYTHON_LIBRARY:FILEPATH=/Users/<username>/miniconda3/lib/libpython3.5m.dylib
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Users/<username>/miniconda3/lib/python3.5/site-packages
+    VTK_PYTHON_VERSION:STRING=3
+    VTK_WRAP_PYTHON:BOOL=ON
+
+Then press "c" again to configure and finally "g" to generate the required
+make files After the CMakeCache.txt file is generated, type::
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 	make -j 4
 	sudo make install
 
+<<<<<<< HEAD
 With any luck, you should have vtk with the necessary python wrappers installed.
 
 OpenBabel (tested on v2.3.2)
@@ -334,6 +506,15 @@ OpenBabel (tested on v2.3.2)
 
 Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
+=======
+With any luck, you should have vtk with the necessary python wrappers
+installed. You can test this by going into a python terminal and trying::
+
+    import vtk
+
+OpenBabel Mac OS X (tested on v2.3.2)
+-------------------------------------
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
@@ -414,7 +595,11 @@ Here are the steps that I took to make it work:
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
 Enumlib (updated Mar 2016)
+<<<<<<< HEAD
 ------------------------------------------
+=======
+--------------------------
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 The author now has his own Github repo with the relevant instructions to
 compile a newer version of enumlib. Follow the instructions given at the

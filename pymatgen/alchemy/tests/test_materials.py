@@ -21,6 +21,11 @@ import os
 import json
 import warnings
 
+<<<<<<< HEAD
+=======
+from pymatgen import SETTINGS
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, PartialRemoveSpecieTransformation, \
@@ -96,8 +101,12 @@ class TransformedStructureTest(unittest.TestCase):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
+<<<<<<< HEAD
         if "VASP_PSP_DIR" not in os.environ:
             os.environ["VASP_PSP_DIR"] = os.path.abspath(
+=======
+        SETTINGS["VASP_PSP_DIR"] = os.path.abspath(
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 os.path.join(os.path.dirname(__file__), "..", "..", "..",
                              "test_files"))
         potcar = self.trans.get_vasp_input(MPRelaxSet)['POTCAR']
@@ -164,7 +173,11 @@ class TransformedStructureTest(unittest.TestCase):
             self.assertEqual(len(w), 1, 'Warning not raised on type conversion '
                              'with other_parameters')
         ts = TransformedStructure.from_snl(snl)
+<<<<<<< HEAD
         self.assertEqual(ts.history[-1]['name'], 'SubstitutionTransformation')
+=======
+        self.assertEqual(ts.history[-1]['@class'], 'SubstitutionTransformation')
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         
         h = ('testname', 'testURL', {'test' : 'testing'})
         snl = StructureNL(ts.final_structure,[('will', 'will@test.com')], 

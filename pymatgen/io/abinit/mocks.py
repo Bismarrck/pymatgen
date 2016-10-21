@@ -14,7 +14,11 @@ def change_task_start(task, mocked_status="Error"):
     return task
 
 
+<<<<<<< HEAD
 class AbinitTaskMockedStart(AbinitTask): 
+=======
+class AbinitTaskMockedStart(AbinitTask):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """A Task whose status is always self.mocked_status."""
     def start(self, **kwargs):
         self.set_status(self.mocked_status, msg="Mocking status with %s" % self.mocked_status)

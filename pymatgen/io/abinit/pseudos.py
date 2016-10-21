@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import sys
+<<<<<<< HEAD
 from collections import OrderedDict, defaultdict, namedtuple
 from warnings import warn
 
@@ -22,15 +23,34 @@ from monty.collections import AttrDict, Namespace
 from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.io import FileLock
+=======
+import numpy as np
+import six
+
+from collections import OrderedDict, defaultdict, namedtuple
+from monty.collections import AttrDict, Namespace
+from tabulate import tabulate
+from monty.dev import deprecated
+from monty.functools import lazy_property
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
 from monty.os.path import find_exts
 from monty.string import list_strings, is_string
+<<<<<<< HEAD
 
 from pymatgen.analysis.eos import EOS
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+=======
+from pymatgen.analysis.eos import EOS
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.xcfunc import XcFunc
+from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 logger = logging.getLogger(__name__)
 
 
@@ -45,10 +65,15 @@ __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
 
+<<<<<<< HEAD
 
 def straceback():
     """Returns a string with the traceback."""
     import sys
+=======
+def straceback():
+    """Returns a string with the traceback."""
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     import traceback
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -64,7 +89,11 @@ def _read_nlines(filename, nlines):
 
     lines = []
     with open(filename, 'r') as fh:
+<<<<<<< HEAD
         for (lineno, line) in enumerate(fh):
+=======
+        for lineno, line in enumerate(fh):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if lineno == nlines: break
             lines.append(line)
         return lines
@@ -98,7 +127,11 @@ def str2l(s):
 class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     """
     Abstract base class defining the methods that must be
+<<<<<<< HEAD
     implemented by the concrete pseudopotential classes.
+=======
+    implemented by the concrete pseudopotential sub-classes.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
 
     @classmethod
@@ -114,17 +147,26 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @staticmethod
     def from_file(filename):
         """
+<<<<<<< HEAD
         Return a :class:`Pseudo` object from filename.
         Note: the parser knows the concrete class that should be instanciated
+=======
+        Build an instance of a concrete Pseudo subclass from filename.
+        Note: the parser knows the concrete class that should be instantiated
+        Client code should rely on the abstract interface provided by Pseudo.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         return PseudoParser().parse(filename)
 
     def __eq__(self, other):
         if other is None: return False
+<<<<<<< HEAD
         # TODO
         # For the time being we check the filepath
         # A more robust algorithm would use md5
         #return self.filepath == other.filepath
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return (self.md5 == other.md5 and
                 self.__class__ == other.__class__ and
                 self.Z == other.Z and
@@ -135,7 +177,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         return not self.__eq__(other)
 
     def __repr__(self):
+<<<<<<< HEAD
         return "<%s at %s>" % (self.__class__.__name__, self.filepath)
+=======
+        try:
+            return "<%s at %s>" % (self.__class__.__name__, os.path.relpath(self.filepath))
+        except:
+            # relpath can fail if the code is executed in demon mode.
+            return "<%s at %s>" % (self.__class__.__name__, self.filepath)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __str__(self):
         """String representation."""
@@ -144,6 +194,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         app("<%s: %s>" % (self.__class__.__name__, self.basename))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
+<<<<<<< HEAD
         #FIXME: rewrite the treatment of xc, use XML specs as starting point
         #app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
         app("  maximum angular momentum: %s" % l2str(self.l_max))
@@ -151,6 +202,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         if self.isnc:
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
+=======
+        app("  maximum angular momentum: %s" % l2str(self.l_max))
+        app("  angular momentum for local part: %s" % l2str(self.l_local))
+        app("  XC correlation: %s" % self.xc)
+        app("  supports spin-orbit: %s" % self.supports_soc)
+
+        if self.isnc:
+            app("  radius for non-linear core correction: %s" % self.nlcc_radius)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if self.has_hints:
             hint_normal = self.hint_for_accuracy()
@@ -180,7 +240,11 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     @abc.abstractproperty
     def Z_val(self):
+<<<<<<< HEAD
         """Valence charge"""
+=======
+        """Valence charge."""
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def type(self):
@@ -220,6 +284,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @lazy_property
     def md5(self):
         """MD5 hash value."""
+<<<<<<< HEAD
         if self.has_dojo_report:
             if "md5" in self.dojo_report:
                 return self.dojo_report["md5"]
@@ -288,6 +353,25 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     #@abc.abstractmethod
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
+=======
+        #if self.has_dojo_report and "md5" in self.dojo_report: return self.dojo_report["md5"]
+        return self.compute_md5()
+
+    def compute_md5(self):
+        """Compute and erturn MD5 hash value."""
+        import hashlib
+        with open(self.path, "rt") as fh:
+            text = fh.read()
+            m = hashlib.md5(text.encode("utf-8"))
+            return m.hexdigest()
+
+    @abc.abstractproperty
+    def supports_soc(self):
+        """
+        True if the pseudo can be used in a calculation with spin-orbit coupling.
+        Base classes should provide a concrete implementation that computes this value.
+        """
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @pmg_serialize
     def as_dict(self, **kwargs):
@@ -299,7 +383,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             Z_val=self.Z_val,
             l_max=self.l_max,
             md5=self.md5,
+<<<<<<< HEAD
             filepath=self.filepath
+=======
+            filepath=self.filepath,
+            #xc=self.xc.as_dict(),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         )
 
     @classmethod
@@ -313,6 +402,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         return new
 
+<<<<<<< HEAD
     def as_tmpfile(self):
         """
         Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
@@ -411,10 +501,58 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """
         Returns an hint object with parameters such as ecut [Ha] and
         aug_ratio for given accuracy. Returns None if no hint is available.
+=======
+    def as_tmpfile(self, tmpdir=None):
+        """
+        Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
+        Useful for unit tests in which we have to change the content of the file.
+
+        Args:
+            tmpdir: If None, a new temporary directory is created and files are copied here
+                else tmpdir is used.
+        """
+        import tempfile, shutil
+        tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
+        new_path = os.path.join(tmpdir, self.basename)
+        shutil.copy(self.filepath, new_path)
+
+        # Copy dojoreport file if present.
+        root, ext = os.path.splitext(self.filepath)
+        djrepo = root + ".djrepo"
+        if os.path.exists(djrepo):
+            shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
+
+        # Build new object and copy dojo_report if present.
+        new = self.__class__.from_file(new_path)
+        if self.has_dojo_report: new.dojo_report = self.dojo_report.deepcopy()
+
+        return new
+
+    @property
+    def has_dojo_report(self):
+        """True if the pseudo has an associated `DOJO_REPORT` section."""
+        return hasattr(self, "dojo_report") and bool(self.dojo_report)
+
+    @property
+    def djrepo_path(self):
+        """The path of the djrepo file. None if file does not exist."""
+        root, ext = os.path.splitext(self.filepath)
+        path = root + ".djrepo"
+        return path
+        #if os.path.exists(path): return path
+        #return None
+
+    def hint_for_accuracy(self, accuracy="normal"):
+        """
+        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        pawecutdg [Ha] for the given accuracy.
+        ecut and pawecutdg are set to zero if no hint is available.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             accuracy: ["low", "normal", "high"]
         """
+<<<<<<< HEAD
         if self.has_dojo_report:
             try:
                 return Hint.from_dict(self.dojo_report["hints"][accuracy])
@@ -426,6 +564,23 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
     @property
     def has_hints(self):
         """True if self provides hints on the cutoff energy."""
+=======
+        if not self.has_dojo_report:
+            return Hint(ecut=0., pawecutdg=0.)
+
+        # Get hints from dojoreport. Try first in hints then in ppgen_hints.
+        if "hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["hints"][accuracy])
+        elif "ppgen_hints" in self.dojo_report:
+            return Hint.from_dict(self.dojo_report["ppgen_hints"][accuracy])
+        return Hint(ecut=0., pawecutdg=0.)
+
+    @property
+    def has_hints(self):
+        """
+        True if self provides hints on the cutoff energy.
+        """
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         for acc in ["low", "normal", "high"]:
             try:
                 if self.hint_for_accuracy(acc) is None:
@@ -453,15 +608,25 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         lattice = 10 * np.eye(3)
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
+<<<<<<< HEAD
         if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
+=======
+        if self.ispaw and pawecutdg is None: pawecutdg = ecut * 4
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg,
                        spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
+<<<<<<< HEAD
         # Build temporary task and run it.
         task = AbinitTask.temp_shell_task(inp)
         retcode = task.start_and_wait()
+=======
+        # Build temporary task and run it (ignore retcode because we don't exit cleanly)
+        task = AbinitTask.temp_shell_task(inp)
+        task.start_and_wait()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         filepath = task.outdir.has_abiext("_PSPS.nc")
         if not filepath:
@@ -543,6 +708,7 @@ class AbinitPseudo(Pseudo):
             header: :class:`AbinitHeader` instance.
         """
         self.path = path
+<<<<<<< HEAD
         self._summary = header.summary
 
         if hasattr(header, "dojo_report"):
@@ -551,6 +717,13 @@ class AbinitPseudo(Pseudo):
             self.dojo_report = {}
 
         #self.pspcod  = header.pspcod
+=======
+        self.header = header
+        self._summary = header.summary
+
+        # Build xc from header.
+        self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for attr_name, desc in header.items():
             value = header.get(attr_name, None)
@@ -579,6 +752,23 @@ class AbinitPseudo(Pseudo):
     def l_local(self):
         return self._lloc
 
+<<<<<<< HEAD
+=======
+    @property
+    def supports_soc(self):
+        # Treate ONCVPSP pseudos
+        if self._pspcod == 8:
+            switch = self.header["extension_switch"]
+            if switch in (0, 1): return False
+            if switch in (2, 3): return True
+            raise ValueError("Don't know how to handle extension_switch: %s" % switch)
+
+        # TODO Treat HGH HGHK pseudos
+
+        # As far as I know, other Abinit pseudos do not support SOC.
+        return False
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     """Norm-conserving pseudopotential in the Abinit format."""
@@ -617,12 +807,24 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     #def orbitals(self):
 
+<<<<<<< HEAD
 
 #class Hint(namedtuple("Hint", "ecut aug_ratio")):
 class Hint(object):
     """
     Suggested value for the cutoff energy [Hartree units]
     and the cutoff energy for the dense grid (only for PAW pseudos)
+=======
+    @property
+    def supports_soc(self):
+        return True
+
+
+class Hint(object):
+    """
+    Suggested value for the cutoff energy [Hartree units]
+    and the cutoff energy for the dense grid (only for PAW pseudos).
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
     def __init__(self, ecut, pawecutdg=None):
         self.ecut = ecut
@@ -671,7 +873,11 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         tokens = [t.strip() for t in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
+<<<<<<< HEAD
         # Sanitize keys: In some case we might string in for  foo[,bar]
+=======
+        # Sanitize keys: In some case we might get strings in the form: foo[,bar]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         keys.replace("[", "").replace("]", "")
         keys = keys.split(",")
 
@@ -718,9 +924,14 @@ def _int_from_str(string):
     else:
         # Needed to handle pseudos with fractional charge
         int_num = np.rint(float_num)
+<<<<<<< HEAD
         warn("Converting float %s to int %s" % (float_num, int_num))
         return int_num
         #raise TypeError("Cannot convert string %s to int" % string)
+=======
+        logger.warning("Converting float %s to int %s" % (float_num, int_num))
+        return int_num
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -729,6 +940,7 @@ class NcAbinitHeader(AbinitHeader):
 
     _VARS = {
         # Mandatory
+<<<<<<< HEAD
         "zatom"        : _attr_desc(None, _int_from_str),
         "zion"         : _attr_desc(None, float),
         "pspdat"       : _attr_desc(None, float),
@@ -742,21 +954,45 @@ class NcAbinitHeader(AbinitHeader):
         "rchrg"        : _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
         "fchrg"        : _attr_desc(0.0,  float),
         "qchrg"        : _attr_desc(0.0,  float),
+=======
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "mmax": _attr_desc(None, float),
+        # Optional variables for non linear-core correction. HGH does not have it.
+        "rchrg": _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "fchrg": _attr_desc(0.0,  float),
+        "qchrg": _attr_desc(0.0,  float),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     }
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
         super(NcAbinitHeader, self).__init__()
 
+<<<<<<< HEAD
         # APE uses llocal instead of lloc.
+=======
+        # pseudos generated by APE use llocal instead of lloc.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if "llocal" in kwargs:
             kwargs["lloc"] = kwargs.pop("llocal")
 
         self.summary = summary.strip()
 
+<<<<<<< HEAD
         for (key, desc) in NcAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
 
+=======
+        for key, desc in NcAbinitHeader._VARS.items():
+            default, astype = desc.default, desc.astype
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             value = kwargs.pop(key, None)
 
             if value is None:
@@ -771,6 +1007,7 @@ class NcAbinitHeader(AbinitHeader):
 
             self[key] = value
 
+<<<<<<< HEAD
         # Add dojo_report
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
@@ -786,6 +1023,23 @@ class NcAbinitHeader(AbinitHeader):
         #    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
         # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
         lines = _read_nlines(filename, -1)
+=======
+        # Add remaining arguments, e.g. extension_switch
+        if kwargs:
+            self.update(kwargs)
+
+    @staticmethod
+    def fhi_header(filename, ppdesc):
+        """
+        Parse the FHI abinit header. Example:
+
+        Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
+         21.00000   3.00000    940714                zatom, zion, pspdat
+           1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+        1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+        """
+        lines = _read_nlines(filename, 4)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         try:
             header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
@@ -795,28 +1049,46 @@ class NcAbinitHeader(AbinitHeader):
 
         summary = lines[0]
 
+<<<<<<< HEAD
         header["dojo_report"] = DojoReport.from_file(filename)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def hgh_header(filename, ppdesc):
+<<<<<<< HEAD
         """Parse the HGH abinit header."""
         # Example:
         #Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
         #   10   8  010605 zatom,zion,pspdat
         # 3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
         lines = _read_nlines(filename, -1)
+=======
+        """
+        Parse the HGH abinit header. Example:
+
+        Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
+           10   8  010605 zatom,zion,pspdat
+         3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
+        """
+        lines = _read_nlines(filename, 3)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+<<<<<<< HEAD
         header["dojo_report"] = DojoReport.from_file(filename)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def gth_header(filename, ppdesc):
+<<<<<<< HEAD
         """Parse the GTH abinit header."""
         # Example:
         #Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
@@ -827,16 +1099,34 @@ class NcAbinitHeader(AbinitHeader):
         #0 0                                rp, h1p
         #  1.36 .2   0.6                    rcutoff, rloc
         lines = _read_nlines(filename, -1)
+=======
+        """
+        Parse the GTH abinit header. Example:
+
+        Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
+        1   1   960508                     zatom,zion,pspdat
+        2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
+        0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
+        0 0 0                              rs, h1s, h2s
+        0 0                                rp, h1p
+          1.36 .2   0.6                    rcutoff, rloc
+        """
+        lines = _read_nlines(filename, 7)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+<<<<<<< HEAD
         header["dojo_report"] = DojoReport.from_file(filename)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def oncvpsp_header(filename, ppdesc):
+<<<<<<< HEAD
         """Parse the ONCVPSP abinit header."""
         # Example
         #Li    ONCVPSP  r_core=  2.01  3.02
@@ -849,10 +1139,27 @@ class NcAbinitHeader(AbinitHeader):
         #     1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
         #     2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
         lines = _read_nlines(filename, -1)
+=======
+        """
+        Parse the ONCVPSP abinit header. Example:
+
+        Li    ONCVPSP  r_core=  2.01  3.02
+              3.0000      3.0000      140504    zatom,zion,pspd
+             8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
+          5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
+             2     2     0     0     0    nproj
+             0                 extension_switch
+           0                        -2.5000025868368D+00 -1.2006906995331D+00
+             1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
+             2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
+        """
+        lines = _read_nlines(filename, 6)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+<<<<<<< HEAD
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
         try:
@@ -860,11 +1167,20 @@ class NcAbinitHeader(AbinitHeader):
         except DojoReport.Error:
             logger.warning('failed to read the dojo report for %s' % filename)
             header["dojo_report"] = None
+=======
+        # Replace pspd with pspdata
+        header.update({'pspdat': header['pspd']})
+        header.pop('pspd')
+
+        # Read extension switch
+        header["extension_switch"] = int(lines[5].split()[0])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
     def tm_header(filename, ppdesc):
+<<<<<<< HEAD
         """Parse the TM abinit header."""
         # Example:
         #Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
@@ -883,6 +1199,28 @@ class NcAbinitHeader(AbinitHeader):
         header = []
 
         for (lineno, line) in enumerate(lines):
+=======
+        """
+        Parse the TM abinit header. Example:
+
+        Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
+        100.00000  14.00000    940714                zatom, zion, pspdat
+           1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+           0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
+           .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
+           3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
+        """
+        lines = _read_nlines(filename, -1)
+        header = []
+
+        for lineno, line in enumerate(lines):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             header.append(line)
             if lineno == 2:
                 # Read lmax.
@@ -914,8 +1252,11 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(header, [0,3,6,3])
 
+<<<<<<< HEAD
         header["dojo_report"] = DojoReport.from_file(filename)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return NcAbinitHeader(summary, **header)
 
 
@@ -924,6 +1265,7 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
+<<<<<<< HEAD
         "zatom"           : _attr_desc(None, _int_from_str),
         "zion"            : _attr_desc(None, float),
         "pspdat"          : _attr_desc(None, float),
@@ -942,6 +1284,26 @@ class PawAbinitHeader(AbinitHeader):
         "r_cut"           : _attr_desc(None, float), # r_cut(PAW) in the header
         "shape_type"      : _attr_desc(None, int),
         "rshape"          : _attr_desc(None, float),
+=======
+        "zatom": _attr_desc(None, _int_from_str),
+        "zion": _attr_desc(None, float),
+        "pspdat": _attr_desc(None, float),
+        "pspcod": _attr_desc(None, int),
+        "pspxc": _attr_desc(None, int),
+        "lmax": _attr_desc(None, int),
+        "lloc": _attr_desc(None, int),
+        "mmax": _attr_desc(None, int),
+        "r2well": _attr_desc(None, float),
+        "pspfmt": _attr_desc(None, str),
+        "creatorID": _attr_desc(None, int),
+        "basis_size": _attr_desc(None, int),
+        "lmn_size": _attr_desc(None, int),
+        "orbitals": _attr_desc(None, list),
+        "number_of_meshes": _attr_desc(None, int),
+        "r_cut": _attr_desc(None, float), # r_cut(PAW) in the header
+        "shape_type": _attr_desc(None, int),
+        "rshape": _attr_desc(None, float),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     }
     del _attr_desc
 
@@ -950,7 +1312,11 @@ class PawAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
+<<<<<<< HEAD
         for (key, desc) in self._VARS.items():
+=======
+        for key, desc in self._VARS.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -972,6 +1338,7 @@ class PawAbinitHeader(AbinitHeader):
 
     @staticmethod
     def paw_header(filename, ppdesc):
+<<<<<<< HEAD
         """Parse the PAW abinit header."""
         #Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
         #  28.000  18.000 20061204               : zatom,zion,pspdat
@@ -1016,6 +1383,58 @@ class PawAbinitHeader(AbinitHeader):
         # 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
         #  1.5669671236                          : r_cut(PAW)
         # 2 0.                                   : shape_type,rshape
+=======
+        """
+        Parse the PAW abinit header. Examples:
+
+        Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
+          28.000  18.000 20061204               : zatom,zion,pspdat
+          7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw3 1305                              : pspfmt,creatorID
+          5 13                                  : basis_size,lmn_size
+         0 0 1 1 2                              : orbitals
+         3                                      : number_of_meshes
+         1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+         3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
+          2.3000000000                          : r_cut(SPH)
+         2 0.
+
+        Another format:
+
+        C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
+           6.000   4.000 20090106               : zatom,zion,pspdat
+          7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw4 2230                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5550009124                          : r_cut(PAW)
+         3 0.                                   : shape_type,rshape
+
+        Yet nnother one:
+
+        Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
+          14.000   4.000 20120814               : zatom,zion,pspdat
+          7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
+         paw5 1331                              : pspfmt,creatorID
+          4  8                                  : basis_size,lmn_size
+         0 0 1 1                                : orbitals
+         5                                      : number_of_meshes
+         1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
+          1.5669671236                          : r_cut(PAW)
+         2 0.                                   : shape_type,rshape
+        """
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         supported_formats = ["paw3", "paw4", "paw5"]
         if ppdesc.format not in supported_formats:
             raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
@@ -1042,10 +1461,13 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
+<<<<<<< HEAD
         report = DojoReport.from_file(filename)
         if report:
             header["dojo_report"] = report
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         #print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
@@ -1069,10 +1491,17 @@ class PseudoParser(object):
 
     # TODO Recheck
     _PSPCODES = OrderedDict( {
+<<<<<<< HEAD
         1: ppdesc(1, "TM",  "NC", None),
         2: ppdesc(2, "GTH",  "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
         #4: ppdesc(4, "NC",     , None),
+=======
+        1: ppdesc(1, "TM", "NC", None),
+        2: ppdesc(2, "GTH", "NC", None),
+        3: ppdesc(3, "HGH", "NC", None),
+        4: ppdesc(4, "Teter", "NC", None),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         #5: ppdesc(5, "NC",     , None),
         6: ppdesc(6, "FHI", "NC", None),
         7: ppdesc(6, "PAW_abinit_text", "PAW", None),
@@ -1081,10 +1510,17 @@ class PseudoParser(object):
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
+<<<<<<< HEAD
     _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
                     2: {'n': 5, 'name': 'HL'},
                     3: {'n': 2, 'name': 'PWCA'},
                     4: {'n': 11, 'name': 'PBE'}}
+=======
+    #_FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
+    #                2: {'n': 5, 'name': 'HL'},
+    #                3: {'n': 2, 'name': 'PWCA'},
+    #                4: {'n': 11, 'name': 'PBE'}}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __init__(self):
         # List of files that have been parsed succesfully.
@@ -1105,7 +1541,11 @@ class PseudoParser(object):
         Returns:
             List of pseudopotential objects.
         """
+<<<<<<< HEAD
         for (i, ext) in enumerate(exclude_exts):
+=======
+        for i, ext in enumerate(exclude_exts):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
 
@@ -1151,7 +1591,11 @@ class PseudoParser(object):
             # Assume file with the abinit header.
             lines = _read_nlines(filename, 80)
 
+<<<<<<< HEAD
             for (lineno, line) in enumerate(lines):
+=======
+            for lineno, line in enumerate(lines):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
                 if lineno == 2:
                     try:
@@ -1159,7 +1603,11 @@ class PseudoParser(object):
                         pspcod, pspxc = map(int, tokens[:2])
                     except:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
+<<<<<<< HEAD
                         sys.stderr.write(msg)
+=======
+                        logger.critical(msg)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         return None
 
                     #if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
@@ -1202,27 +1650,47 @@ class PseudoParser(object):
         ppdesc = self.read_ppdesc(path)
 
         if ppdesc is None:
+<<<<<<< HEAD
+=======
+            logger.critical("Cannot find ppdesc in %s" % path)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return None
 
         psp_type = ppdesc.psp_type
 
         parsers = {
+<<<<<<< HEAD
             "FHI"            : NcAbinitHeader.fhi_header,
             "GTH"            : NcAbinitHeader.gth_header,
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
             "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
+=======
+            "FHI": NcAbinitHeader.fhi_header,
+            "GTH": NcAbinitHeader.gth_header,
+            "TM": NcAbinitHeader.tm_header,
+            "Teter": NcAbinitHeader.tm_header,
+            "HGH": NcAbinitHeader.hgh_header,
+            "HGHK": NcAbinitHeader.hgh_header,
+            "ONCVPSP": NcAbinitHeader.oncvpsp_header,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
+<<<<<<< HEAD
         except Exception as exc:
             raise self.Error(path + ":\n" + straceback())
 
         root, ext = os.path.splitext(path)
 
+=======
+        except Exception:
+            raise self.Error(path + ":\n" + straceback())
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
         elif psp_type == "PAW":
@@ -1240,8 +1708,11 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
 
 class PawXmlSetup(Pseudo, PawPseudo):
     def __init__(self, filepath):
+<<<<<<< HEAD
         # FIXME
         self.dojo_report = {}
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1257,14 +1728,24 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self._zatom = int(float(atom_attrib["Z"]))
         self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
+<<<<<<< HEAD
         #xc_info = root.find("atom").attrib
         #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
         #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+=======
+        # Build xc from header.
+        xc_info = root.find("xc_functional").attrib
+        self.xc = XcFunc.from_type_name(xc_info["type"], xc_info["name"])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # Old XML files do not define this field!
         # In this case we set the PAW radius to None.
         #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
 
+<<<<<<< HEAD
+=======
+        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         pawr_element = root.find("PAW_radius")
         self._paw_radius = None
         if pawr_element is not None:
@@ -1299,7 +1780,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
             gid = grid_params["id"]
             assert gid not in self.rad_grids
 
+<<<<<<< HEAD
             self.rad_grids[id] = self._eval_grid(grid_params)
+=======
+            self.rad_grids[gid] = self._eval_grid(grid_params)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __getstate__(self):
         """
@@ -1348,6 +1833,16 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def paw_radius(self):
         return self._paw_radius
 
+<<<<<<< HEAD
+=======
+    @property
+    def supports_soc(self):
+        """
+        Here I assume that the ab-initio code can treat the SOC within the on-site approximation
+        """
+        return True
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @staticmethod
     def _eval_grid(grid_params):
         """
@@ -1429,11 +1924,18 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         except AttributeError:
             self._ae_partial_waves = {}
+<<<<<<< HEAD
             for (mesh, values, attrib) in self._parse_all_radfuncs("ae_partial_wave"):
                 state = attrib["state"]
                 val_state = self.valence_states[state]
                 self._ae_partial_waves[state] = RadialFunction(mesh, values)
                 #print("val_state", val_state)
+=======
+            for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
+                state = attrib["state"]
+                #val_state = self.valence_states[state]
+                self._ae_partial_waves[state] = RadialFunction(mesh, values)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             return self._ae_partial_waves
 
@@ -1447,7 +1949,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._pseudo_partial_waves = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
                 state = attrib["state"]
+<<<<<<< HEAD
                 val_state = self.valence_states[state]
+=======
+                #val_state = self.valence_states[state]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 self._pseudo_partial_waves[state] = RadialFunction(mesh, values)
 
             return self._pseudo_partial_waves
@@ -1462,7 +1968,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self._projector_functions = {}
             for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
                 state = attrib["state"]
+<<<<<<< HEAD
                 val_state = self.valence_states[state]
+=======
+                #val_state = self.valence_states[state]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 self._projector_functions[state] = RadialFunction(mesh, values)
 
             return self._projector_functions
@@ -1674,11 +2184,18 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         self._pseudos_with_z = defaultdict(list)
 
         for pseudo in pseudos:
+<<<<<<< HEAD
             p = pseudo
             if not isinstance(pseudo, Pseudo):
                 p = Pseudo.from_file(pseudo)
 
             self._pseudos_with_z[p.Z].append(p)
+=======
+            if not isinstance(pseudo, Pseudo):
+                pseudo = Pseudo.from_file(pseudo)
+            if pseudo is not None:
+                self._pseudos_with_z[pseudo.Z].append(pseudo)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
@@ -1715,6 +2232,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         return "<%s at %s>" % (self.__class__.__name__, id(self))
 
     def __str__(self):
+<<<<<<< HEAD
         lines = []
         app = lines.append
         app("<%s, len=%d>" % (self.__class__.__name__, len(self)))
@@ -1723,6 +2241,9 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             app(str(pseudo))
 
         return "\n".join(lines)
+=======
+        return self.to_table()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def allnc(self):
@@ -1739,6 +2260,15 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """Ordered list with the atomic numbers available in the table."""
         return sorted(list(self._pseudos_with_z.keys()))
 
+<<<<<<< HEAD
+=======
+    #def max_ecut_pawecutdg(self, accuracy):
+    #"""Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""
+    #    ecut = max(p.hint_for_accuracy(accuracy=accuracy).ecut for p in self)
+    #    pawecutdg = max(p.hint_for_accuracy(accuracy=accuracy).pawecutdg for p in self)
+    #    return ecut, pawecutdg
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
@@ -1784,8 +2314,12 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             d[symbol] = self.select_symbols(symbol, ret_list=True)
 
         from itertools import product
+<<<<<<< HEAD
         all = product(*d.values())
         return list(all)
+=======
+        return list(product(*d.values()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
@@ -1844,7 +2378,10 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             if not all(s.startswith("-") for s in symbols):
                 raise ValueError("When excluding symbols, all strings must start with `-`")
             symbols = [s[1:] for s in symbols]
+<<<<<<< HEAD
             #print(symbols)
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         symbols = set(symbols)
         pseudos = []
@@ -1872,6 +2409,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
             `ValueError` if one of the chemical symbols is not found or
             multiple occurences are present in the table.
         """
+<<<<<<< HEAD
         symbols = structure.symbol_set
         return self.pseudos_with_symbols(symbols)
 
@@ -1937,6 +2475,31 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     #            else:
     #                rowstr.append("   ")
     #        print(" ".join(rowstr))
+=======
+        return self.pseudos_with_symbols(structure.symbol_set)
+
+    def print_table(self, stream=sys.stdout, filter_function=None):
+        """
+        A pretty ASCII printer for the periodic table, based on some filter_function.
+
+        Args:
+            stream: file-like object
+            filter_function:
+                A filtering function that take a Pseudo as input and returns a boolean.
+                For example, setting filter_function = lambda p: p.Z_val > 2 will print
+                a periodic table containing only pseudos with Z_val > 2.
+        """
+        print(self.to_table(filter_function=filter_function), file=stream)
+
+    def to_table(self, filter_function=None):
+        """Return string with data in tabular form."""
+        table = []
+        for p in self:
+            if filter_function is not None and filter_function(p): continue
+            table.append([p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type])
+        return tabulate(table, headers= ["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
+                        tablefmt="grid")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def sorted(self, attrname, reverse=False):
         """
@@ -1975,6 +2538,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         """Select pseudos containing the DOJO_REPORT section. Return new class:`PseudoTable` object."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
+<<<<<<< HEAD
     def get_dojo_dataframe(self, **kwargs):
         """
         Buid a pandas :class:`DataFrame` with the most important parameters extracted from the
@@ -2063,6 +2627,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
         # Build sub-class of pandas.DataFrame
         return DojoDataFrame(rows, index=names), errors
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def select_rows(self, rows):
         """
         Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
@@ -2074,6 +2640,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def select_family(self, family):
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
+<<<<<<< HEAD
 
     def dojo_compare(self, what="all", **kwargs):
         """Compare ecut convergence and Deltafactor, GBRV results"""
@@ -2884,3 +3451,5 @@ class DojoReport(dict):
         ax[0].set_ylim(fmin, fmax)
 
         return fig
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

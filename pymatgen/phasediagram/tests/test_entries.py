@@ -59,6 +59,16 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(gpentry.name, 'LiFeO2', "Wrong name!")
         self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
+<<<<<<< HEAD
+=======
+        d_anon = d.copy()
+        del d_anon['name']
+        try:
+            entry = PDEntry.from_dict(d_anon)
+        except KeyError:
+            self.fail("Should not need to supply name!")
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_str(self):
         self.assertIsNotNone(str(self.entry))
 

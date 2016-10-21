@@ -6,6 +6,10 @@ Subpackages
 
 .. toctree::
 
+<<<<<<< HEAD
+=======
+    pymatgen.core.tests
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Submodules
 ----------
@@ -42,6 +46,17 @@ pymatgen.core.lattice module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
+=======
+pymatgen.core.libxcfunc module
+------------------------------
+
+.. automodule:: pymatgen.core.libxcfunc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.core.operations module
 -------------------------------
 
@@ -98,6 +113,17 @@ pymatgen.core.units module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
+=======
+pymatgen.core.xcfunc module
+---------------------------
+
+.. automodule:: pymatgen.core.xcfunc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Module contents
 ---------------

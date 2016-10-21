@@ -3,10 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
+<<<<<<< HEAD
 
 from matplotlib import pyplot as plt
 
 from pymatgen import Energy
+=======
+import logging
+import math
+import itertools
+from collections import OrderedDict
+
+import numpy as np
+
+from monty.json import jsanitize
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.util.plotting_utils import get_publication_quality_plot, \
+    add_fig_kwargs, get_ax3d_fig_plt
+
+from pymatgen.core.units import Energy
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -21,6 +38,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
 
+<<<<<<< HEAD
 import logging
 import math
 import itertools
@@ -34,6 +52,10 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax3d_fig_plt
 
 logger = logging.getLogger('BSPlotter')
+=======
+
+logger = logging.getLogger(__name__)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class DosPlotter(object):
@@ -125,12 +147,23 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
+<<<<<<< HEAD
         import prettyplotlib as ppl
         from prettyplotlib import brewer2mpl
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
         colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
+=======
+
+
+        ncolors = max(3, len(self._doses))
+        ncolors = min(9, ncolors)
+
+        import palettable
+
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         y = None
         alldensities = []
@@ -178,11 +211,19 @@ class DosPlotter(object):
                 plt.fill(x, y, color=colors[i % ncolors],
                          label=str(key))
             else:
+<<<<<<< HEAD
                 ppl.plot(x, y, color=colors[i % ncolors],
                          label=str(key), linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 ppl.plot([self._doses[key]['efermi'],
+=======
+                plt.plot(x, y, color=colors[i % ncolors],
+                         label=str(key), linewidth=3)
+            if not self.zero_at_efermi:
+                ylim = plt.ylim()
+                plt.plot([self._doses[key]['efermi'],
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                           self._doses[key]['efermi']], ylim,
                          color=colors[i % ncolors],
                          linestyle='--', linewidth=2)
@@ -255,7 +296,11 @@ class BSPlotter(object):
         self._bs = bs
         # TODO: come with an intelligent way to cut the highest unconverged
         # bands
+<<<<<<< HEAD
         self._nb_bands = self._bs._nb_bands
+=======
+        self._nb_bands = self._bs.nb_bands
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def _maketicks(self, plt):
         """
@@ -345,25 +390,41 @@ class BSPlotter(object):
         if not zero_to_efermi:
             zero_energy = 0.0
 
+<<<<<<< HEAD
         for b in self._bs._branches:
+=======
+        for b in self._bs.branches:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             if self._bs.is_spin_polarized:
                 energy.append({str(Spin.up): [], str(Spin.down): []})
             else:
                 energy.append({str(Spin.up): []})
+<<<<<<< HEAD
             distance.append([self._bs._distance[j]
+=======
+            distance.append([self._bs.distance[j]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                              for j in range(b['start_index'],
                                             b['end_index'] + 1)])
             ticks = self.get_ticks()
 
             for i in range(self._nb_bands):
                 energy[-1][str(Spin.up)].append(
+<<<<<<< HEAD
                     [self._bs._bands[Spin.up][i][j] - zero_energy
+=======
+                    [self._bs.bands[Spin.up][i][j] - zero_energy
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                      for j in range(b['start_index'], b['end_index'] + 1)])
             if self._bs.is_spin_polarized:
                 for i in range(self._nb_bands):
                     energy[-1][str(Spin.down)].append(
+<<<<<<< HEAD
                         [self._bs._bands[Spin.down][i][j] - zero_energy
+=======
+                        [self._bs.bands[Spin.down][i][j] - zero_energy
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                          for j in range(b['start_index'], b['end_index'] + 1)])
 
         vbm = self._bs.get_vbm()
@@ -373,12 +434,20 @@ class BSPlotter(object):
         cbm_plot = []
 
         for index in cbm['kpoint_index']:
+<<<<<<< HEAD
             cbm_plot.append((self._bs._distance[index],
+=======
+            cbm_plot.append((self._bs.distance[index],
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                              cbm['energy'] - zero_energy if zero_to_efermi
                              else cbm['energy']))
 
         for index in vbm['kpoint_index']:
+<<<<<<< HEAD
             vbm_plot.append((self._bs._distance[index],
+=======
+            vbm_plot.append((self._bs.distance[index],
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                              vbm['energy'] - zero_energy if zero_to_efermi
                              else vbm['energy']))
 
@@ -389,7 +458,11 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
+<<<<<<< HEAD
                 'lattice': self._bs._lattice_rec.as_dict(),
+=======
+                'lattice': self._bs.lattice_rec.as_dict(),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],
@@ -413,7 +486,10 @@ class BSPlotter(object):
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
         """
+<<<<<<< HEAD
         from pymatgen.util.plotting_utils import get_publication_quality_plot
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
@@ -542,7 +618,11 @@ class BSPlotter(object):
                 if zero_to_efermi:
                     plt.ylim(e_min, e_max)
                 else:
+<<<<<<< HEAD
                     plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+=======
+                    plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             else:
                 if vbm_cbm_marker:
                     for cbm in data['cbm']:
@@ -603,6 +683,7 @@ class BSPlotter(object):
         """
         tick_distance = []
         tick_labels = []
+<<<<<<< HEAD
         previous_label = self._bs._kpoints[0].label
         previous_branch = self._bs._branches[0]['name']
         for i, c in enumerate(self._bs._kpoints):
@@ -610,6 +691,15 @@ class BSPlotter(object):
                 tick_distance.append(self._bs._distance[i])
                 this_branch = None
                 for b in self._bs._branches:
+=======
+        previous_label = self._bs.kpoints[0].label
+        previous_branch = self._bs.branches[0]['name']
+        for i, c in enumerate(self._bs.kpoints):
+            if c.label is not None:
+                tick_distance.append(self._bs.distance[i])
+                this_branch = None
+                for b in self._bs.branches:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if b['start_index'] <= i <= b['end_index']:
                         this_branch = b['name']
                         break
@@ -675,10 +765,17 @@ class BSPlotter(object):
                 labels[k.label] = k.frac_coords
 
         lines = []
+<<<<<<< HEAD
         for b in self._bs._branches:
             lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
 
         plot_brillouin_zone(self._bs.lattice, lines=lines, labels=labels)
+=======
+        for b in self._bs.branches:
+            lines.append([self._bs.kpoints[b['start_index']].frac_coords, self._bs.kpoints[b['end_index']].frac_coords])
+
+        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class BSPlotterProjected(BSPlotter):
@@ -691,7 +788,11 @@ class BSPlotterProjected(BSPlotter):
     """
 
     def __init__(self, bs):
+<<<<<<< HEAD
         if len(bs._projections) == 0:
+=======
+        if len(bs.projections) == 0:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             raise ValueError("try to plot projections"
                              " on a band structure without any")
         super(BSPlotterProjected, self).__init__(bs)
@@ -699,12 +800,16 @@ class BSPlotterProjected(BSPlotter):
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
         proj_br = []
+<<<<<<< HEAD
         print(len(proj[Spin.up]))
         print(len(proj[Spin.up][0]))
         for c in proj[Spin.up][0]:
             print(c)
         for b in self._bs._branches:
             print(b)
+=======
+        for b in self._bs.branches:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {str(Spin.up): [[] for l in range(self._nb_bands)],
@@ -712,7 +817,10 @@ class BSPlotterProjected(BSPlotter):
             else:
                 proj_br.append(
                     {str(Spin.up): [[] for l in range(self._nb_bands)]})
+<<<<<<< HEAD
             print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             for i in range(self._nb_bands):
                 for j in range(b['start_index'], b['end_index'] + 1):
@@ -721,7 +829,11 @@ class BSPlotterProjected(BSPlotter):
                              for o in proj[Spin.up][i][j][e]}
                          for e in proj[Spin.up][i][j]})
             if self._bs.is_spin_polarized:
+<<<<<<< HEAD
                 for b in self._bs._branches:
+=======
+                for b in self._bs.branches:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     for i in range(self._nb_bands):
                         for j in range(b['start_index'], b['end_index'] + 1):
                             proj_br[-1][str(Spin.down)][i].append(
@@ -748,7 +860,10 @@ class BSPlotterProjected(BSPlotter):
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
         """
+<<<<<<< HEAD
         from pymatgen.util.plotting_utils import get_publication_quality_plot
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         band_linewidth = 1.0
         fig_number = sum([len(v) for v in dictio.values()])
         proj = self._get_projections_by_branches(dictio)
@@ -798,7 +913,11 @@ class BSPlotterProjected(BSPlotter):
                         if zero_to_efermi:
                             plt.ylim(e_min, e_max)
                         else:
+<<<<<<< HEAD
                             plt.ylim(self._bs.efermi + e_min, self._bs._efermi
+=======
+                            plt.ylim(self._bs.efermi + e_min, self._bs.efermi
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                      + e_max)
                     else:
                         if vbm_cbm_marker:
@@ -834,9 +953,14 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
                                                   for e in
+<<<<<<< HEAD
                                                   self._bs._structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
+=======
+                                                  self._bs.structure.composition.elements})
+        data = self.bs_plot_data(zero_to_efermi)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         plt = get_publication_quality_plot(12, 8)
         e_min = -4
         e_max = 4
@@ -844,7 +968,11 @@ class BSPlotterProjected(BSPlotter):
             e_min = -10
             e_max = 10
         count = 1
+<<<<<<< HEAD
         for el in self._bs._structure.composition.elements:
+=======
+        for el in self._bs.structure.composition.elements:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             plt.subplot(220 + count)
             self._maketicks(plt)
             for b in range(len(data['distances'])):
@@ -879,7 +1007,11 @@ class BSPlotterProjected(BSPlotter):
                     if zero_to_efermi:
                         plt.ylim(e_min, e_max)
                     else:
+<<<<<<< HEAD
                         plt.ylim(self._bs.efermi + e_min, self._bs._efermi
+=======
+                        plt.ylim(self._bs.efermi + e_min, self._bs.efermi
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                  + e_max)
                 else:
                     if vbm_cbm_marker:
@@ -920,6 +1052,7 @@ class BSPlotterProjected(BSPlotter):
 
         """
         band_linewidth = 3.0
+<<<<<<< HEAD
         if len(self._bs._structure.composition.elements) > 3:
             raise ValueError
         if elt_ordered is None:
@@ -929,6 +1062,16 @@ class BSPlotterProjected(BSPlotter):
              for e in self._bs._structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
+=======
+        if len(self._bs.structure.composition.elements) > 3:
+            raise ValueError
+        if elt_ordered is None:
+            elt_ordered = self._bs.structure.composition.elements
+        proj = self._get_projections_by_branches(
+            {e.symbol: ['s', 'p', 'd']
+             for e in self._bs.structure.composition.elements})
+        data = self.bs_plot_data(zero_to_efermi)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         plt = get_publication_quality_plot(12, 8)
 
         spins = [Spin.up]
@@ -969,6 +1112,10 @@ class BSPlotterProjected(BSPlotter):
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         return plt
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class BoltztrapPlotter(object):
     """
     class containing methods to plot the data from Boltztrap.
@@ -981,6 +1128,10 @@ class BoltztrapPlotter(object):
         self._bz = bz
 
     def _plot_doping(self, temp):
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if len(self._bz.doping) != 0:
             limit = 2.21e15
             plt.axvline(self._bz.mu_doping['n'][temp][0], linewidth=3.0,
@@ -1011,6 +1162,10 @@ class BoltztrapPlotter(object):
                      color='b')
 
     def _plot_bg_limits(self):
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         plt.axvline(0.0, color='k', linewidth=3.0)
         plt.axvline(self._bz.gap, color='k', linewidth=3.0)
 
@@ -1026,6 +1181,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[
             temp]
         plt.plot(self._bz.mu_steps, seebeck,
@@ -1059,6 +1218,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
                                          output=output, doping_levels=False)[
             temp]
@@ -1093,6 +1256,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
                                        output=output, doping_levels=False)[
             temp]
@@ -1126,6 +1293,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output,
                              doping_levels=False)[temp]
         plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
@@ -1167,6 +1338,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         plt.semilogy(self._bz.mu_steps,
                      abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
                      linewidth=3.0, color='r')
@@ -1190,6 +1365,10 @@ class BoltztrapPlotter(object):
         Returns:
             a matplotlib object
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         hall_carriers = [abs(i) for i in
                          self._bz.get_hall_carrier_concentration()[temp]]
         plt.semilogy(self._bz.mu_steps,
@@ -1218,6 +1397,10 @@ class BoltztrapPlotter(object):
 
         Note: Experimental
         """
+<<<<<<< HEAD
+=======
+        import matplotlib.pyplot as plt
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         from mpl_toolkits.mplot3d import Axes3D
         from pymatgen.electronic_structure.plotter import plot_brillouin_zone
         try:

@@ -19,6 +19,12 @@ build
 .idea
 setuptools*
 .ipynb_checkpoints
+<<<<<<< HEAD
 .tox
+=======
+.cache
+.tox
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 gulptmp_4_1
 .coverage

@@ -6,6 +6,10 @@ Subpackages
 
 .. toctree::
 
+<<<<<<< HEAD
+=======
+    pymatgen.phasediagram.tests
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Submodules
 ----------
@@ -34,6 +38,7 @@ pymatgen.phasediagram.maker module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.phasediagram.pdanalyzer module
 ---------------------------------------
 
@@ -50,6 +55,8 @@ pymatgen.phasediagram.pdmaker module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.phasediagram.plotter module
 ------------------------------------
 

@@ -3,16 +3,29 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+<<<<<<< HEAD
+=======
+
+import numpy as np
+
+from pymatgen.analysis.elasticity.strain import Deformation
+from pymatgen.core.surface import (SlabGenerator,
+                                   get_symmetrically_distinct_miller_indices)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 try:
     # New Py>=3.5 import
     from math import gcd
 except ImportError:
     # Deprecated import from Py3.5 onwards.
     from fractions import gcd
+<<<<<<< HEAD
 import numpy as np
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.surface import get_symmetrically_distinct_miller_indices
 from pymatgen.core.surface import SlabGenerator
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 """
 This module provides classes to identify optimal substrates for film growth
@@ -27,7 +40,10 @@ __status__ = "Production"
 __date__ = "Feb, 2016"
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class ZSLGenerator(object):
     """
     This class generate interface super lattices based on the methodology
@@ -78,7 +94,10 @@ class ZSLGenerator(object):
         self.max_length_tol = max_length_tol
         self.max_angle_tol = max_angle_tol
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def rel_strain(self, vec1, vec2):
         """
         Calculate relative strain between two vectors
@@ -109,10 +128,17 @@ class ZSLGenerator(object):
                 self.max_length_tol):
             return False
         elif (np.absolute(self.rel_strain(vec_set1[1], vec_set2[1])) >
+<<<<<<< HEAD
                   self.max_length_tol):
             return False
         elif (np.absolute(self.rel_angle(vec_set1, vec_set2)) >
                   self.max_angle_tol):
+=======
+              self.max_length_tol):
+            return False
+        elif (np.absolute(self.rel_angle(vec_set1, vec_set2)) >
+              self.max_angle_tol):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return False
         else:
             return True
@@ -165,6 +191,7 @@ class ZSLGenerator(object):
         for i in range(1, int(self.max_area / film_area)):
             for j in range(1, int(self.max_area / substrate_area)):
                 if (gcd(i, j) == 1 and
+<<<<<<< HEAD
                             np.absolute(film_area / substrate_area - float(
                                 j) / i) <
                             self.max_area_ratio_tol):
@@ -178,6 +205,20 @@ class ZSLGenerator(object):
             yield tset
 
 
+=======
+                        np.absolute(film_area / substrate_area - float(
+                                    j) / i) <
+                        self.max_area_ratio_tol):
+                    transformation_sets.append([(i, j),
+                                                self.generate_sl_transformation(i),
+                                                self.generate_sl_transformation(j)])
+
+        # Sort sets by the square of the matching area and yield in order
+        # from smallest to largest
+        for tset in sorted(transformation_sets, key=lambda x: x[0][0] * x[0][1]):
+            yield tset
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def check_transformations(self, transformation_sets, film_vectors,
                               substrate_vectors):
         """
@@ -231,22 +272,37 @@ class ZSLGenerator(object):
         for f in film_millers:
             film_slab = SlabGenerator(self.film, f, 20, 15,
                                       primitive=False).get_slab()
+<<<<<<< HEAD
             film_vectors = reduce_vectors(film_slab.lattice_vectors()[0],
                                                film_slab.lattice_vectors()[1])
+=======
+            film_vectors = reduce_vectors(film_slab.lattice.matrix[0],
+                                          film_slab.lattice.matrix[1])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             film_area = vec_area(*film_vectors)
 
             for s in substrate_millers:
                 substrate_slab = SlabGenerator(self.substrate, s, 20, 15,
                                                primitive=False).get_slab()
                 substrate_vectors = reduce_vectors(
+<<<<<<< HEAD
                     substrate_slab.lattice_vectors()[0],
                     substrate_slab.lattice_vectors()[1])
+=======
+                    substrate_slab.lattice.matrix[0],
+                    substrate_slab.lattice.matrix[1])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 substrate_area = vec_area(*substrate_vectors)
 
                 yield [film_area, substrate_area, film_vectors,
                        substrate_vectors, f, s]
 
+<<<<<<< HEAD
     def generate(self,film,substrate, film_millers=None, substrate_millers=None, lowest = False):
+=======
+    def generate(self, film, substrate, film_millers=None, substrate_millers=None,
+                lowest=False):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Generates the film/substrate combinations for either set miller
         indicies or all possible miller indices up to a max miller index
@@ -290,16 +346,27 @@ class ZSLGenerator(object):
                                                     film_vectors,
                                                     substrate_vectors):
                 # Yield the match area, the miller indicies,
+<<<<<<< HEAD
                 yield self.match_as_dict(film_miller,substrate_miller,match[0],
                     match[1],film_vectors,substrate_vectors,vec_area(*match[0]))
+=======
+                yield self.match_as_dict(film_miller, substrate_miller, match[0],
+                                         match[1], film_vectors, substrate_vectors, vec_area(*match[0]))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
                 # Just want lowest match per direction
                 if (lowest):
                     break
 
+<<<<<<< HEAD
     def match_as_dict(self,film_miller, substrate_miller, film_sl_vectors,
                  substrate_sl_vectors, film_vectors, substrate_vectors,
                  match_area):
+=======
+    def match_as_dict(self, film_miller, substrate_miller, film_sl_vectors,
+                      substrate_sl_vectors, film_vectors, substrate_vectors,
+                      match_area):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Returns dict which contains ZSL match
 
@@ -320,7 +387,10 @@ class ZSLGenerator(object):
         return d
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class SubstrateAnalyzer:
     """
     This class applies a set of search criteria to identify suitable
@@ -331,7 +401,11 @@ class SubstrateAnalyzer:
     elastic strain energy of the super-lattices
     """
 
+<<<<<<< HEAD
     def __init__(self,zslgen = ZSLGenerator()):
+=======
+    def __init__(self, zslgen=ZSLGenerator()):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
             Initializes the substrate analyzer
             Args:
@@ -340,9 +414,15 @@ class SubstrateAnalyzer:
         """
         self.zsl = zslgen
 
+<<<<<<< HEAD
     def calculate(self,film,substrate,elasticity_tensor = None,
                   film_millers = None, substrate_millers = None,
                   ground_state_energy = 0, lowest=False):
+=======
+    def calculate(self, film, substrate, elasticity_tensor=None,
+                  film_millers=None, substrate_millers=None,
+                  ground_state_energy=0, lowest=False):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Finds all topological matches for the substrate and calculates elastic
         strain energy and total energy for the film if elasticity tensor and
@@ -353,14 +433,21 @@ class SubstrateAnalyzer:
             substrate(Structure): conventional standard structure for the
                 substrate
             elasticity_tensor(ElasticTensor): elasticity tensor for the film
+<<<<<<< HEAD
             film_millers(array): film planes to consider in search as defined by
                 miller indicies
             substrate_millers(array): substrate planes to consider in search as
+=======
+            film_millers(array): film facets to consider in search as defined by
+                miller indicies
+            substrate_millers(array): substrate facets to consider in search as
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 defined by miller indicies
             ground_state_energy(float): ground state energy for the film
             lowest(bool): only consider lowest matching area for each surface
         """
 
+<<<<<<< HEAD
         for match in self.zsl.generate(film,substrate,film_millers,substrate_millers,lowest):
             if (elasticity_tensor is not None):
                 energy = self.calculate_3D_elastic_energy(film, match,elasticity_tensor)
@@ -372,10 +459,35 @@ class SubstrateAnalyzer:
 
 
     def calculate_3D_elastic_energy(self, film, match, elasticity_tensor = None):
+=======
+        for match in self.zsl.generate(film, substrate, film_millers, substrate_millers, lowest):
+            if (elasticity_tensor is not None):
+                energy, strain = self.calculate_3D_elastic_energy(
+                    film, match, elasticity_tensor, include_strain=True)
+                match["elastic_energy"] = energy
+                match["strain"] = strain
+            if (ground_state_energy is not 0):
+                match['total_energy'] = match.get('elastic_energy', 0) + ground_state_energy
+
+            yield match
+
+    def calculate_3D_elastic_energy(self, film, match, elasticity_tensor=None,
+                                    include_strain=False):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Calculates the multi-plane elastic energy. Returns 999 if no elastic
         tensor was given on init
 
+<<<<<<< HEAD
+=======
+        Args:
+            film(Structure): conventional standard structure for the film
+            match(dictionary) : match dictionary from substrate analyzer
+            elasticity_tensor(ElasticTensor): elasticity tensor for the film
+            include_strain(bool): include strain in the output or not; changes
+             return from just the energy to a tuple with the energy and strain
+             in voigt notation
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         if elasticity_tensor is None:
             return 9999
@@ -384,7 +496,10 @@ class SubstrateAnalyzer:
         film_matrix = list(match['film_sl_vecs'])
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # Generate 3D lattice vectors for substrate super lattice
         # Out of place substrate super lattice has to be same length as
         # Film out of plane vector to ensure no extra deformation in that
@@ -399,10 +514,22 @@ class SubstrateAnalyzer:
 
         dfm = Deformation(transform_matrix)
 
+<<<<<<< HEAD
         energy_density =  elasticity_tensor.energy_density(
             dfm.green_lagrange_strain)
 
         return film.volume * energy_density / len(film.sites)
+=======
+        strain = dfm.green_lagrange_strain.von_mises_strain
+
+        energy_density = elasticity_tensor.energy_density(
+            dfm.green_lagrange_strain)
+
+        if include_strain:
+            return (film.volume * energy_density / len(film.sites), strain)
+        else:
+            return film.volume * energy_density / len(film.sites)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 def fast_norm(a):

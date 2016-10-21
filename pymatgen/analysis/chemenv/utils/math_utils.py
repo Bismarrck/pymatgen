@@ -138,10 +138,18 @@ def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
 
 def smoothstep(xx, edges=None, inverse=False):
     if edges is None:
+<<<<<<< HEAD
         if inverse:
             return 1.0-xx*xx*(3.0-2.0*xx)
         else:
             return xx*xx*(3.0-2.0*xx)
+=======
+        xx_clipped = np.clip(xx, 0.0, 1.0)
+        if inverse:
+            return 1.0-xx_clipped*xx_clipped*(3.0-2.0*xx_clipped)
+        else:
+            return xx_clipped*xx_clipped*(3.0-2.0*xx_clipped)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return smoothstep(xx_scaled_and_clamped, inverse=inverse)
@@ -149,10 +157,18 @@ def smoothstep(xx, edges=None, inverse=False):
 
 def smootherstep(xx, edges=None, inverse=False):
     if edges is None:
+<<<<<<< HEAD
         if inverse:
             return 1.0-xx*xx*xx*(xx*(xx*6-15)+10)
         else:
             return xx*xx*xx*(xx*(xx*6-15)+10)
+=======
+        xx_clipped = np.clip(xx, 0.0, 1.0)
+        if inverse:
+            return 1.0-xx_clipped*xx_clipped*xx_clipped*(xx_clipped*(xx_clipped*6-15)+10)
+        else:
+            return xx_clipped*xx_clipped*xx_clipped*(xx_clipped*(xx_clipped*6-15)+10)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return smootherstep(xx_scaled_and_clamped, inverse=inverse)
@@ -160,10 +176,18 @@ def smootherstep(xx, edges=None, inverse=False):
 
 def cosinus_step(xx, edges=None, inverse=False):
     if edges is None:
+<<<<<<< HEAD
         if inverse:
             return (np.cos(xx*np.pi) + 1.0) / 2.0
         else:
             return 1.0-(np.cos(xx*np.pi) + 1.0) / 2.0
+=======
+        xx_clipped = np.clip(xx, 0.0, 1.0)
+        if inverse:
+            return (np.cos(xx_clipped*np.pi) + 1.0) / 2.0
+        else:
+            return 1.0-(np.cos(xx_clipped*np.pi) + 1.0) / 2.0
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return cosinus_step(xx_scaled_and_clamped, inverse=inverse)
@@ -176,6 +200,7 @@ def power3_step(xx, edges=None, inverse=False):
 def powern_parts_step(xx, edges=None, inverse=False, nn=2):
     if edges is None:
         aa = np.power(0.5, 1.0-nn)
+<<<<<<< HEAD
         if np.mod(nn, 2) == 0:
             if inverse:
                 return 1.0-np.where(xx < 0.5, aa*np.power(xx, nn), 1.0-aa*np.power(xx-1.0, nn))
@@ -186,6 +211,19 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
                 return 1.0-np.where(xx < 0.5, aa*np.power(xx, nn), 1.0+aa*np.power(xx-1.0, nn))
             else:
                 return np.where(xx < 0.5, aa*np.power(xx, nn), 1.0+aa*np.power(xx-1.0, nn))
+=======
+        xx_clipped = np.clip(xx, 0.0, 1.0)
+        if np.mod(nn, 2) == 0:
+            if inverse:
+                return 1.0-np.where(xx_clipped < 0.5, aa*np.power(xx_clipped, nn), 1.0-aa*np.power(xx_clipped-1.0, nn))
+            else:
+                return np.where(xx_clipped < 0.5, aa*np.power(xx_clipped, nn), 1.0-aa*np.power(xx_clipped-1.0, nn))
+        else:
+            if inverse:
+                return 1.0-np.where(xx_clipped < 0.5, aa*np.power(xx_clipped, nn), 1.0+aa*np.power(xx_clipped-1.0, nn))
+            else:
+                return np.where(xx_clipped < 0.5, aa*np.power(xx_clipped, nn), 1.0+aa*np.power(xx_clipped-1.0, nn))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return powern_parts_step(xx_scaled_and_clamped, inverse=inverse, nn=nn)

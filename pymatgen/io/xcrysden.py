@@ -1,12 +1,28 @@
+<<<<<<< HEAD
 
 
 from pymatgen.core.structure import Structure
+=======
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+from __future__ import division, unicode_literals, print_function
+
+__author__ = "Matteo Giantomassi"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Matteo Giantomassi"
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class XSF(object):
     """
     Class for parsing XCrysden files.
+<<<<<<< HEAD
 
     TODO: Unittests. Write XCrysden output.
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
 
     def __init__(self, structure):
@@ -23,7 +39,11 @@ class XSF(object):
         app("CRYSTAL")
         app("# Primitive lattice vectors in Angstrom")
         app("PRIMVEC")
+<<<<<<< HEAD
         cell = self.structure.lattice_vectors(space="r")
+=======
+        cell = self.structure.lattice.matrix
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         for i in range(3):
             app(' %.14f %.14f %.14f' % tuple(cell[i]))
 
@@ -39,10 +59,22 @@ class XSF(object):
         return "\n".join(lines)
 
     @classmethod
+<<<<<<< HEAD
     def from_string(self, input_string):
         """
         Initialize a `Structure` object from a string with data in XSF format.
         See http://www.xcrysden.org/doc/XSF.html
+=======
+    def from_string(self, input_string, cls=None):
+        """
+        Initialize a `Structure` object from a string with data in XSF format.
+
+        Args:
+            input_string: String with the structure in XSF format.
+                See http://www.xcrysden.org/doc/XSF.html
+            cls: Structure class to be created. default: pymatgen structure
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         # CRYSTAL                                        see (1)
         # these are primitive lattice vectors (in Angstroms)
@@ -82,5 +114,14 @@ class XSF(object):
         else:
             raise ValueError("Invalid XSF data")
 
+<<<<<<< HEAD
         s = Structure(lattice, species, coords, coords_are_cartesian=True)
         return XSF(s)
+=======
+        if cls is None:
+            from pymatgen.core.structure import Structure
+            cls = Structure
+
+        s = cls(lattice, species, coords, coords_are_cartesian=True)
+        return XSF(s)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

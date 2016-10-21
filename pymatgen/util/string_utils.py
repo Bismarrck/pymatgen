@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 import re
 
 
+<<<<<<< HEAD
 from six.moves import zip
 
 from tabulate import tabulate
@@ -15,6 +16,8 @@ from tabulate import tabulate
 from monty.dev import deprecated
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -24,6 +27,7 @@ __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
 
+<<<<<<< HEAD
 @deprecated(tabulate, "In-house method has been deprecated in favor of using "
                       "the tabulate package. Please switch all usages. Will "
                       "be removed in pymagen v4.0.")
@@ -56,6 +60,8 @@ def generate_latex_table(results, header=None, caption=None, label=None):
     return "\n".join(output)
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def str_delimited(results, header=None, delimiter="\t"):
     """
     Given a tuple of tuples, generate a delimited string form.
@@ -79,6 +85,7 @@ def str_delimited(results, header=None, delimiter="\t"):
                                   for result in results])
 
 
+<<<<<<< HEAD
 @deprecated(tabulate, "In-house method has been deprecated in favor of using "
                       "the tabulate package. Please switch all usages. Will "
                       "be removed in pymagen v4.0.")
@@ -117,6 +124,8 @@ def str_aligned(results, header=None):
                                   for result in results])
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     """
     This function is used to make pretty formulas by formatting the amounts.

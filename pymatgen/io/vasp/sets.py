@@ -22,12 +22,17 @@ from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
+<<<<<<< HEAD
 from monty.json import MSONable, MontyDecoder
+=======
+from monty.json import MSONable
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
 
+<<<<<<< HEAD
 # This mass import is for deprecation stub purposes.
 from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
     MITHSEVaspInputSet, MITVaspInputSet, MITGGAVaspInputSet, \
@@ -35,6 +40,8 @@ from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPGGAVaspInputSet,\
     MVLElasticInputSet, MITNEBVaspInputSet, MPNonSCFVaspInputSet, \
     MPOpticsNonSCFVaspInputSet, MPHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -61,10 +68,18 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
+<<<<<<< HEAD
 2. user_incar_settings is absolute. Any new sets you implement must obey
    this. If a user wants to override your settings, you assume he knows what he
    is doing. Do not magically override user supplied settings. You can of course
    issue a warning if you think the user is wrong.
+=======
+2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
+   implement must obey this. If a user wants to override your settings,
+   you assume he knows what he is doing. Do not magically override user
+   supplied settings. You can of course issue a warning if you think the user
+   is wrong.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = myarg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
@@ -174,6 +189,7 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         d = MSONable.as_dict(self)
         if verbosity == 1:
             d.pop("structure", None)
+<<<<<<< HEAD
         if hasattr(self, "kwargs"):
             d.update(**self.kwargs)
         return d
@@ -184,6 +200,10 @@ class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                    if not k.startswith("@")}
         return cls(**decoded)
 
+=======
+        return d
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class DictSet(VaspInputSet):
     """
@@ -207,7 +227,10 @@ class DictSet(VaspInputSet):
 
     Args:
         structure (Structure): The Structure to create inputs for.
+<<<<<<< HEAD
         name (str): A name fo the input set.
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         config_dict (dict): The config dictionary to use.
         files_to_transfer (dict): A dictionary of {filename: filepath}. This
             allows the transfer of files from a previous calculation.
@@ -219,6 +242,12 @@ class DictSet(VaspInputSet):
             scales with # of atoms, the latter does not. If both are
             present, EDIFF is preferred. To force such settings, just supply
             user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
+<<<<<<< HEAD
+=======
+        user_kpoints_settings (dict): Allow user to override kpoints setting by
+            supplying a dict. E.g., {"reciprocal_density": 1000}. Default is
+            None.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -236,11 +265,19 @@ class DictSet(VaspInputSet):
             cells, and Monkhorst-Pack otherwise.
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
+<<<<<<< HEAD
             alter the structure. Valid values: None, "niggli", "LLL"
+=======
+            alter the structure. Valid values: None, "niggli", "LLL".
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
 
     def __init__(self, structure, config_dict,
                  files_to_transfer=None, user_incar_settings=None,
+<<<<<<< HEAD
+=======
+                 user_kpoints_settings=None,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
                  reduce_structure=None):
@@ -257,6 +294,10 @@ class DictSet(VaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
+<<<<<<< HEAD
+=======
+        self.user_kpoints_settings = user_kpoints_settings
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def incar(self):
@@ -291,7 +332,11 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     elif most_electroneg in v.keys():
                         incar[k] = [v[most_electroneg].get(sym, 0)
+<<<<<<< HEAD
                                       for sym in poscar.site_symbols]
+=======
+                                    for sym in poscar.site_symbols]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     else:
                         incar[k] = [0] * len(poscar.site_symbols)
             elif k.startswith("EDIFF") and k != "EDIFFG":
@@ -350,7 +395,12 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
+<<<<<<< HEAD
         settings = self.config_dict["KPOINTS"]
+=======
+        settings = self.user_kpoints_settings or self.config_dict["KPOINTS"]
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
         if settings.get('grid_density'):
@@ -374,8 +424,13 @@ class DictSet(VaspInputSet):
             raise ValueError(
                 "Invalid KPoint Generation algo : Supported Keys are "
                 "grid_density: for Kpoints.automatic_density generation, "
+<<<<<<< HEAD
                 "reciprocal_density: for KPoints.automatic_density_by_vol generation, "
                 "and length  : for Kpoints.automatic generation")
+=======
+                "reciprocal_density: for KPoints.automatic_density_by_vol "
+                "generation, and length  : for Kpoints.automatic generation")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __str__(self):
         return self.__class__.__name__
@@ -455,8 +510,15 @@ class MPStaticSet(MPRelaxSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
+<<<<<<< HEAD
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100).
+=======
+            reciprocal_density (int): For static calculations,
+                we usually set the reciprocal density by voluyme. This is a
+                convenience arg to change that, rather than using
+                user_kpoints_settings. Defaults to 100.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             \*\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
@@ -514,8 +576,14 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self):
+<<<<<<< HEAD
         kpoints = super(MPStaticSet, self).kpoints
 
+=======
+        self.config_dict["KPOINTS"]["reciprocal_density"] = \
+            self.reciprocal_density
+        kpoints = super(MPStaticSet, self).kpoints
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
@@ -547,8 +615,14 @@ class MPStaticSet(MPRelaxSet):
                     convention (vs Curtarolo) for monoclinic. Defaults True.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
+<<<<<<< HEAD
             small_gap_multiply ([float, float]) - if the gap is less than 1st index,
                                 multiply the default reciprocal_density by the 2nd index
+=======
+            small_gap_multiply ([float, float]): If the gap is less than
+                1st index, multiply the default reciprocal_density by the 2nd
+                index.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             \*\*kwargs: All kwargs supported by MPStaticSet,
                 other than prev_incar and prev_structure and prev_kpoints which
                 are determined from the prev_calc_dir.
@@ -614,7 +688,11 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
+<<<<<<< HEAD
                                   self.kpoints_settings['reciprocal_density']
+=======
+            self.kpoints_settings['reciprocal_density']
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.kpoints_line_density = kpoints_line_density
 
     @property
@@ -862,7 +940,11 @@ class MPNonSCFSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
                 kpoints_line_density = kpoints_line_density * \
+<<<<<<< HEAD
                                        small_gap_multiply[1]
+=======
+                    small_gap_multiply[1]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
@@ -1040,8 +1122,13 @@ class MVLSlabSet(MPRelaxSet):
     @property
     def kpoints(self):
         """
+<<<<<<< HEAD
         k_product, default to 50, is kpoint number * length for a & b directions,
             also for c direction in bulk calculations
+=======
+        k_product, default to 50, is kpoint number * length for a & b
+            directions, also for c direction in bulk calculations
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         Automatic mesh & Gamma is the default setting.
         """
 
@@ -1091,13 +1178,17 @@ class MVLSlabSet(MPRelaxSet):
             if "NPAR" in incar:
                 del incar["NPAR"]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
 
         abc = self.structure.lattice.abc
+<<<<<<< HEAD
         kpt_calc = [int(self.k_product/abc[0]+0.5),
                     int(self.k_product/abc[1]+0.5),
                     int(self.k_product/abc[1]+0.5)]
@@ -1105,6 +1196,15 @@ class MVLSlabSet(MPRelaxSet):
         kpts = kpt_calc
 
         if kpts[0]<5 and kpts[1]<5:
+=======
+        kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                    int(self.k_product / abc[1] + 0.5),
+                    int(self.k_product / abc[1] + 0.5)]
+
+        kpts = kpt_calc
+
+        if kpts[0] < 5 and kpts[1] < 5:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if (not self.bulk) or kpts[2] < 5:
                 incar["ISMEAR"] = 0
 
@@ -1158,7 +1258,11 @@ class MITNEBSet(MITRelaxSet):
             prev = structures[-1]
             for i in range(len(s)):
                 t = np.round(prev[i].frac_coords - s[i].frac_coords)
+<<<<<<< HEAD
                 if np.sum(t) > 0.5:
+=======
+                if np.any(np.abs(t)>0.5):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     s.translate_sites([i], t, to_unit_cell=False)
             structures.append(s)
         return structures
@@ -1176,6 +1280,12 @@ class MITNEBSet(MITRelaxSet):
                 directory (and the whole path) to be created if it is not
                 present.
             write_cif (bool): If true, writes a cif along with each POSCAR.
+<<<<<<< HEAD
+=======
+            write_path_cif (bool): If true, writes a cif for each image.
+            write_endpoint_inputs (bool): If true, writes input files for
+                running endpoint calculations.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
 
         if make_dir_if_not_present and not os.path.exists(output_dir):
@@ -1190,7 +1300,11 @@ class MITNEBSet(MITRelaxSet):
                 os.makedirs(d)
             p.write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
+<<<<<<< HEAD
                 p.to(filename=os.path.join(d, '{}.cif'.format(i)))
+=======
+                p.structure.to(filename=os.path.join(d, '{}.cif'.format(i)))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(
                 self.structures[0],
@@ -1224,8 +1338,12 @@ class MITMDSet(MITRelaxSet):
             The ISPIN parameter. Defaults to False.
         sort_structure (bool): Whether to sort structure. Defaults to False
             (different behavior from standard input sets).
+<<<<<<< HEAD
         **kwargs:
             Other kwargs supported by :class:`DictVaspInputSet`.
+=======
+        \*\*kwargs: Other kwargs supported by :class:`DictSet`.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
@@ -1286,14 +1404,22 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
     Process structure from previous run.
 
     Args:
+<<<<<<< HEAD
         vasp_run (Vasprun): Vasprun that contains the final structure
+=======
+        vasprun (Vasprun): Vasprun that contains the final structure
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             from previous run.
         outcar (Outcar): Outcar that contains the magnetization info from
             previous run.
         sym_prec (float): Tolerance for symmetry finding for standardization. If
             no standardization is desired, set to 0 or a False.
         international_monoclinic (bool): Whether to use international
+<<<<<<< HEAD
                     convention (vs Curtarolo) for monoclinic. Defaults True.
+=======
+            convention (vs Curtarolo) for monoclinic. Defaults True.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     Returns:
         Returns the magmom-decorated structure that can be passed to get
@@ -1315,10 +1441,18 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
             vals = vasprun.incar[k]
             m = {}
             l = []
+<<<<<<< HEAD
             m[structure[0].specie.symbol] = vals.pop(0)
             for site in structure:
                 if site.specie.symbol not in m:
                     m[site.specie.symbol] = vals.pop(0)
+=======
+            s = 0
+            for site in structure:
+                if site.specie.symbol not in m:
+                    m[site.specie.symbol] = vals[s]
+                    s += 1
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 l.append(m[site.specie.symbol])
             if len(l) == len(structure):
                 site_properties.update({k.lower(): l})
@@ -1386,7 +1520,12 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
+<<<<<<< HEAD
         v.write_input(
             dirname, make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif
         )
+=======
+        v.write_input(dirname, make_dir_if_not_present=make_dir_if_not_present,
+                      include_cif=include_cif)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

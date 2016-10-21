@@ -9,8 +9,13 @@ Subpackages
     pymatgen.io.abinit
     pymatgen.io.feff
     pymatgen.io.lammps
+<<<<<<< HEAD
     pymatgen.io.vasp
     pymatgen.io.vaspio
+=======
+    pymatgen.io.tests
+    pymatgen.io.vasp
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Submodules
 ----------
@@ -39,6 +44,7 @@ pymatgen.io.ase module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.aseio module
 ------------------------
 
@@ -47,6 +53,8 @@ pymatgen.io.aseio module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.babel module
 ------------------------
 
@@ -55,6 +63,7 @@ pymatgen.io.babel module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.babelio module
 --------------------------
 
@@ -63,6 +72,8 @@ pymatgen.io.babelio module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.cif module
 ----------------------
 
@@ -71,6 +82,7 @@ pymatgen.io.cif module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.cifio module
 ------------------------
 
@@ -79,6 +91,8 @@ pymatgen.io.cifio module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.cssr module
 -----------------------
 
@@ -87,6 +101,7 @@ pymatgen.io.cssr module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.cssrio module
 -------------------------
 
@@ -111,6 +126,8 @@ pymatgen.io.feffio_set module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.fiesta module
 -------------------------
 
@@ -127,6 +144,7 @@ pymatgen.io.gaussian module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.gaussianio module
 -----------------------------
 
@@ -135,6 +153,8 @@ pymatgen.io.gaussianio module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.nwchem module
 -------------------------
 
@@ -143,6 +163,7 @@ pymatgen.io.nwchem module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.nwchemio module
 ---------------------------
 
@@ -151,6 +172,8 @@ pymatgen.io.nwchemio module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.pwscf module
 ------------------------
 
@@ -167,6 +190,7 @@ pymatgen.io.qchem module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.qchemio module
 --------------------------
 
@@ -199,6 +223,8 @@ pymatgen.io.vaspio_set module
     :undoc-members:
     :show-inheritance:
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.io.xcrysden module
 ---------------------------
 
@@ -207,14 +233,22 @@ pymatgen.io.xcrysden module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.xyz module
 ----------------------
 
 .. automodule:: pymatgen.io.xyz
+=======
+pymatgen.io.xr module
+---------------------
+
+.. automodule:: pymatgen.io.xr
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     :members:
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
 pymatgen.io.xyzio module
 ------------------------
 
@@ -227,6 +261,12 @@ pymatgen.io.zeoio module
 ------------------------
 
 .. automodule:: pymatgen.io.zeoio
+=======
+pymatgen.io.xyz module
+----------------------
+
+.. automodule:: pymatgen.io.xyz
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     :members:
     :undoc-members:
     :show-inheritance:

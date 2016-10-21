@@ -13,7 +13,11 @@ import six
 import numpy as np
 
 from pprint import pprint
+<<<<<<< HEAD
 from atomicfile import AtomicFile
+=======
+from pymatgen.util.io_utils import AtomicFile
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
@@ -47,7 +51,11 @@ class Status(int):
     _STATUS_INFO = [
         #(value, name, color, on_color, attrs)
         (1,  "Initialized",   None     , None, None),         # Node has been initialized
+<<<<<<< HEAD
         (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Work).
+=======
+        (2,  "Locked",        "grey"   , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Work).
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
         (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Work)
         (5,  "Running",       "magenta", None, None),         # Node is running.
@@ -91,7 +99,11 @@ class Status(int):
     @property
     def is_critical(self):
         """True if status is critical."""
+<<<<<<< HEAD
         return str(self) in ("AbiCritical", "QCritical", "Uncoverged", "Error") 
+=======
+        return str(self) in ("AbiCritical", "QCritical", "Unconverged", "Error")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def color_opts(self):
@@ -100,16 +112,26 @@ class Status(int):
     @property
     def colored(self):
         """Return colorized text used to print the status if the stream supports it."""
+<<<<<<< HEAD
         return colored(str(self), **self.color_opts) 
+=======
+        return colored(str(self), **self.color_opts)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class Dependency(object):
     """
     This object describes the dependencies among the nodes of a calculation.
 
+<<<<<<< HEAD
     A `Dependency` consists of a `Node` that produces a list of products (files) 
     that are used by the other nodes (`Task` or `Work`) to start the calculation.
     One usually creates the object by calling work.register 
+=======
+    A `Dependency` consists of a `Node` that produces a list of products (files)
+    that are used by the other nodes (`Task` or `Work`) to start the calculation.
+    One usually creates the object by calling work.register
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     Example:
 
@@ -172,7 +194,11 @@ class Dependency(object):
     def apply_getters(self, task):
         """
         This function is called when we specify the task dependencies with the syntax:
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             deps={node: "@property"}
 
         In this case the task has to the get `property` from `node` before starting the calculation.
@@ -193,7 +219,11 @@ class Dependency(object):
 
     def connecting_vars(self):
         """
+<<<<<<< HEAD
         Returns a dictionary with the variables that must be added to the 
+=======
+        Returns a dictionary with the variables that must be added to the
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         input file in order to connect this :class:`Node` to its dependencies.
         """
         vars = {}
@@ -237,7 +267,11 @@ class Product(object):
                 break
         else:
             raise ValueError("Cannot detect abinit extension in %s" % filepath)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return cls(ext, filepath)
 
     def __str__(self):
@@ -250,7 +284,11 @@ class Product(object):
 
     def connecting_vars(self):
         """
+<<<<<<< HEAD
         Returns a dictionary with the ABINIT variables that 
+=======
+        Returns a dictionary with the ABINIT variables that
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         must be used to make the code use this file.
         """
         return irdvars_for_ext(self.ext)
@@ -287,7 +325,11 @@ class NodeResults(dict, MSONable):
             node_id=node.node_id,
             node_finalized=node.finalized,
             node_history=list(node.history),
+<<<<<<< HEAD
             node_name=node.name, 
+=======
+            node_name=node.name,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             node_class=node.__class__.__name__,
             node_status=str(node.status),
         )
@@ -327,10 +369,17 @@ class NodeResults(dict, MSONable):
         """
         d = {}
         for k, v in kwargs.items():
+<<<<<<< HEAD
             mode = "b" 
             if isinstance(v, (list, tuple)): v, mode = v
             d[k] = GridFsFile(path=v, mode=mode)
             
+=======
+            mode = "b"
+            if isinstance(v, (list, tuple)): v, mode = v
+            d[k] = GridFsFile(path=v, mode=mode)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self["files"].update(d)
         return self
 
@@ -343,7 +392,11 @@ class NodeResults(dict, MSONable):
     @pmg_serialize
     def as_dict(self):
         return self.copy()
+<<<<<<< HEAD
                                                                                 
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @classmethod
     def from_dict(cls, d):
         return cls({k: v for k, v in d.items() if k not in ("@module", "@class")})
@@ -370,7 +423,11 @@ class NodeResults(dict, MSONable):
         """
         Update a mongodb collection.
         """
+<<<<<<< HEAD
         node = self.node 
+=======
+        node = self.node
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         flow = node if node.is_flow else node.flow
 
         # Build the key used to store the entry in the document.
@@ -413,7 +470,11 @@ class NodeResults(dict, MSONable):
 def check_spectator(node_method):
     """
     Decorator for :class:`Node` methods. Raise `SpectatorNodeError`.
+<<<<<<< HEAD
     """ 
+=======
+    """
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     from functools import wraps
     @wraps(node_method)
     def wrapper(*args, **kwargs):
@@ -441,7 +502,11 @@ class SpectatorNodeError(NodeError):
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
+<<<<<<< HEAD
     Abstract base class defining the interface that must be 
+=======
+    Abstract base class defining the interface that must be
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
@@ -492,7 +557,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         # List of files (products) needed by this node.
         self._required_files = []
 
+<<<<<<< HEAD
         # Used to push additional info during the execution. 
+=======
+        # Used to push additional info during the execution.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.history = NodeHistory(maxlen=80)
 
         # Actions performed to fix abicritical events.
@@ -549,7 +618,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def name(self):
         """
+<<<<<<< HEAD
         The name of the node 
+=======
+        The name of the node
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         (only used for facilitating its identification in the user interface).
         """
         try:
@@ -594,7 +667,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
+<<<<<<< HEAD
         self.history.info("Status set to finalized")
+=======
+        self.history.info("Finalized set to %s" % self._finalized)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def in_spectator_mode(self):
@@ -609,7 +686,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def corrections(self):
         """
         List of dictionaries with infornation on the actions performed to solve `AbiCritical` Events.
+<<<<<<< HEAD
         Each dictionary contains the `AbinitEvent` who triggered the correction and 
+=======
+        Each dictionary contains the `AbinitEvent` who triggered the correction and
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         a human-readable message with the description of the operation performed.
         """
         return self._corrections
@@ -632,7 +713,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self.history.info(action)
 
         self._corrections.append(dict(
+<<<<<<< HEAD
             event=event.as_dict(), 
+=======
+            event=event.as_dict(),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             action=action,
         ))
 
@@ -662,7 +747,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def deps(self):
         """
+<<<<<<< HEAD
         List of :class:`Dependency` objects defining the dependencies 
+=======
+        List of :class:`Dependency` objects defining the dependencies
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         of this `Node`. Empty list if this :class:`Node` does not have dependencies.
         """
         return self._deps
@@ -708,18 +797,30 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         assert all(isinstance(d, Dependency) for d in deps)
 
         self._deps = [d for d in self._deps if d not in deps]
+<<<<<<< HEAD
                                                                                       
         if self.is_work:
             # remove the same list of dependencies from the task in the work
             for task in self:
                 task.remove_deps(deps)                                                                                                                                        
 
+=======
+
+        if self.is_work:
+            # remove the same list of dependencies from the task in the work
+            for task in self:
+                task.remove_deps(deps)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @property
     def deps_status(self):
         """Returns a list with the status of the dependencies."""
         if not self.deps:
             return [self.S_OK]
+<<<<<<< HEAD
                                                                   
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return [d.status for d in self.deps]
 
     def depends_on(self, other):
@@ -773,17 +874,29 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         except AttributeError:
             #if not self.is_flow and self.flow.gc: return self.flow.gc
             return None
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @property
     def event_handlers(self):
         """
         The list of handlers registered for this node.
+<<<<<<< HEAD
         If the node is not a `Flow` and does not have its own list of 
+=======
+        If the node is not a `Flow` and does not have its own list of
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         `handlers` the handlers registered at the level of the flow are returned.
 
         This trick allows one to registered different handlers at the level of the Task
         for testing purposes. By default, we have a common list of handlers for all the nodes in the flow.
+<<<<<<< HEAD
         This choice facilitates the automatic installation of the handlers when we use callbacks to generate 
+=======
+        This choice facilitates the automatic installation of the handlers when we use callbacks to generate
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         new Works and Tasks!
         """
         if self.is_flow:
@@ -802,11 +915,19 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         Args:
             categories: List of categories to install e.g. base + can_change_physics
+<<<<<<< HEAD
             handlers: explicit list of :class:`EventHandler` instances. 
                       This is the most flexible way to install handlers.
 
         .. note::
             
+=======
+            handlers: explicit list of :class:`EventHandler` instances.
+                      This is the most flexible way to install handlers.
+
+        .. note::
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             categories and handlers are mutually exclusive.
         """
         if categories is not None and handlers is not None:
@@ -834,12 +955,21 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def send_signal(self, signal):
         """
         Send signal from this node to all connected receivers unless the node is in spectator mode.
+<<<<<<< HEAD
          
         signal -- (hashable) signal value, see `dispatcher` connect for details
          
         Return a list of tuple pairs [(receiver, response), ... ]
         or None if the node is in spectator mode.
          
+=======
+
+        signal -- (hashable) signal value, see `dispatcher` connect for details
+
+        Return a list of tuple pairs [(receiver, response), ... ]
+        or None if the node is in spectator mode.
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if any receiver raises an error, the error propagates back
         through send, terminating the dispatch loop, so it is quite
         possible to not have all receivers called if a raises an error.
@@ -904,6 +1034,7 @@ class HistoryRecord(object):
     """
     A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
 
+<<<<<<< HEAD
     `HistoryRecord` instances are created every time something is logged. 
     They contain all the information pertinent to the event being logged. 
     The main information passed in is in msg and args, which are combined
@@ -924,6 +1055,28 @@ class HistoryRecord(object):
         Full pathname of the source file where the logging call was issued (if available)
 
     .. attribute:: filename 
+=======
+    `HistoryRecord` instances are created every time something is logged.
+    They contain all the information pertinent to the event being logged.
+    The main information passed in is in msg and args, which are combined
+    using str(msg) % args to create the message field of the record.
+    The record also includes information such as when the record was created,
+    the source line where the logging call was made
+
+    .. attribute:: levelno
+
+        Numeric logging level for the message (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+
+    .. attribute:: levelname
+
+        Text logging level for the message ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+
+    .. attribute:: pathname
+
+        Full pathname of the source file where the logging call was issued (if available)
+
+    .. attribute:: filename
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Filename portion of pathname
 
@@ -931,7 +1084,11 @@ class HistoryRecord(object):
 
         Module (name portion of filename)
 
+<<<<<<< HEAD
     .. attribute:: lineno 
+=======
+    .. attribute:: lineno
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Source line number where the logging call was issued (if available)
 
@@ -943,11 +1100,19 @@ class HistoryRecord(object):
 
         Time when the HistoryRecord was created (time.time() return value)
 
+<<<<<<< HEAD
     .. attribute:: asctime 
 
         Textual time when the HistoryRecord was created
 
     .. attribute:: message 
+=======
+    .. attribute:: asctime
+
+        Textual time when the HistoryRecord was created
+
+    .. attribute:: message
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         The result of record.getMessage(), computed just as the record is emitted
     """
     def __init__(self, level, pathname, lineno, msg, args, exc_info, func=None):
@@ -1007,7 +1172,11 @@ class HistoryRecord(object):
             asctime: True if time string should be added.
         """
         msg = self.msg if is_string(self.msg) else str(self.msg)
+<<<<<<< HEAD
         if self.args: 
+=======
+        if self.args:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             try:
                 msg = msg % self.args
             except:
@@ -1059,6 +1228,7 @@ class NodeHistory(collections.deque):
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
+<<<<<<< HEAD
         self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
 
         #from monty.inspect import find_caller, caller_name
@@ -1066,12 +1236,21 @@ class NodeHistory(collections.deque):
         #c = find_caller()
         #print(caller_name(skip=3))
         #self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
+=======
+        #from monty.inspect import caller_name
+        #c = find_caller()
+        self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class NodeCorrections(list):
     """Iterable storing the correctios performed by the :class:`EventHandler`"""
     #TODO
+<<<<<<< HEAD
     # Correction should have a human-readable message 
+=======
+    # Correction should have a human-readable message
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     # and a list of operatins in JSON format (Modder?) so that
     # we can read them and re-apply the corrections to another task if needed.
 
@@ -1090,12 +1269,21 @@ class GarbageCollector(object):
         self.exts, self.policy = set(exts), policy
 
 
+<<<<<<< HEAD
 # The code below initializes a counter from a file when the module is imported 
 # and save the counter's updated value automatically when the program terminates 
 # without relying on the application making an explicit call into this module at termination.
 
 _COUNTER = None
 _COUNTER_FILE = os.path.join(os.getenv("HOME"), ".abinit", "abipy", "nodecounter")
+=======
+# The code below initializes a counter from a file when the module is imported
+# and save the counter's updated value automatically when the program terminates
+# without relying on the application making an explicit call into this module at termination.
+
+_COUNTER = None
+_COUNTER_FILE = os.path.join(os.path.expanduser("~"), ".abinit", "abipy", "nodecounter")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 def init_counter():
@@ -1111,7 +1299,13 @@ def init_counter():
 
     if _COUNTER is None:
         with open(_COUNTER_FILE, "r") as fh:
+<<<<<<< HEAD
             _COUNTER = int(fh.read())
+=======
+            s = fh.read().strip()
+            if not s: s = "-1"
+            _COUNTER = int(s)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 def get_newnode_id():
@@ -1120,7 +1314,11 @@ def get_newnode_id():
 
     .. warning:
 
+<<<<<<< HEAD
         The id is unique inside the same python process so be careful when 
+=======
+        The id is unique inside the same python process so be careful when
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         Works and Tasks are constructed at run-time or when threads are used.
     """
     init_counter()

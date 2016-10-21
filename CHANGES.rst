@@ -1,6 +1,156 @@
 Change log
 ==========
 
+<<<<<<< HEAD
+=======
+v4.4.8
+------
+* Cleanup of entry points and dependencies.
+
+v4.4.7
+------
+* Update to spglib 1.9.7.1
+* Proper use of dependency markers for enum34.
+
+v4.4.6
+------
+* Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.
+
+v4.4.5
+------
+* Bug fix for SubstitutionProb.
+
+v4.4.4
+------
+* Bug fix for electronic structure plotter.
+
+v4.4.3
+------
+* Bug fix for Diffusion Analyzer.
+
+v4.4.2
+------
+* Bug fix for BS serialization.
+* Cleanup dependencies.
+
+v4.4.1
+------
+* Massive updates to FEFF support (Kiran Mathews).
+* Bug fixes in band structure plotting.
+
+v4.4.0
+------
+* Much more Pythonic API for modifying Structure/Molecule species. Now,
+  strings, slices, and sequences should magically work, in addition to the
+  previous API of simple int indices. Examples::
+
+    s[0] = "Fe"
+    s[0] = "Fe", [0.5, 0.5, 0.5]  # Replaces site and fractional coordinates.
+    s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}  # Replaces site and fractional coordinates and properties.
+    s[(0, 2, 3)] = "Fe"  # Replaces sites 0, 2 and 3 with Fe.
+    s[0::2] = "Fe"  # Replaces all even index sites with Fe.
+    s["Mn"] = "Fe"  # Replaces all Mn in the structure with Fe.
+    s["Mn"] = "Fe0.5Co0.5"  # Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,creates a disordered structure!
+
+* Massive update to internal representation of Bandstructure objects for
+  memory and computational efficiency.
+* Bug fixes to CIF parsing in some edge cases. (Will Richards).
+
+v4.3.2
+------
+* Massive speedup of Bandstructure, especially projected band structures,
+  parsing.
+* Massive update to pmg cli script, with new query functions as well as a
+  more rational command structure.
+* Updates to ChemEnv.
+* Misc bug fixes.
+
+v4.3.1
+------
+* Upgrade monty and spglib requirements for bug fixes.
+* Updates to feff support (Kiran).
+
+v4.3.0
+------
+* Massive update to elastic module. (Joey Montaya)
+* Pathfinder algorithm for NEB calculations. (Ziqing Rong)
+* Wheels for Windows and Mac Py27 and Py35.
+
+v4.2.5
+------
+* Bug fix for BSPlotter.
+
+v4.2.4
+------
+* Bug fix for kpoint weight calculation for Monkhorst meshes.
+
+v4.2.3
+------
+* Minor cleanup.
+* Simplified installation. enumlib and bader can now be installed using pmg setup --install.
+
+v4.2.2
+------
+* Global configuration variables such as VASP\_PSP\_DIR and MAPI\_KEY are now
+  stored in "~/.pmgrc.yaml". If you are setting these as environmental
+  variables right now, you can easily transition to the new system using::
+
+      pmg config --add VASP_PSP_DIR $VASP_PSP_DIR MAPI_KEY $MAPI_KEY
+
+  This new scheme will provide greater flexibility for user-defined
+  global behavior in pymatgen, e.g., tolerances, default input sets for
+  transmuters, etc., in future.
+* Beta of k-point weight calculator.
+* Use default MSONable as and from_dict for all transformations.
+
+v4.2.1
+------
+* New DopingTransformation that implements an automated doping strategy.
+* Updated MIC algorithm that is a lot more robust (Will Richards).
+* Major update to chemenv package (David Waroquiers)
+
+v4.2.0
+------
+* Fix important bug in minimum image distance computation for very skewed cells.
+* Major refactoring of WulffShape code.
+* Misc bug fixes for elastic tensor and other codes.
+
+v4.1.1
+------
+* Major refactoring of WulffShape and lammps support.
+
+v4.1.0
+------
+* Wulff shape generator and analysis.
+* Minor bug fixes.
+
+v4.0.2
+--------
+* Fix kpoint reciprocal density.
+
+v4.0.1
+------
+* Minor bug fix release.
+
+v4.0.0
+------
+* Massive update with many deprecated methods removed. Note that this
+  may break backwards incompatibility!
+* Support for ABINIT 8.
+* Improved sulfide compatibility.
+
+v3.7.1
+------
+* Fix deprecation bug.
+
+v3.7.0
+------
+* Last version before pymatgen 4.0, where deprecated modules will be removed!
+* Massive update to LAMMPS (Kiran Matthews).
+* New input sets with a different interface that replaces old input sets.
+* Massive update to elastic properties.
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 v3.6.1
 ------
 * Massive cleanup to Boltztrap interface (Anubhav Jain)

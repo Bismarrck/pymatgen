@@ -271,7 +271,11 @@ class BoltztrapRunner(object):
 
         with open(output_file, 'w') as f:
             f.write("{} {}\n".format(self._bs.structure.composition.formula,
+<<<<<<< HEAD
                     sym.get_spacegroup_symbol()))
+=======
+                    sym.get_space_group_symbol()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             f.write("{}\n".format("\n".join(
                 [" ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
@@ -792,7 +796,11 @@ class BoltztrapAnalyzer(object):
         try:
             if kpt_line is None:
                 kpath = HighSymmKpath(structure)
+<<<<<<< HEAD
                 kpt_line = [Kpoint(k, structure.reciprocal_lattice) for k in
+=======
+                kpt_line = [Kpoint(k, structure.lattice.reciprocal_lattice) for k in
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                             kpath.get_kpoints(coords_are_cartesian=False)[0]]
                 labels_dict = {l: k for k, l in zip(
                     *kpath.get_kpoints(coords_are_cartesian=False)) if l}
@@ -831,7 +839,11 @@ class BoltztrapAnalyzer(object):
             # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
 
             sbs = BandStructureSymmLine(kpoints, bands_dict,
+<<<<<<< HEAD
                                         structure.reciprocal_lattice, efermi,
+=======
+                                        structure.lattice.reciprocal_lattice, efermi,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                         labels_dict=labels_dict)
 
             return sbs
@@ -1268,10 +1280,17 @@ class BoltztrapAnalyzer(object):
                 raise ValueError("Invalid input to is_isotropic!")
 
             st = sorted(x)
+<<<<<<< HEAD
             return all([st[0],st[1],st[2]]) and \
                    (abs((st[1]-st[0])/st[1]) <= isotropy_tolerance) and \
                    (abs((st[2]-st[0]))/st[2] <= isotropy_tolerance) and \
                    (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance)
+=======
+            return bool(all([st[0],st[1],st[2]]) and \
+                   (abs((st[1]-st[0])/st[1]) <= isotropy_tolerance) and \
+                   (abs((st[2]-st[0]))/st[2] <= isotropy_tolerance) and \
+                   (abs((st[2]-st[1])/st[2]) <= isotropy_tolerance))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if target_prop.lower() == "seebeck":
             d = self.get_seebeck(output="eigs", doping_levels=True)

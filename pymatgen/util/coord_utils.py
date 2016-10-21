@@ -22,9 +22,16 @@ __date__ = "Nov 27, 2011"
 import itertools
 import numpy as np
 import math
+<<<<<<< HEAD
 import pymatgen.util.coord_utils_cython as cuc
 
 #array size threshold for looping instead of broadcasting
+=======
+from . import coord_utils_cython as cuc
+
+
+# array size threshold for looping instead of broadcasting
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 LOOP_THRESHOLD = 1e6
 
 
@@ -81,7 +88,11 @@ def is_coord_subset(subset, superset, atol=1e-8):
     return np.all(any_close)
 
 
+<<<<<<< HEAD
 def coord_list_mapping(subset, superset):
+=======
+def coord_list_mapping(subset, superset, atol=1e-8):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
     Gives the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows
@@ -94,10 +105,17 @@ def coord_list_mapping(subset, superset):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
+<<<<<<< HEAD
     inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]),
                            axis=2))[1]
     result = c2[inds]
     if not np.allclose(c1, result):
+=======
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol),
+                           axis=2))[1]
+    result = c2[inds]
+    if not np.allclose(c1, result, atol=atol):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
@@ -187,6 +205,7 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
+<<<<<<< HEAD
 #create images, 2d array of all length 3 combinations of [-1,0,1]
 r = np.arange(-1, 2)
 arange = r[:, None] * np.array([1, 0, 0])[None, :]
@@ -196,6 +215,8 @@ images = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images.reshape((27, 3))
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into

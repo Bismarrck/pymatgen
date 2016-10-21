@@ -184,6 +184,23 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy,
                                -1)
 
+<<<<<<< HEAD
+=======
+    def test_get_explanation_dict(self):
+        compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel': 'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
+        d = compat.get_explanation_dict(entry)
+        self.assertEqual('MPRelaxSet Potcar Correction', d["corrections"][0][
+            "name"])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
@@ -406,6 +423,24 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertIsNone(compat.process_entry(entry))
 
 
+<<<<<<< HEAD
+=======
+    def test_get_explanation_dict(self):
+        compat = MITCompatibility(check_potcar_hash=False)
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel': 'PAW_PBE Fe 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
+        d = compat.get_explanation_dict(entry)
+        self.assertEqual('MITRelaxSet Potcar Correction', d["corrections"][0][
+            "name"])
+        
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class OxideTypeCorrectionTest(unittest.TestCase):
 
     def setUp(self):

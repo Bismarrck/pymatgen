@@ -11,9 +11,12 @@ import os
 import shutil
 import random
 import numpy as np
+<<<<<<< HEAD
 import matplotlib
 matplotlib.use("pdf")
 import matplotlib.image as mpimg
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -48,10 +51,17 @@ class VoronoiContainerTest(PymatgenTest):
         coords.extend([oc[1] for oc in order_and_coords])
         fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
 
+<<<<<<< HEAD
         #First fake structure with a given weighted_distance_tolerance of 0.0100001
         detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
                                                               weighted_distance_tolerance=0.0100001, isites=[0])
         self.assertEqual(len(detailed_voronoi_container.voronoi_list[0]), 6)
+=======
+        #First fake structure with a given normalized_distance_tolerance of 0.0100001
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
+                                                              normalized_distance_tolerance=0.0100001, isites=[0])
+        self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
         self.assertEqual(len(neighbors), 6)
         neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
@@ -61,6 +71,7 @@ class VoronoiContainerTest(PymatgenTest):
         neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
         self.assertEqual(len(neighbors), 6)
 
+<<<<<<< HEAD
         #First fake structure with a given weighted_distance_tolerance of 0.001
         detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
                                                               weighted_distance_tolerance=0.001, isites=[0])
@@ -78,6 +89,27 @@ class VoronoiContainerTest(PymatgenTest):
         self.assertTrue(fake_structure[sorted[0]] in neighbors)
         self.assertTrue(fake_structure[sorted[1]] in neighbors)
         self.assertTrue(fake_structure[sorted[2]] in neighbors)
+=======
+        #First fake structure with a given normalized_distance_tolerance of 0.001
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
+                                                              normalized_distance_tolerance=0.001, isites=[0])
+        self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
+        self.assertEqual(len(neighbors), 1)
+        self.assertEqual(neighbors[0]['site'], fake_structure[sorted[0]])
+        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 3)
+        self.assertTrue(fake_structure[sorted[0]] in nbs)
+        self.assertTrue(fake_structure[sorted[1]] in nbs)
+        self.assertTrue(fake_structure[sorted[2]] in nbs)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 3)
+        self.assertTrue(fake_structure[sorted[0]] in nbs)
+        self.assertTrue(fake_structure[sorted[1]] in nbs)
+        self.assertTrue(fake_structure[sorted[2]] in nbs)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
         self.assertEqual(len(neighbors), 6)
 
@@ -94,6 +126,7 @@ class VoronoiContainerTest(PymatgenTest):
         coords2.extend([oc[1] for oc in order_and_coords])
         fake_structure2 = Structure(cubic_lattice, species, coords2, coords_are_cartesian=True)
 
+<<<<<<< HEAD
         #Second fake structure with a given weighted_distance_tolerance of 0.0100001
         detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure2, valences=valences,
                                                               weighted_distance_tolerance=0.0100001, isites=[0])
@@ -113,6 +146,30 @@ class VoronoiContainerTest(PymatgenTest):
         self.assertTrue(fake_structure2[sorted[0]] in neighbors)
         self.assertTrue(fake_structure2[sorted[1]] in neighbors)
         self.assertTrue(fake_structure2[sorted[2]] in neighbors)
+=======
+        #Second fake structure with a given normalized_distance_tolerance of 0.0100001
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure2, valences=valences,
+                                                              normalized_distance_tolerance=0.0100001, isites=[0])
+        self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 3)
+        self.assertTrue(fake_structure2[sorted[0]] in nbs)
+        self.assertTrue(fake_structure2[sorted[1]] in nbs)
+        self.assertTrue(fake_structure2[sorted[2]] in nbs)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 3)
+        self.assertTrue(fake_structure2[sorted[0]] in nbs)
+        self.assertTrue(fake_structure2[sorted[1]] in nbs)
+        self.assertTrue(fake_structure2[sorted[2]] in nbs)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 3)
+        self.assertTrue(fake_structure2[sorted[0]] in nbs)
+        self.assertTrue(fake_structure2[sorted[1]] in nbs)
+        self.assertTrue(fake_structure2[sorted[2]] in nbs)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
         self.assertEqual(len(neighbors), 6)
 
@@ -129,6 +186,7 @@ class VoronoiContainerTest(PymatgenTest):
                   [5.0, 5.0, 6.05]]
         fake_structure3 = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
         detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure3, valences=valences,
+<<<<<<< HEAD
                                                               weighted_distance_tolerance=0.0100001, isites=[0],
                                                               additional_conditions=
                                                               [DetailedVoronoiContainer.AC.ONLY_ACB])
@@ -151,6 +209,21 @@ class VoronoiContainerTest(PymatgenTest):
         self.assertTrue(fake_structure3[3] in neighbors)
         self.assertTrue(fake_structure3[4] in neighbors)
         self.assertTrue(fake_structure3[6] in neighbors)
+=======
+                                                              normalized_distance_tolerance=0.0100001, isites=[0],
+                                                              additional_conditions=
+                                                              [DetailedVoronoiContainer.AC.ONLY_ACB])
+        self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.01, 0.5, True)
+        nbs = [nb['site'] for nb in neighbors]
+        self.assertEqual(len(neighbors), 6)
+        self.assertTrue(fake_structure3[1] in nbs)
+        self.assertTrue(fake_structure3[2] in nbs)
+        self.assertTrue(fake_structure3[3] in nbs)
+        self.assertTrue(fake_structure3[4] in nbs)
+        self.assertTrue(fake_structure3[5] in nbs)
+        self.assertTrue(fake_structure3[6] in nbs)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         #Test of the as_dict() and from_dict() methods as well as __eq__ method
         other_detailed_voronoi_container = DetailedVoronoiContainer.from_dict(detailed_voronoi_container.as_dict())
@@ -171,9 +244,15 @@ class VoronoiContainerTest(PymatgenTest):
                   [5.0, 5.0, 6.05]]
         fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
 
+<<<<<<< HEAD
         #First fake structure with a given weighted_distance_tolerance of 0.0100001
         detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
                                                               weighted_distance_tolerance=0.0100001, isites=[0])
+=======
+        #First fake structure with a given normalized_distance_tolerance of 0.0100001
+        detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure, valences=valences,
+                                                              normalized_distance_tolerance=0.0100001, isites=[0])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         fake_parameter_indices_list = []
         for ii in range(2, 5):
             for jj in range(7, 14):

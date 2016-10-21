@@ -168,12 +168,21 @@ def is_converged(hartree_parameters, structure, return_values=False):
         if hartree_parameters:
             try:
                 conv_res['values']['ecut'] = 4 * math.ceil(conv_res['values']['ecut'] * eV_to_Ha / 4)
+<<<<<<< HEAD
             except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
                 pass
             try:
                 conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
             except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
                 pass
+=======
+            except (KeyError, ArithmeticError, FloatingPointError, SyntaxError) as ex:
+                print('exception in is_converged %s', ex.message)
+            try:
+                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
+            except (KeyError, ArithmeticError, FloatingPointError, SyntaxError) as ex:
+                print('exception in is_converged %s', ex.message)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         for k in conv_res['values'].keys():
             if conv_res['values'][k] != 0 and conv_res['values'][k] != np.inf:
                 to_return.update({k: conv_res['values'][k]})

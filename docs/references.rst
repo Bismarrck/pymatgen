@@ -5,6 +5,7 @@ Some of pymatgen's functionality is based on scientific advances / principles
 developed by various scientists. If you use some of these functionality in
 your research, you may wish to consider citing the following works:
 
+<<<<<<< HEAD
 pymatgen.io.vaspio_set
 ----------------------
 
@@ -16,11 +17,51 @@ outlined the following work:
     functional theory calculations.* Computational Materials Science, 2011,
     50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
     <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
+=======
+pymatgen.analysis.path_finder
+-----------------------------
+
+The path finder code, which finds diffusion paths through a structure based on
+a given potential field, is written by the Ceder group at UC Berkley::
+
+    Rong, Z., Kitchaev, D., Canepa, P., Huang, W., & Ceder, G. (2016).
+    An efficient algorithm for finding the minimum energy path for cation
+    migration in ionic materials. The Journal of Chemical Physics, 145(7),
+    74112. doi:10.1063/1.4960790
+
+pymatgen.core.surface and pymatgen.analysis.wulff
+-------------------------------------------------
+
+The surface generation code, which can automatically generate surfaces based
+on any crystal, and the Wulff code, which plots the Wulff shape given a
+crystal and surface energies, are written by the Materials Virtual Lab::
+
+    Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Sun, W.; Persson, K. A.;
+    Ong, S. P. Surface energies of elemental crystals, Sci. Data, 2016, 3,
+    160080, doi:10.1038/sdata.2016.80.
+
+and contains elements from the following publication::
+
+    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
+    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+
+pymatgen.io.vasp.sets
+---------------------
+
+The MIT parameter sets, which are optimized for high-throughput computing, are
+outlined the following work::
+
+    Jain, A.; Hautier, G.; Moore, C. J.; Ong, S. P.; Fischer, C. C.;
+    Mueller, T.; Persson, K. A.; Ceder, G. A high-throughput infrastructure for
+    density functional theory calculations, Comput. Mater. Sci., 2011, 50,
+    2295–2310, doi:10.1016/j.commatsci.2011.02.023.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 pymatgen.phasediagram
 ---------------------
 
 The phase diagram code, in particular the grand canonical phase diagram
+<<<<<<< HEAD
 analysis, is based on the work of Ong et al. and are used in following works:
 
     S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
@@ -32,24 +73,45 @@ analysis, is based on the work of Ong et al. and are used in following works:
     principles calculations.* Electrochemistry Communications, 2010, 12(3),
     427-430. `doi:10.1016/j.elecom.2010.01.010
     <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
+=======
+analysis, is based on the work of Ong et al. and are used in following works::
+
+    Ong, S. P.; Wang, L.; Kang, B.; Ceder, G. Li−Fe−P−O2 Phase Diagram from
+    First Principles Calculations, Chem. Mater., 2008, 20, 1798–1807,
+    doi:10.1021/cm702327g.
+
+    Ong, S. P.; Jain, A.; Hautier, G.; Kang, B.; Ceder, G. Thermal stabilities
+    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+    principles calculations, Electrochem. commun., 2010, 12, 427–430,
+    doi:10.1016/j.elecom.2010.01.010.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 pymatgen.entries.compatibility
 ------------------------------
 
 The compatibility processing, which allows mixing of GGA and GGA+U runs that
 have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
+<<<<<<< HEAD
 is based on the following work:
 
     A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
     G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
     Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
     <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
+=======
+is based on the following work::
+
+    Jain, A.; Hautier, G.; Ong, S. P.; Moore, C. J.; Fischer, C. C.;
+    Persson, K. A.; Ceder, G. Formation enthalpies by mixing GGA and GGA+U
+    calculations, Phys. Rev. B, 2011, 84, 45115, doi:10.1103/PhysRevB.84.045115.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 pymatgen.matproj
 ----------------
 
 The matproj package contains an interface to the `Materials Project REST API
 <http://www.materialsproject.org/open>`_ (Materials API). If you use data
+<<<<<<< HEAD
 from the Materials Project, please cite the following works:
 
     A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
@@ -61,6 +123,21 @@ from the Materials Project, please cite the following works:
     S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
     D. Skinner, K. Persson, G. Ceder. *The Materials Project.*
     http://materialsproject.org/
+=======
+from the Materials Project, please cite the following works::
+
+    Jain, A.; Ong, S. P.; Hautier, G.; Chen, W.; Richards, W. D.; Dacek,
+    S.; Cholia, S.; Gunter, D.; Skinner, D.; Ceder, G.; Persson, K. A.
+    Commentary: The Materials Project: A materials genome approach to
+    accelerating materials innovation, APL Mater., 2013, 1, 11002,
+    doi:10.1063/1.4812323.
+
+    Ong, S. P.; Cholia, S.; Jain, A.; Brafman, M.; Gunter, D.; Ceder, G.;
+    Persson, K. a. The Materials Application Programming Interface (API): A
+    simple, flexible and efficient API for materials data based on
+    REpresentational State Transfer (REST) principles, Comput. Mater. Sci.,
+    2015, 97, 209–215, doi:10.1016/j.commatsci.2014.10.037.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 pymatgen.symmetry
 -----------------
@@ -74,6 +151,7 @@ pymatgen.command_line.bader_caller
 
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis. Please cite the
+<<<<<<< HEAD
 following:
 
     G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm
@@ -82,15 +160,33 @@ following:
 
 pymatgen.io.feffio
 ------------------
+=======
+following::
+
+    Henkelman, G., Arnaldsson, A., & Jónsson, H. (2006). A fast and robust
+    algorithm for Bader decomposition of charge density. Computational
+    Materials Science, 36(3), 354–360. doi:10.1016/j.commatsci.2005.04.010
+
+pymatgen.io.feff
+----------------
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 This module implements an io interface for FEFF calculations. Please
 acknowledge the contribution of Alan Dozier, UKY.
 
+<<<<<<< HEAD
 pymatgen.io.zeoio
 -----------------
 
 This implements an interface to the excellent Zeo++ code base. Please
 consider citing the following publications:
+=======
+pymatgen.io.zeo
+---------------
+
+This implements an interface to the excellent Zeo++ code base. Please
+consider citing the following publications::
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     T.F. Willems, C.H. Rycroft, M. Kazi, J.C. Meza, and M. Haranczyk,
     Algorithms and tools for high-throughput geometry- based analysis of

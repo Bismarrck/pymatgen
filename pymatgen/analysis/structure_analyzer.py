@@ -27,6 +27,10 @@ from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num_utils import abs_cap
+<<<<<<< HEAD
+=======
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class VoronoiCoordFinder(object):
@@ -610,6 +614,53 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
         return ox_obj.oxide_type
 
 
+<<<<<<< HEAD
+=======
+def sulfide_type(structure):
+    """
+    Determines if a structure is a sulfide/polysulfide
+
+    Args:
+        structure (Structure): Input structure.
+
+    Returns:
+        (str) sulfide/polysulfide/sulfate
+    """
+    structure = structure.copy()
+    structure.remove_oxidation_states()
+    s = Element("S")
+    comp = structure.composition
+    if comp.is_element or s not in comp:
+        return None
+
+    finder = SpacegroupAnalyzer(structure, symprec=0.1)
+    symm_structure = finder.get_symmetrized_structure()
+    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+
+    def process_site(site):
+        neighbors = structure.get_neighbors(site, 4)
+        neighbors = sorted(neighbors, key=lambda n: n[1])
+        nn, dist = neighbors[0]
+        coord_elements = [site.specie for site, d in neighbors
+                          if d < dist + 0.4][:4]
+        avg_electroneg = np.mean([e.X for e in coord_elements])
+        if avg_electroneg > s.X:
+            return "sulfate"
+        elif avg_electroneg == s.X and s in coord_elements:
+            return "polysulfide"
+        else:
+            return "sulfide"
+
+    types = set([process_site(site) for site in s_sites])
+    if "sulfate" in types:
+        return None
+    elif "polysulfide" in types:
+        return "polysulfide"
+    else:
+        return "sulfide"
+
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def gramschmidt(vin, uin):
     """
     Returns that part of the first input vector

@@ -13,6 +13,10 @@ Subpackages
     pymatgen.analysis.elasticity
     pymatgen.analysis.hhi
     pymatgen.analysis.pourbaix
+<<<<<<< HEAD
+=======
+    pymatgen.analysis.tests
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Submodules
 ----------
@@ -49,6 +53,17 @@ pymatgen.analysis.eos module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
+=======
+pymatgen.analysis.eos_2 module
+------------------------------
+
+.. automodule:: pymatgen.analysis.eos_2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.analysis.ewald module
 ------------------------------
 
@@ -81,6 +96,17 @@ pymatgen.analysis.nmr module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
+=======
+pymatgen.analysis.path_finder module
+------------------------------------
+
+.. automodule:: pymatgen.analysis.path_finder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 pymatgen.analysis.piezo module
 ------------------------------
 
@@ -137,6 +163,17 @@ pymatgen.analysis.transition_state module
     :undoc-members:
     :show-inheritance:
 
+<<<<<<< HEAD
+=======
+pymatgen.analysis.wulff module
+------------------------------
+
+.. automodule:: pymatgen.analysis.wulff
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Module contents
 ---------------

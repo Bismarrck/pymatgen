@@ -12,7 +12,11 @@ tests in a single location, so that test scripts can just import it and work
 right away.
 """
 
+<<<<<<< HEAD
 import unittest2 as unittest
+=======
+import unittest
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 import tempfile
 import numpy.testing.utils as nptu
 from six.moves import zip
@@ -22,9 +26,17 @@ import json
 
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
+<<<<<<< HEAD
 
 
 from monty.json import MSONable
+=======
+from monty.json import MSONable
+from monty.dev import requires
+
+from pymatgen import SETTINGS, MPRester
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class PymatgenTest(unittest.TestCase):
     """
@@ -46,6 +58,15 @@ class PymatgenTest(unittest.TestCase):
     def get_structure(cls, name):
         return cls.TEST_STRUCTURES[name].copy()
 
+<<<<<<< HEAD
+=======
+    @classmethod
+    @requires(SETTINGS.get("MAPI_KEY"), "MAPI_KEY needs to be set.")
+    def get_mp_structure(cls, mpid):
+        m = MPRester()
+        return m.get_structure_by_material_id(mpid)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
                             verbose=True):
@@ -137,7 +158,15 @@ class PymatgenTest(unittest.TestCase):
             # Test for equality
             if test_eq:
                 for old_obj, new_obj in zip(objects, new_objects):
+<<<<<<< HEAD
                     self.assert_equal(old_obj, new_obj)
+=======
+                    #print("old_obj:", type(old_obj))
+                    #print(old_obj)
+                    #print("new_obj:", type(new_obj))
+                    #print(new_obj)
+                    self.assertEqual(old_obj, new_obj)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
@@ -162,10 +191,22 @@ class PymatgenTest(unittest.TestCase):
 
         return tmpfile
 
+<<<<<<< HEAD
     def assertMSONable(self, obj):
         """
         Tests if obj is MSONable and tries to verify whether the contract is fullfilled.
         """
         self.assertIsInstance(obj, MSONable)
+=======
+    def assertMSONable(self, obj, test_if_subclass=True):
+        """
+        Tests if obj is MSONable and tries to verify whether the contract is fullfilled.
+
+        By default, the method tests whether obj is an instance of MSONable. 
+        This check can be deactivated by setting test_if_subclass to False.
+        """
+        if test_if_subclass:
+            self.assertIsInstance(obj, MSONable)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
         json.loads(obj.to_json(), cls=MontyDecoder)

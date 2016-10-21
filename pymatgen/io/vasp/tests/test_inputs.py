@@ -21,6 +21,10 @@ import os
 import pickle
 import numpy as np
 import warnings
+<<<<<<< HEAD
+=======
+from pymatgen import SETTINGS
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 import scipy.constants as const
 
@@ -92,6 +96,21 @@ direct
                                                      [False, False, False]])
         self.selective_poscar = poscar
 
+<<<<<<< HEAD
+=======
+    def test_from_file(self):
+        filepath = os.path.join(test_dir, 'POSCAR.symbols_natoms_multilines')
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False, read_velocities=False)
+        ordered_expected_elements = ['Fe', 'Cr', 'Fe', 'Fe', 'Cr', 'Cr', 'Cr', 'Cr',
+                                     'Fe', 'Fe', 'Cr', 'Fe', 'Cr', 'Fe', 'Fe', 'Cr',
+                                     'Fe', 'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Fe',
+                                     'Ni', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
+                                     'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr',
+                                     'Fe', 'Fe', 'Ni', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
+                                     'Fe', 'Fe', 'Fe', 'Fe', 'Fe']
+        self.assertEqual([site.specie.symbol for site in poscar.structure], ordered_expected_elements)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_to_from_dict(self):
         poscar_string = """Test3
 1.0
@@ -616,11 +635,18 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
+<<<<<<< HEAD
         if "VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__),
                              "..", "..", "..", "..", "test_files"))
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
+=======
+        test_potcar_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__),
+                         "..", "..", "..", "..", "test_files"))
+        SETTINGS["VASP_PSP_DIR"] = test_potcar_dir
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 

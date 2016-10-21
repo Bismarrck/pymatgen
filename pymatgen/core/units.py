@@ -4,24 +4,9 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements a FloatWithUnit, which is a subclass of float. It
-also defines supported units for some commonly used units for energy, length,
-temperature, time and charge. FloatWithUnit also support conversion to one
-another, and additions and subtractions perform automatic conversion if
-units are detected. An ArrayWithUnit is also implemented, which is a subclass
-of numpy's ndarray with similar unit features.
-"""
-
+<<<<<<< HEAD
+=======
 from six.moves import filter, zip
-
-__author__ = "Shyue Ping Ong, Matteo Giantomassi"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
-__status__ = "Production"
-__date__ = "Aug 30, 2013"
-
 import numpy as np
 import six
 
@@ -33,6 +18,44 @@ from functools import partial
 import re
 
 import scipy.constants as const
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+"""
+This module implements a FloatWithUnit, which is a subclass of float. It
+also defines supported units for some commonly used units for energy, length,
+temperature, time and charge. FloatWithUnit also support conversion to one
+another, and additions and subtractions perform automatic conversion if
+units are detected. An ArrayWithUnit is also implemented, which is a subclass
+of numpy's ndarray with similar unit features.
+"""
+
+<<<<<<< HEAD
+from six.moves import filter, zip
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+
+__author__ = "Shyue Ping Ong, Matteo Giantomassi"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
+__status__ = "Production"
+__date__ = "Aug 30, 2013"
+
+<<<<<<< HEAD
+import numpy as np
+import six
+
+import collections
+from numbers import Number
+import numbers
+from functools import partial
+
+import re
+
+import scipy.constants as const
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 """
 Some conversion factors

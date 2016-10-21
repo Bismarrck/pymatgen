@@ -6,9 +6,15 @@ import json
 import os
 
 import numpy as np
+<<<<<<< HEAD
 
 from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
 from pymatgen.core.operations import SymmOp
+=======
+from pymatgen.analysis.elasticity.tensors import TensorBase, SquareTensor
+from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.util.testing import PymatgenTest
 from pymatgen import Structure
 
@@ -223,11 +229,41 @@ class TensorBaseTest(PymatgenTest):
         self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
 
     def test_convert_to_ieee(self):
+<<<<<<< HEAD
         for xtal in self.ieee_data.keys():
             orig = TensorBase(self.ieee_data[xtal]['original_tensor'])
             ieee = TensorBase(self.ieee_data[xtal]['ieee_tensor'])
             struct = Structure.from_dict(self.ieee_data[xtal]['structure'])
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct))
+=======
+        for entry in self.ieee_data:
+            xtal = entry['xtal']
+            orig = TensorBase(entry['original_tensor'])
+            ieee = TensorBase(entry['ieee_tensor'])
+            struct = Structure.from_dict(entry['structure'])
+            diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
+            err_msg = "{} IEEE conversion failed with max diff {}".format(
+                xtal, diff) 
+            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
+                                        err_msg = err_msg, decimal=3)
+
+    def test_from_voigt(self):
+        with self.assertRaises(ValueError):
+            TensorBase.from_voigt([[59.33, 28.08, 28.08, 0],
+                                   [28.08, 59.31, 28.07, 0],
+                                   [28.08, 28.07, 59.32, 0, 0],
+                                   [0, 0, 0, 26.35, 0],
+                                   [0, 0, 0, 0, 26.35]])
+        # Rank 4
+        TensorBase.from_voigt([[59.33, 28.08, 28.08, 0, 0, 0],
+                               [28.08, 59.31, 28.07, 0, 0, 0],
+                               [28.08, 28.07, 59.32, 0, 0, 0],
+                               [0, 0, 0, 26.35, 0, 0],
+                               [0, 0, 0, 0, 26.35, 0],
+                               [0, 0, 0, 0, 0, 26.35]])
+        # Rank 3
+        #TensorBase.from_voigt([[]])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):

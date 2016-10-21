@@ -14,6 +14,10 @@ from pymatgen.core.lattice import Lattice
 import random
 import warnings
 import os
+<<<<<<< HEAD
+=======
+import numpy as np
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class IStructureTest(PymatgenTest):
@@ -83,8 +87,13 @@ class IStructureTest(PymatgenTest):
                           for site in s.get_sorted_structure()],
                          ["C", "C", "Se", "Se"])
 
+<<<<<<< HEAD
     def test_get_spacegroup_data(self):
         self.assertEqual(self.struct.get_spacegroup_info(), ('Fd-3m', 227))
+=======
+    def test_get_space_group_data(self):
+        self.assertEqual(self.struct.get_space_group_info(), ('Fd-3m', 227))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def test_fractional_occupations(self):
         coords = list()
@@ -267,11 +276,34 @@ class IStructureTest(PymatgenTest):
                                     int_s[2].lattice.abc)
         self.assertArrayAlmostEqual(struct2.lattice.angles,
                                     int_s[2].lattice.angles)
+<<<<<<< HEAD
         int_angles = [(a + struct2.lattice.angles[i]) / 2
                       for i, a in enumerate(struct.lattice.angles)]
         self.assertArrayAlmostEqual(int_angles,
                                     int_s[1].lattice.angles)
 
+=======
+        int_angles = [110.3976469, 94.5359731, 64.5165856]
+        self.assertArrayAlmostEqual(int_angles,
+                                    int_s[1].lattice.angles)
+
+        # Assert that volume is monotonic
+        self.assertTrue(struct2.lattice.volume >= int_s[1].lattice.volume)
+        self.assertTrue(int_s[1].lattice.volume >= struct.lattice.volume)
+
+    def test_interpolate_lattice_rotation(self):
+        l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        l2 = Lattice([[-1.01, 0, 0], [0, -1.01, 0], [0, 0, 1]])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        struct1 = IStructure(l1, ["Si"] * 2, coords)
+        struct2 = IStructure(l2, ["Si"] * 2, coords)
+        int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
+
+        # Assert that volume is monotonic
+        self.assertTrue(struct2.lattice.volume >= int_s[1].lattice.volume)
+        self.assertTrue(int_s[1].lattice.volume >= struct1.lattice.volume)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -682,18 +714,95 @@ class StructureTest(PymatgenTest):
                           "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
+<<<<<<< HEAD
+=======
+        self.assertRaises(ValueError, Structure.from_spacegroup,
+                          "Pm-3m", Lattice.cubic(3), ["Cs"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_merge_sites(self):
         species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
                    {'Ag': 0.5}, {'F': 0.15}, {'F': 0.1}]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5],
                   [0, 0, 0], [0.5, 0.5, 1.501], [0.5, 0.5, 1.501]]
         s = Structure(Lattice.cubic(1), species, coords)
+<<<<<<< HEAD
         s.merge_sites()
+=======
+        s.merge_sites(mode="s")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.assertEqual(s[0].specie.symbol, 'Ag')
         self.assertEqual(s[1].species_and_occu,
                          Composition({'Cl': 0.35, 'F': 0.25}))
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
+<<<<<<< HEAD
+=======
+        # Test for TaS2 with spacegroup 166 in 160 setting.
+        l = Lattice.from_lengths_and_angles([3.374351, 3.374351, 20.308941],
+                                            [90.000000, 90.000000, 120.000000])
+        species = ["Ta", "S", "S"]
+        coords = [[0.000000, 0.000000, 0.944333], [0.333333, 0.666667, 0.353424],
+                  [0.666667, 0.333333, 0.535243]]
+        tas2 = Structure.from_spacegroup(160, l, species, coords)
+        assert len(tas2) == 13
+        tas2.merge_sites(mode="d")
+        assert len(tas2) == 9
+
+        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
+                                            [90.000000, 90.000000, 120.000000])
+        species = ["Na", "V", "S", "S"]
+        coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
+                  [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
+        navs2 = Structure.from_spacegroup(160, l, species, coords)
+        assert len(navs2) == 18
+        navs2.merge_sites(mode="d")
+        assert len(navs2) == 12
+
+    def test_properties(self):
+        self.assertEqual(self.structure.num_sites, len(self.structure))
+        self.structure.make_supercell(2)
+        self.structure[1] = "C"
+        sites = list(self.structure.group_by_types())
+        self.assertEqual(sites[-1].specie.symbol, "C")
+        self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
+        self.assertEqual(self.structure.charge, 62)
+
+    def test_set_item(self):
+        s = self.structure.copy()
+        s[0] = "C"
+        self.assertEqual(s.formula, "Si1 C1")
+        s[(0, 1)] = "Ge"
+        self.assertEqual(s.formula, "Ge2")
+        s[0:2] = "Sn"
+        self.assertEqual(s.formula, "Sn2")
+
+        s = self.structure.copy()
+        s["Si"] = "C"
+        self.assertEqual(s.formula, "C2")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si1 C0.5")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si1.25 C0.125")
+
+    def test_init_error(self):
+        self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+    def test_from_sites(self):
+        self.structure.add_site_property("hello", [1, 2])
+        s = Structure.from_sites(self.structure, to_unit_cell=True)
+        self.assertEqual(s.site_properties["hello"][1], 2)
+
+    def test_magic(self):
+        s = Structure.from_sites(self.structure)
+        self.assertEqual(s, self.structure)
+        self.assertNotEqual(s, None)
+        s.apply_strain(0.5)
+        self.assertNotEqual(s, self.structure)
+        self.assertNotEqual(self.structure * 2, self.structure)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class IMoleculeTest(PymatgenTest):
 
@@ -706,6 +815,26 @@ class IMoleculeTest(PymatgenTest):
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
+<<<<<<< HEAD
+=======
+    def test_set_item(self):
+        s = self.mol.copy()
+        s[0] = "Si"
+        self.assertEqual(s.formula, "Si1 H4")
+        s[(0, 1)] = "Ge"
+        self.assertEqual(s.formula, "Ge2 H3")
+        s[0:2] = "Sn"
+        self.assertEqual(s.formula, "Sn2 H3")
+
+        s = self.mol.copy()
+        s["H"] = "F"
+        self.assertEqual(s.formula, "C1 F4")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si0.5 C0.25 F4")
+        s["C"] = "C0.25Si0.5"
+        self.assertEqual(s.formula, "Si0.625 C0.0625 F4")
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_bad_molecule(self):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
@@ -777,6 +906,17 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(len(s2), 24 * 5)
         self.assertEqual(s2.lattice.abc, (10, 15, 20))
 
+<<<<<<< HEAD
+=======
+        # Test offset option
+        s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5,0.5,0.5])
+        self.assertArrayAlmostEqual(s3[4].coords,
+                                    [5,5,5])
+        # Test no_cross option
+        self.assertRaises(ValueError, self.mol.get_boxed_structure,
+                          5, 5, 5, offset=[10,10,10],no_cross = True)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
 
@@ -914,6 +1054,14 @@ class MoleculeTest(PymatgenTest):
         self.assertArrayEqual(self.mol.cart_coords[0],
                               [0.5, 0.5, 0.5])
 
+<<<<<<< HEAD
+=======
+    def test_rotate_sites(self):
+        self.mol.rotate_sites(theta=np.radians(30))
+        self.assertArrayAlmostEqual(self.mol.cart_coords[2],
+                              [  0.889164737,   0.513359500,  -0.363000000])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_replace(self):
         self.mol[0] = "Ge"
         self.assertEqual(self.mol.formula, "Ge1 H4")

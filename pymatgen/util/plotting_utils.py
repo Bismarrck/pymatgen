@@ -147,7 +147,14 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
 
 def add_fig_kwargs(func):
     """
+<<<<<<< HEAD
     Decorator that adds keyword arguments for functions returning matplotlib figure.
+=======
+    Decorator that adds keyword arguments for functions returning matplotlib figures.
+
+    The function should return either a matplotlib figure or None to signal
+    some sort of error/unexpected event.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     See doc string below for the list of supported options.
     """
     from functools import wraps
@@ -160,8 +167,14 @@ def add_fig_kwargs(func):
         savefig = kwargs.pop("savefig", None)
         tight_layout = kwargs.pop("tight_layout", False)
 
+<<<<<<< HEAD
         # Call func
         fig = func(*args, **kwargs)
+=======
+        # Call func and return immediately if None is returned.
+        fig = func(*args, **kwargs)
+        if fig is None: return fig
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # Operate on matplotlib figure.
         if title is not None: fig.suptitle(title)

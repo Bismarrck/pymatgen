@@ -7,15 +7,21 @@ from __future__ import unicode_literals, division, print_function
 import os.path
 import collections
 import numpy as np
+<<<<<<< HEAD
 import unittest2 as unittest
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
 
+<<<<<<< HEAD
 try:
     import pseudo_dojo
 except ImportError:
     pseudo_dojo = False
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
@@ -36,7 +42,11 @@ class PseudoTestCase(PymatgenTest):
 
         self.nc_pseudos = collections.defaultdict(list)
 
+<<<<<<< HEAD
         for (symbol, fnames) in nc_pseudo_fnames.items():
+=======
+        for symbol, fnames in nc_pseudo_fnames.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
                 pseudo = Pseudo.from_file(fname)
@@ -52,7 +62,11 @@ class PseudoTestCase(PymatgenTest):
 
     def test_nc_pseudos(self):
         """Test norm-conserving pseudopotentials"""
+<<<<<<< HEAD
         for (symbol, pseudos) in self.nc_pseudos.items():
+=======
+        for symbol, pseudos in self.nc_pseudos.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for pseudo in pseudos:
                 print(repr(pseudo))
                 print(pseudo)
@@ -62,19 +76,33 @@ class PseudoTestCase(PymatgenTest):
                 self.assertEqual(pseudo.symbol, symbol)
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
+<<<<<<< HEAD
                 print(pseudo.as_dict())
 
                 self.assertMSONable(pseudo)
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
 
+<<<<<<< HEAD
+=======
+                # Test MSONable
+                #print(pseudo.as_dict())
+                self.assertMSONable(pseudo)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # HGH pseudos
         pseudo = self.Si_hgh
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
+<<<<<<< HEAD
 
+=======
+        assert not pseudo.supports_soc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         assert self.Si_hgh.md5 is not None
         assert self.Si_hgh == self.Si_hgh
 
@@ -83,7 +111,11 @@ class PseudoTestCase(PymatgenTest):
         self.assertTrue(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 2)
         self.assertEqual(pseudo.l_local, 2)
+<<<<<<< HEAD
 
+=======
+        assert not pseudo.supports_soc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         assert self.Si_hgh != self.Si_pspnc
 
         # FHI pseudos
@@ -91,6 +123,10 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 3)
         self.assertEqual(pseudo.l_local, 2)
+<<<<<<< HEAD
+=======
+        assert not pseudo.supports_soc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
@@ -120,11 +156,21 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+<<<<<<< HEAD
+=======
+        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
+        assert oxygen.supports_soc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
+<<<<<<< HEAD
+=======
+        # Test MSONable
+        self.assertMSONable(oxygen)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for o in new_objs:
             print(repr(o))
@@ -138,9 +184,15 @@ class PseudoTestCase(PymatgenTest):
 
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
 
+<<<<<<< HEAD
     def test_oncvpsp_pseudo(self):
         """
         Test the ONCVPSP Ge pseudo
+=======
+    def test_oncvpsp_pseudo_sr(self):
+        """
+        Test the ONCVPSP Ge pseudo (scalar relativistic version).
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
@@ -156,6 +208,7 @@ class PseudoTestCase(PymatgenTest):
         self.assert_equal(ger.l_max, 2)
         self.assert_equal(ger.l_local, 4)
         self.assert_equal(ger.rcore, None)
+<<<<<<< HEAD
         self.assertFalse(ger.has_dojo_report)
 
     def test_oncvpsp_dojo_report(self):
@@ -234,6 +287,36 @@ class PseudoTestCase(PymatgenTest):
             self.assertIsInstance(report.plot_gbrv_eos('bcc', show=False), Fig)
             self.assertIsInstance(report.plot_gbrv_eos('fcc', show=False), Fig)
             self.assertIsInstance(report.plot_phonon_convergence(show=False), Fig)
+=======
+        assert not ger.supports_soc
+
+        # Data persistence
+        self.serialize_with_pickle(ger, test_eq=False)
+        self.assertMSONable(ger)
+
+    def test_oncvpsp_pseudo_fr(self):
+        """
+        Test the ONCVPSP Pb pseudo (relativistic version with SO).
+        """
+        pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8"))
+        print(repr(pb))
+        print(pb)
+        #print(pb.as_dict())
+        #pb.as_tmpfile()
+
+        # Data persistence
+        self.serialize_with_pickle(pb, test_eq=False)
+        self.assertMSONable(pb)
+
+        self.assertTrue(pb.symbol == "Pb")
+        self.assert_equal(pb.Z, 82.0)
+        self.assert_equal(pb.Z_val, 14.0)
+        self.assertTrue(pb.isnc)
+        self.assertFalse(pb.ispaw)
+        self.assert_equal(pb.l_max, 2)
+        self.assert_equal(pb.l_local, 4)
+        self.assertTrue(pb.supports_soc)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class PseudoTableTest(PymatgenTest):
@@ -260,8 +343,11 @@ class PseudoTableTest(PymatgenTest):
 
         with self.assertRaises(ValueError):
             table.pseudos_with_symbols("Si")
+<<<<<<< HEAD
 
 
 if __name__ == "__main__":
     import unittest2 as unittest
     unittest.main()
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

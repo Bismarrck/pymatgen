@@ -1,7 +1,10 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from __future__ import unicode_literals, division, print_function
 
 import os

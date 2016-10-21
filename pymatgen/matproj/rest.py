@@ -3,8 +3,34 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+<<<<<<< HEAD
 from six import string_types
 
+=======
+
+import itertools
+import json
+import os
+import re
+import warnings
+
+import requests
+from monty.json import MontyDecoder, MontyEncoder
+from six import string_types
+
+from pymatgen import SETTINGS
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
+from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.matproj.snl import StructureNL
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -23,6 +49,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
+<<<<<<< HEAD
 import os
 import requests
 import json
@@ -43,6 +70,8 @@ from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.core.structure import Structure
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class MPRester(object):
     """
@@ -99,7 +128,11 @@ class MPRester(object):
         if api_key is not None:
             self.api_key = api_key
         else:
+<<<<<<< HEAD
             self.api_key = os.environ.get("MAPI_KEY", "")
+=======
+            self.api_key = SETTINGS.get("MAPI_KEY", "")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.preamble = endpoint
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
@@ -127,10 +160,14 @@ class MPRester(object):
                 response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
+<<<<<<< HEAD
                     try:
                         data = json.loads(response.text, cls=MPDecoder)
                     except:
                         data = json.loads(response.text)
+=======
+                    data = json.loads(response.text, cls=MontyDecoder)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 else:
                     data = json.loads(response.text)
                 if data["valid_response"]:
@@ -264,7 +301,11 @@ class MPRester(object):
                 '{}/find_structure'.format(self.preamble), data=payload
             )
             if response.status_code in [200, 400]:
+<<<<<<< HEAD
                 resp = json.loads(response.text, cls=MPDecoder)
+=======
+                resp = json.loads(response.text, cls=MontyDecoder)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if resp['valid_response']:
                     return resp['response']
                 else:
@@ -405,8 +446,13 @@ class MPRester(object):
         Returns:
             ComputedEntry or ComputedStructureEntry object.
         """
+<<<<<<< HEAD
         data = self.get_entries(material_id, compatible_only=compatible_only,\
                inc_structure=inc_structure, property_data=property_data)
+=======
+        data = self.get_entries(material_id, compatible_only=compatible_only,
+                                inc_structure=inc_structure, property_data=property_data)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
@@ -504,6 +550,7 @@ class MPRester(object):
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
 
+<<<<<<< HEAD
     def get_vasp_input_set(self, date_string=None):
         """
         Returns the VaspInputSet used by the Materials Project at a
@@ -535,6 +582,8 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def query(self, criteria, properties, mp_decode=True):
         """
         Performs an advanced query, which is a Mongo-like syntax for directly
@@ -669,7 +718,11 @@ class MPRester(object):
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
             if response.status_code in [200, 400]:
+<<<<<<< HEAD
                 resp = json.loads(response.text, cls=MPDecoder)
+=======
+                resp = json.loads(response.text, cls=MontyDecoder)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -705,7 +758,11 @@ class MPRester(object):
                 "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
+<<<<<<< HEAD
                 resp = json.loads(response.text, cls=MPDecoder)
+=======
+                resp = json.loads(response.text, cls=MontyDecoder)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -835,7 +892,11 @@ class MPRester(object):
             response = self.session.post("{}/phase_diagram/calculate_stability"
                                          .format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
+<<<<<<< HEAD
                 resp = json.loads(response.text, cls=MPDecoder)
+=======
+                resp = json.loads(response.text, cls=MontyDecoder)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -860,7 +921,42 @@ class MPRester(object):
         """
         return self._make_request("/reaction",
                                   payload={"reactants[]": reactants,
+<<<<<<< HEAD
                                            "products[]": products})
+=======
+                                           "products[]": products}, mp_decode=False)
+
+    def get_substrates(self, material_id, number=50, orient=None):
+        """
+        Get a substrate list for a material id. The list is in order of
+        increasing elastic energy if a elastic tensor is available for
+        the material_id. Otherwise the list is in order of increasing
+        matching area.
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            orient (list) : substrate orientation to look for
+            number (int) : number of substrates to return;
+                n=0 returns all available matches
+        Returns:
+            list of dicts with substrate matches
+        """
+        req = "/materials/{}/substrates?n={}".format(material_id, number)
+        if orient:
+            req += "&orient={}".format(" ".join(map(str, orient)))
+        return self._make_request(req)
+
+    def get_all_substrates(self):
+        """
+        Gets the list of all possible substrates considered in the
+        Materials Project substrate database
+
+        Returns:
+            list of material_ids corresponding to possible substrates
+        """
+
+        return self._make_request("/materials/all_substrate_ids")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @staticmethod
     def parse_criteria(criteria_string):
@@ -927,7 +1023,11 @@ class MPRester(object):
                 for f in itertools.product(*parts):
                     c = Composition("".join(f))
                     if len(c) == nelements:
+<<<<<<< HEAD
                         #Check for valid Elements in keys.
+=======
+                        # Check for valid Elements in keys.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         for e in c.keys():
                             Element(e.symbol)
                         all_formulas.add(c.reduced_formula)
@@ -946,6 +1046,7 @@ class MPRestError(Exception):
     """
     pass
 
+<<<<<<< HEAD
 
 class MPDecoder(MontyDecoder):
     """
@@ -979,3 +1080,5 @@ class MPDecoder(MontyDecoder):
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         return MontyDecoder.process_decoded(self, d)
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

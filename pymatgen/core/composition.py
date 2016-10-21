@@ -28,7 +28,11 @@ from six.moves import filter, map, zip
 from fractions import Fraction
 from functools import total_ordering
 
+<<<<<<< HEAD
 from monty.fractions import gcd, lcm
+=======
+from monty.fractions import gcd, lcm, gcd_float
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
@@ -140,7 +144,12 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             sp = get_el_sp(item)
             return self._data.get(sp, 0)
         except ValueError as ex:
+<<<<<<< HEAD
             raise TypeError("Invalid key type for Composition")
+=======
+            raise TypeError("Invalid key {}, {} for Composition\n"
+                            "ValueError exception:\n{}".format(item, type(item), ex))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __len__(self):
         return len(self._data)
@@ -153,7 +162,12 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             sp = get_el_sp(item)
             return sp in self._data
         except ValueError:
+<<<<<<< HEAD
             raise TypeError("Invalid key type for Composition")
+=======
+            raise TypeError("Invalid key {}, {} for Composition\n"
+                            "ValueError exception:\n{}".format(item, type(item), ex))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __eq__(self, other):
         #  elements with amounts < Composition.amount_tolerance don't show up
@@ -342,10 +356,18 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
+<<<<<<< HEAD
         all_int = all(x == int(x) for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = self.get_el_amt_dict()
+=======
+        all_int = all(abs(x - round(x)) < Composition.amount_tolerance
+                      for x in self.values())
+        if not all_int:
+            return self.formula.replace(" ", ""), 1
+        d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         (formula, factor) = reduce_formula(d)
 
         if formula in Composition.special_formulas:
@@ -366,17 +388,28 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
+<<<<<<< HEAD
         vals = [Fraction(v).limit_denominator(max_denominator)
                 for v in self.values()]
         denom = lcm(*(f.denominator for f in vals))
 
         mul = gcd(*[int(v * denom) for v in vals])
         d = {k: round(v / mul * denom) for k, v in self.get_el_amt_dict().items()}
+=======
+        el_amt = self.get_el_amt_dict()
+        g = gcd_float(list(el_amt.values()), 1 / max_denominator)
+
+        d = {k: round(v / g) for k, v in el_amt.items()}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         (formula, factor) = reduce_formula(d)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
+<<<<<<< HEAD
         return formula, factor * mul / denom
+=======
+        return formula, factor * g
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def reduced_formula(self):
@@ -449,7 +482,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
+<<<<<<< HEAD
             for m in re.finditer(r"([A-Z][a-z]*)([-*\.\d]*)", f):
+=======
+            for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
@@ -460,7 +497,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
 
+<<<<<<< HEAD
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
+=======
+        m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if m:
             factor = 1
             if m.group(2) != "":

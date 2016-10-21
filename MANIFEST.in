@@ -1,5 +1,13 @@
 include *.rst LICENSE.rst CHANGES.rst requirements*.txt
 recursive-include pymatgen *.py *.json *.yaml
+<<<<<<< HEAD
 recursive-include scripts *
 prune */*/tests
 prune */*/*/tests
+=======
+recursive-exclude pymatgen tests/*.*
+#prune */*/tests
+#prune */*/*/tests
+#prune */*/*/*/tests
+#prune */*/*/*/*/tests
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

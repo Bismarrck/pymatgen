@@ -4,6 +4,25 @@
 
 from __future__ import division, unicode_literals
 
+<<<<<<< HEAD
+=======
+from six.moves import map
+from six.moves import zip
+
+import math
+import itertools
+import logging
+import time
+
+from monty.json import MSONable
+
+import numpy as np
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.transformation_abc import AbstractTransformation
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations
@@ -11,9 +30,12 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
+<<<<<<< HEAD
 from six.moves import map
 from six.moves import zip
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -21,6 +43,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
+<<<<<<< HEAD
 import math
 import itertools
 import logging
@@ -31,6 +54,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class InsertSitesTransformation(AbstractTransformation):
     """
@@ -49,6 +74,7 @@ class InsertSitesTransformation(AbstractTransformation):
                  validate_proximity=True):
         if len(species) != len(coords):
             raise ValueError("Species and coords must be the same length!")
+<<<<<<< HEAD
         self._species = species
         self._coords = coords
         self._cartesian = coords_are_cartesian
@@ -60,11 +86,28 @@ class InsertSitesTransformation(AbstractTransformation):
             s.insert(i, sp, self._coords[i],
                      coords_are_cartesian=self._cartesian,
                      validate_proximity=self._validate_proximity)
+=======
+        self.species = species
+        self.coords = coords
+        self.coords_are_cartesian = coords_are_cartesian
+        self.validate_proximity = validate_proximity
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        for i, sp in enumerate(self.species):
+            s.insert(i, sp, self.coords[i],
+                     coords_are_cartesian=self.coords_are_cartesian,
+                     validate_proximity=self.validate_proximity)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return s.get_sorted_structure()
 
     def __str__(self):
         return "InsertSiteTransformation : " + \
+<<<<<<< HEAD
             "species {}, coords {}".format(self._species, self._coords)
+=======
+            "species {}, coords {}".format(self.species, self.coords)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -77,6 +120,7 @@ class InsertSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
+<<<<<<< HEAD
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species": self._species, "coords": [list(x) for x in self._coords],
@@ -85,6 +129,8 @@ class InsertSitesTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """
@@ -99,18 +145,30 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             structure.
     """
     def __init__(self, indices_species_map):
+<<<<<<< HEAD
         self._indices_species_map = indices_species_map
 
     def apply_transformation(self, structure):
         s = structure.copy()
         for i, sp in self._indices_species_map.items():
+=======
+        self.indices_species_map = indices_species_map
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        for i, sp in self.indices_species_map.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             s[int(i)] = sp
         return s
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + \
             ", ".join(["{}->{}".format(k, v) + v for k, v in
+<<<<<<< HEAD
                        self._indices_species_map.items()])
+=======
+                       self.indices_species_map.items()])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -123,6 +181,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
+<<<<<<< HEAD
     def as_dict(self):
         return {
             "name": self.__class__.__name__, "version": __version__,
@@ -130,6 +189,8 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class RemoveSitesTransformation(AbstractTransformation):
     """
@@ -139,6 +200,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
     """
     def __init__(self, indices_to_remove):
+<<<<<<< HEAD
         self._indices = indices_to_remove
 
     def apply_transformation(self, structure):
@@ -149,6 +211,18 @@ class RemoveSitesTransformation(AbstractTransformation):
     def __str__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str,
                                                              self._indices))
+=======
+        self.indices_to_remove = indices_to_remove
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        s.remove_sites(self.indices_to_remove)
+        return s
+
+    def __str__(self):
+        return "RemoveSitesTransformation :" + ", ".join(
+            map(str, self.indices_to_remove))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -161,12 +235,15 @@ class RemoveSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
+<<<<<<< HEAD
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_remove": self._indices},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class TranslateSitesTransformation(AbstractTransformation):
     """
@@ -174,13 +251,21 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     Args:
         indices_to_move: The indices of the sites to move
+<<<<<<< HEAD
         translation_vector: Vector to move the sites.
+=======
+        translation_vector: Vector to move the sites. If a list of list or numpy
+            array of shape, (len(indices_to_move), 3), is provided then each
+            translation vector is applied to the corresponding site in the
+            indices_to_move.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         vector_in_frac_coords: Set to True if the translation vector is in
             fractional coordinates, and False if it is in cartesian
             coordinations. Defaults to True.
     """
     def __init__(self, indices_to_move, translation_vector,
                  vector_in_frac_coords=True):
+<<<<<<< HEAD
         self._indices = indices_to_move
         self._vector = translation_vector
         self._frac = vector_in_frac_coords
@@ -188,12 +273,32 @@ class TranslateSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         s = structure.copy()
         s.translate_sites(self._indices, self._vector, self._frac)
+=======
+        self.indices_to_move = indices_to_move
+        self.translation_vector = np.array(translation_vector)
+        self.vector_in_frac_coords = vector_in_frac_coords
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        if self.translation_vector.shape == (len(self.indices_to_move), 3):
+            for i, idx in enumerate(self.indices_to_move):
+                s.translate_sites(idx, self.translation_vector[i],
+                                  self.vector_in_frac_coords)
+        else:
+            s.translate_sites(self.indices_to_move, self.translation_vector,
+                              self.vector_in_frac_coords)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return s
 
     def __str__(self):
         return "TranslateSitesTransformation for indices " + \
             "{}, vect {} and vect_in_frac_coords = {}".format(
+<<<<<<< HEAD
                 self._indices, self._vector, self._frac)
+=======
+                self.indices_to_move, self.translation_vector,
+                self.vector_in_frac_coords)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -201,19 +306,33 @@ class TranslateSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return TranslateSitesTransformation(
+<<<<<<< HEAD
             self._indices, [-c for c in self._vector], self._frac)
+=======
+            self.indices_to_move, -self.translation_vector,
+            self.vector_in_frac_coords)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def is_one_to_many(self):
         return False
 
     def as_dict(self):
+<<<<<<< HEAD
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_move": self._indices,
                               "translation_vector": self._vector,
                               "vector_in_frac_coords": self._frac},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
+=======
+        """
+        Json-serializable dict representation.
+        """
+        d = MSONable.as_dict(self)
+        d["translation_vector"] = self.translation_vector.tolist()
+        return d
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
@@ -274,9 +393,15 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     ALGO_ENUMERATE = 3
 
     def __init__(self, indices, fractions, algo=ALGO_COMPLETE):
+<<<<<<< HEAD
         self._indices = indices
         self._fractions = fractions
         self._algo = algo
+=======
+        self.indices = indices
+        self.fractions = fractions
+        self.algo = algo
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def best_first_ordering(self, structure, num_remove_dict):
@@ -324,8 +449,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         symprec = 0.2
         s = SpacegroupAnalyzer(structure, symprec=symprec)
         self.logger.debug("Symmetry of structure is determined to be {}."
+<<<<<<< HEAD
                           .format(s.get_spacegroup_symbol()))
         sg = s.get_spacegroup()
+=======
+                          .format(s.get_space_group_symbol()))
+        sg = s.get_space_group_operations()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         tested_sites = []
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
@@ -430,7 +560,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def enumerate_ordering(self, structure):
         # Generate the disordered structure first.
         s = structure.copy()
+<<<<<<< HEAD
         for indices, fraction in zip(self._indices, self._fractions):
+=======
+        for indices, fraction in zip(self.indices, self.fractions):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for ind in indices:
                 new_sp = {sp: occu * fraction
                           for sp, occu
@@ -465,7 +599,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combis = 0
+<<<<<<< HEAD
         for indices, frac in zip(self._indices, self._fractions):
+=======
+        for indices, frac in zip(self.indices, self.fractions):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             num_to_remove = len(indices) * frac
             if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with "
@@ -489,6 +627,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Will return {} best structures."
                           .format(num_to_return))
 
+<<<<<<< HEAD
         if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
             all_structures = self.fast_ordering(structure, num_remove_dict,
                                                 num_to_return)
@@ -498,6 +637,17 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             all_structures = self.best_first_ordering(structure,
                                                       num_remove_dict)
         elif self._algo == PartialRemoveSitesTransformation.ALGO_ENUMERATE:
+=======
+        if self.algo == PartialRemoveSitesTransformation.ALGO_FAST:
+            all_structures = self.fast_ordering(structure, num_remove_dict,
+                                                num_to_return)
+        elif self.algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
+            all_structures = self.complete_ordering(structure, num_remove_dict)
+        elif self.algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
+            all_structures = self.best_first_ordering(structure,
+                                                      num_remove_dict)
+        elif self.algo == PartialRemoveSitesTransformation.ALGO_ENUMERATE:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             all_structures = self.enumerate_ordering(structure)
         else:
             raise ValueError("Invalid algo.")
@@ -508,7 +658,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "PartialRemoveSitesTransformation : Indices and fraction" + \
+<<<<<<< HEAD
                " to remove = {}, ALGO = {}".format(self._indices, self._algo)
+=======
+               " to remove = {}, ALGO = {}".format(self.indices, self.algo)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -520,6 +674,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
+<<<<<<< HEAD
 
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
@@ -528,3 +683,5 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                               "algo": self._algo},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

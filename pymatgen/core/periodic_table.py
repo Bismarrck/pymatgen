@@ -7,6 +7,10 @@ from __future__ import division, unicode_literals, print_function
 import os
 import re
 import json
+<<<<<<< HEAD
+=======
+import warnings
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from io import open
 from enum import Enum
 
@@ -14,7 +18,10 @@ from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string_utils import formula_double_format
 from monty.json import MSONable
+<<<<<<< HEAD
 from monty.dev import deprecated
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
@@ -899,7 +906,25 @@ class Specie(MSONable):
         """
         Ionic radius of specie. Returns None if data is not present.
         """
+<<<<<<< HEAD
         return self.ionic_radii.get(self._oxi_state, None)
+=======
+
+        if self._oxi_state in self.ionic_radii:
+            return self.ionic_radii[self._oxi_state]
+        d = self._el.data
+        oxstr = str(int(self._oxi_state))
+        if oxstr in d.get("Ionic radii hs", {}):
+            warnings.warn("No default ionic radius for %s. Using hs data." %
+                          self)
+            return d["Ionic radii hs"][oxstr]
+        elif oxstr in d.get("Ionic radii ls", {}):
+            warnings.warn("No default ionic radius for %s. Using ls data." %
+                          self)
+            return d["Ionic radii ls"][oxstr]
+        warnings.warn("No ionic radius for %s!")
+        return None
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @property
     def oxi_state(self):
@@ -1209,6 +1234,7 @@ class DummySpecie(Specie):
         return output
 
 
+<<<<<<< HEAD
 @deprecated(message="PeriodicTable itself is now pretty useless now that "
                     "Element is an Enum. You can simply iterate over all "
                     "elements using for el in Element. print_periodic_table "
@@ -1281,6 +1307,8 @@ class PeriodicTable(object):
             print(" ".join(rowstr))
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def get_el_sp(obj):
     """
     Utility method to get an Element or Specie from an input obj.

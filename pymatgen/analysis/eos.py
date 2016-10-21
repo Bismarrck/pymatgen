@@ -128,10 +128,17 @@ class EOS(object):
        birch
            Intermetallic compounds: Principles and Practice, Vol I: Principles. pages 195-210
 
+<<<<<<< HEAD
        birchmurnaghan
            PRB 70, 224107
 
        pouriertarantola
+=======
+       birch_murnaghan
+           PRB 70, 224107
+
+       pourier_tarantola
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
            PRB 70, 224107
 
        vinet

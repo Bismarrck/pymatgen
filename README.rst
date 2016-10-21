@@ -1,5 +1,10 @@
 **Official docs:** http://www.pymatgen.org
 
+<<<<<<< HEAD
+=======
+.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
 
@@ -62,6 +67,7 @@ Getting pymatgen
 Before installing pymatgen, you may need to first install a few critical
 dependencies manually. Please refer to the official `pymatgen page`_ for
 installation details and requirements, including instructions for the
+<<<<<<< HEAD
 bleeding edge developmental version.
 
 The version at the Python Package Index (PyPI) is always the latest stable
@@ -73,16 +79,36 @@ on any system is to use pip (or easy_install), as follows::
 or::
 
     easy_install pymatgen
+=======
+bleeding edge developmental version. For people who are absolutely new to
+Python packages, it is highly recommended you do the installation using
+conda, which will make things a lot easier, especially on Windows.
+
+The version at the Python Package Index (PyPI) is always the latest stable
+release that is relatively bug-free. The easiest way to install pymatgen on
+any system is to use pip::
+
+    pip install pymatgen
+
+Wheels for Mac (Python 2.7 and 3.5) and Windows (Python 3.5) have been built
+for convenience.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `pymatgen page`_).
 
+<<<<<<< HEAD
 **Note for Windows users**: Given that pymatgen requires several Python C
 extensions, it is generally recommended that you install it in a cygwin or
 equivalent environment with the necessary compilers.
 
 Change Log
 ==========
+=======
+Change Log
+==========
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 The latest change log is available `here <http://pymatgen.org/change_log>`_.
 
 Using pymatgen

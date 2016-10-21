@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 
+<<<<<<< HEAD
 """
 Created on Jun 9, 2012
 """
@@ -19,6 +20,12 @@ __date__ = "Jun 9, 2012"
 import unittest2 as unittest
 import os
 
+=======
+import unittest2 as unittest
+import os
+
+from pymatgen import SETTINGS
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -30,14 +37,33 @@ from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.io.cif import CifParser
 
+<<<<<<< HEAD
 
 import random
+=======
+"""
+Created on Jun 9, 2012
+"""
+
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Jun 9, 2012"
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+<<<<<<< HEAD
 @unittest.skipIf("MAPI_KEY" not in os.environ,
+=======
+@unittest.skipIf("MAPI_KEY" not in SETTINGS,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                  "MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
 
@@ -80,6 +106,10 @@ class MPResterTest(unittest.TestCase):
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
+<<<<<<< HEAD
+=======
+            print(prop)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
             if prop.endswith("structure"):
                 self.assertIsInstance(obj, Structure)
@@ -230,6 +260,14 @@ class MPResterTest(unittest.TestCase):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
 
+<<<<<<< HEAD
+=======
+    def test_get_substrates(self):
+        substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
+        substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
+        self.assertIn("mp-2534", substrates)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])

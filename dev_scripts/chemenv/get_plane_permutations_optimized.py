@@ -102,7 +102,11 @@ if __name__ == '__main__':
     allcg = AllCoordinationGeometries()
 
     sepplane_cgs = []
+<<<<<<< HEAD
     for coordination in range(1, 13):
+=======
+    for coordination in range(1, 14):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
         for symbol, name in symbol_name_mapping.items():
             cg = allcg[symbol]
@@ -184,12 +188,20 @@ if __name__ == '__main__':
             algo._permutations = permutations
             print('Safe permutations found ({:d})'.format(len(permutations)))
 
+<<<<<<< HEAD
             # Definition of the planes
+=======
+            # Definition of the facets
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
                 all_planes_point_indices.extend(algo.other_plane_points)
 
+<<<<<<< HEAD
             # Loop on the planes
+=======
+            # Loop on the facets
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             explicit_permutations_per_plane = []
             for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                 prt1(string='In plane {:d} ({})'.format(iplane, '-'.join(str(pp) for pp in plane_point_indices)),
@@ -274,7 +286,11 @@ if __name__ == '__main__':
             if algo.algorithm_type == 'EXPLICIT_PERMUTATIONS':
                 raise ValueError('Do something for the explicit ones ... (these should anyway be by far ok!)')
 
+<<<<<<< HEAD
             # Definition of the planes
+=======
+            # Definition of the facets
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
                 all_planes_point_indices.extend(algo.other_plane_points)
@@ -316,7 +332,11 @@ if __name__ == '__main__':
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
+<<<<<<< HEAD
                 # Loop on the planes
+=======
+                # Loop on the facets
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 separation_permutations = list()
                 for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(string='In plane {:d} ({})'.format(iplane, '-'.join(str(pp) for pp in plane_point_indices)),

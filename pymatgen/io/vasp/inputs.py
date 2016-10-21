@@ -39,6 +39,10 @@ from tabulate import tabulate
 
 import scipy.constants as const
 
+<<<<<<< HEAD
+=======
+from pymatgen import SETTINGS
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
@@ -294,11 +298,45 @@ class Poscar(MSONable):
         except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
+<<<<<<< HEAD
             natoms = [int(i) for i in lines[6].split()]
             atomic_symbols = list()
             for i in range(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
             ipos = 7
+=======
+            # Atoms and number of atoms in POSCAR written with vasp appear on multiple lines when atoms of the
+            # same type are not grouped together and more than 20 groups are then defined ...
+            # Example :
+            # Cr16 Fe35 Ni2
+            #    1.00000000000000
+            #      8.5415010000000002   -0.0077670000000000   -0.0007960000000000
+            #     -0.0077730000000000    8.5224019999999996    0.0105580000000000
+            #     -0.0007970000000000    0.0105720000000000    8.5356889999999996
+            #    Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
+            #    Fe   Ni   Fe   Cr   Fe
+            #      1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
+            #      2     1     3     2     5
+            # Direct
+            #   ...
+            nlines_symbols = 1
+            for nlines_symbols in range(1, 11):
+                try:
+                    int(lines[5+nlines_symbols].split()[0])
+                    break
+                except ValueError:
+                    pass
+            for iline_symbols in range(6, 5+nlines_symbols):
+                symbols.extend(lines[iline_symbols].split())
+            natoms = []
+            iline_natoms_start = 5+nlines_symbols
+            for iline_natoms in range(iline_natoms_start, iline_natoms_start+nlines_symbols):
+                natoms.extend([int(i) for i in lines[iline_natoms].split()])
+            atomic_symbols = list()
+            for i in range(len(natoms)):
+                atomic_symbols.extend([symbols[i]] * natoms[i])
+            ipos = 5+2*nlines_symbols
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         postype = lines[ipos].split()[0]
 
@@ -1316,12 +1354,15 @@ class Kpoints(MSONable):
                    tet_connections=d.get("tet_connections"))
 
 
+<<<<<<< HEAD
 def get_potcar_dir():
     if "VASP_PSP_DIR" in os.environ:
         return os.environ["VASP_PSP_DIR"]
     return None
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def parse_string(s):
     return "{}".format(s.strip())
 
@@ -1526,7 +1567,11 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
+<<<<<<< HEAD
         d = get_potcar_dir()
+=======
+        d = SETTINGS.get("VASP_PSP_DIR")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if d is None:
             raise ValueError("No POTCAR directory found. Please set "
                              "the VASP_PSP_DIR environment variable")
@@ -1719,8 +1764,13 @@ class Potcar(list, MSONable):
                     sym_potcar_map=None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
+<<<<<<< HEAD
         be fetched from a location specified in the environment variable
         VASP_PSP_DIR or in a pymatgen.cfg or specified explicitly in a map.
+=======
+        be fetched from a location specified in .pmgrc.yaml. Use pmg config
+        to add this setting.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             symbols ([str]): A list of element symbols

@@ -1,7 +1,10 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -18,7 +21,11 @@ except ImportError:
     netCDF4 = None
 
 
+<<<<<<< HEAD
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+=======
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                          'test_files', "abinit")
 
 def ref_file(filename):
@@ -53,6 +60,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
         }
 
         with ETSF_Reader(path) as data:
+<<<<<<< HEAD
 
             self.assertEqual(data.ngroups, 1)
 
@@ -60,17 +68,32 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Test dimensions.
             for (dimname, int_ref) in ref_dims.items():
+=======
+            self.assertEqual(data.ngroups, 1)
+            print(data.read_varnames())
+
+            # Test dimensions.
+            for dimname, int_ref in ref_dims.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_dimvalue(dimname)
                 self.assert_equal(value, int_ref)
 
             # Test int variables
+<<<<<<< HEAD
             for (varname, int_ref) in ref_int_values.items():
+=======
+            for varname, int_ref in ref_int_values.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assert_equal(value, int_ref)
 
             # Test float variables
+<<<<<<< HEAD
             for (varname, float_ref) in ref_float_values.items():
+=======
+            for varname, float_ref in ref_float_values.items():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assert_almost_equal(value, float_ref)
@@ -95,6 +118,13 @@ class ETSF_Reader_TestCase(PymatgenTest):
             structure = data.read_structure()
             self.assertTrue(isinstance(structure, Structure))
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     unittest.main()
+=======
+            # Read ixc.
+            # TODO: Upgrade GSR file.
+            #xc = data.read_abinit_xcfunc()
+            #assert xc == "LDA"
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

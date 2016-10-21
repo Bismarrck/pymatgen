@@ -3,6 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+<<<<<<< HEAD
+=======
+import numpy as np
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+     OrderDisorderElementComparator
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord_utils import pbc_diff
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
@@ -20,7 +34,10 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
 __maintainer__ = "Will Richards"
@@ -29,6 +46,7 @@ __status__ = "Beta"
 __date__ = "5/2/13"
 
 
+<<<<<<< HEAD
 import numpy as np
 import scipy.constants as const
 
@@ -40,6 +58,8 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class DiffusionAnalyzer(MSONable):
     """
     Class for performing diffusion analysis.
@@ -615,7 +635,11 @@ class DiffusionAnalyzer(MSONable):
                     temperature = vr.parameters['TEEND']
                     time_step = vr.parameters['POTIM']
                     yield step_skip, temperature, time_step
+<<<<<<< HEAD
                 #check that the runs are continuous
+=======
+                # check that the runs are continuous
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 fdist = pbc_diff(vr.initial_structure.frac_coords,
                                  final_structure.frac_coords)
                 if np.any(fdist > 0.001):

@@ -10,17 +10,30 @@ from collections import defaultdict
 import math
 from math import cos
 from math import sin
+<<<<<<< HEAD
+=======
+from fractions import Fraction
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 import numpy as np
 
 from six.moves import filter, map, zip
+<<<<<<< HEAD
+=======
+from monty.dev import deprecated
+import spglib
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
+<<<<<<< HEAD
 from pymatgen.util.coord_utils import find_in_coord_list
+=======
+from pymatgen.util.coord_utils import find_in_coord_list, pbc_diff
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -41,8 +54,11 @@ __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
 
+<<<<<<< HEAD
 import spglib
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 logger = logging.getLogger(__name__)
 
 
@@ -95,6 +111,7 @@ class SpacegroupAnalyzer(object):
         # For now, we are setting magmom to zero.
         self._cell = latt, positions, zs, magmoms
 
+<<<<<<< HEAD
         self._spacegroup_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
 
@@ -111,22 +128,85 @@ class SpacegroupAnalyzer(object):
                                     self.get_symmetry_operations())
 
     def get_spacegroup_symbol(self):
+=======
+        self._space_group_data = spglib.get_symmetry_dataset(
+            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
+
+    @deprecated(message="get_spacegroup has been renamed "
+                        "get_space_group_operations. Will be removed in "
+                        "pymatgen 5.0.")
+    def get_space_group(self):
+        """
+        Get the SpacegroupOperations for the Structure.
+
+        Returns:
+            SpacgroupOperations object.
+        """
+        return self.get_space_group_operations()
+
+    @deprecated(message="get_spacegroup_symbol has been renamed "
+                        "get_space_group_symbol. Will be removed in "
+                        "pymatgen 5.0.")
+    def get_space_group_symbol(self):
         """
         Get the spacegroup symbol (e.g., Pnma) for structure.
 
         Returns:
             (str): Spacegroup symbol for structure.
         """
-        return self._spacegroup_data["international"]
+        return self._space_group_data["international"]
 
-    def get_spacegroup_number(self):
+    @deprecated(message="get_spacegroup_number has been renamed "
+                        "get_space_group_number. Will be removed in "
+                        "pymatgen 5.0.")
+    def get_space_group_number(self):
         """
         Get the international spacegroup number (e.g., 62) for structure.
 
         Returns:
             (int): International spacegroup number for structure.
         """
+        return int(self._space_group_data["number"])
+
+    def get_space_group_operations(self):
+        """
+        Get the SpacegroupOperations for the Structure.
+
+        Returns:
+            SpacgroupOperations object.
+        """
+        return SpacegroupOperations(self.get_space_group_symbol(),
+                                    self.get_space_group_number(),
+                                    self.get_symmetry_operations())
+
+    def get_space_group_symbol(self):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        """
+        Get the spacegroup symbol (e.g., Pnma) for structure.
+
+        Returns:
+            (str): Spacegroup symbol for structure.
+        """
+<<<<<<< HEAD
+        return self._spacegroup_data["international"]
+
+    def get_spacegroup_number(self):
+=======
+        return self._space_group_data["international"]
+
+    def get_space_group_number(self):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        """
+        Get the international spacegroup number (e.g., 62) for structure.
+
+        Returns:
+            (int): International spacegroup number for structure.
+        """
+<<<<<<< HEAD
         return self._spacegroup_data["number"]
+=======
+        return int(self._space_group_data["number"])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def get_hall(self):
         """
@@ -135,16 +215,32 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Hall symbol
         """
+<<<<<<< HEAD
         return self._spacegroup_data["hall"]
 
     def get_point_group(self):
+=======
+        return self._space_group_data["hall"]
+
+    @deprecated(message="get_point_group has been renamed "
+                        "get_point_group_symbol. Will be removed in "
+                        "pymatgen 5.0.")
+    def get_point_group(self):
+        return self.get_point_group_symbol()
+
+    def get_point_group_symbol(self):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Get the point group associated with the structure.
 
         Returns:
             (Pointgroup): Point group for structure.
         """
+<<<<<<< HEAD
         rotations = self._spacegroup_data["rotations"]
+=======
+        rotations = self._space_group_data["rotations"]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return '1'
@@ -158,7 +254,11 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Crystal system for structure.
         """
+<<<<<<< HEAD
         n = self._spacegroup_data["number"]
+=======
+        n = self._space_group_data["number"]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         f = lambda i, j: i <= n <= j
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
@@ -184,7 +284,11 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Lattice type for structure.
         """
+<<<<<<< HEAD
         n = self._spacegroup_data["number"]
+=======
+        n = self._space_group_data["number"]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         system = self.get_crystal_system()
         if n in [146, 148, 155, 160, 161, 166, 167]:
             return "rhombohedral"
@@ -210,7 +314,11 @@ class SpacegroupAnalyzer(object):
             [(r,t) for r, t in zip(rotations, translations)]
             wyckoffs: Wyckoff letters
         """
+<<<<<<< HEAD
         return self._spacegroup_data
+=======
+        return self._space_group_data
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def _get_symmetry(self):
         """
@@ -225,7 +333,18 @@ class SpacegroupAnalyzer(object):
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec,
                                 angle_tolerance=self._angle_tol)
+<<<<<<< HEAD
         return d["rotations"], d["translations"]
+=======
+        # Sometimes spglib returns small translation vectors, e.g. [1e-4, 2e-4, 1e-4]
+        # (these are in fractional coordinates, so should be small denominator fractions)
+        trans = []
+        for t in d["translations"]:
+            trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+        trans = np.array(trans)
+        trans[np.abs(trans) == 1] = 0  # fractional translations of 1 are more simply 0
+        return d["rotations"], trans
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def get_symmetry_operations(self, cartesian=False):
         """
@@ -281,8 +400,13 @@ class SpacegroupAnalyzer(object):
             :class:`pymatgen.symmetry.structure.SymmetrizedStructure` object.
         """
         ds = self.get_symmetry_dataset()
+<<<<<<< HEAD
         sg = SpacegroupOperations(self.get_spacegroup_symbol(),
                                   self.get_spacegroup_number(),
+=======
+        sg = SpacegroupOperations(self.get_space_group_symbol(),
+                                  self.get_space_group_number(),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                   self.get_symmetry_operations())
         return SymmetrizedStructure(self._structure, sg,
                                     ds["equivalent_atoms"])
@@ -321,7 +445,11 @@ class SpacegroupAnalyzer(object):
         return Structure(lattice, species, scaled_positions,
                          to_unit_cell=True).get_reduced_structure()
 
+<<<<<<< HEAD
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0)):
+=======
+    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         k-point mesh of the Brillouin zone generated taken into account
         symmetry.The method returns the irreducible kpoints of the mesh
@@ -330,23 +458,39 @@ class SpacegroupAnalyzer(object):
         Args:
             mesh (3x1 array): The number of kpoint for the mesh needed in
                 each direction
+<<<<<<< HEAD
             shift (3x1 array): A shift of the kpoint grid. For instance,
                 Monkhorst-Pack is [0.5,0.5,0.5]
             is_time_reversal (bool): Set to True to impose time reversal
                 symmetry.
+=======
+            is_shift (3x1 array): Whether to shift the kpoint grid. (1, 1,
+            1) means all points are shifted by 0.5, 0.5, 0.5.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Returns:
             A list of irreducible kpoints and their weights as a list of
             tuples [(ir_kpoint, weight)], with ir_kpoint given
             in fractional coordinates
         """
+<<<<<<< HEAD
         mapping, grid = spglib.get_ir_reciprocal_mesh(
             np.array(mesh), self._cell, is_shift=np.array(shift))
+=======
+        shift = np.array([1 if i else 0 for i in is_shift])
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=shift)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         results = []
         tmp_map = list(mapping)
         for i in np.unique(mapping):
+<<<<<<< HEAD
             results.append((grid[i] / mesh, tmp_map.count(i)))
+=======
+            results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
+                            tmp_map.count(i)))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return results
 
     def get_primitive_standard_structure(self, international_monoclinic=True):
@@ -364,7 +508,11 @@ class SpacegroupAnalyzer(object):
             international_monoclinic=international_monoclinic)
         lattice = self.get_lattice_type()
 
+<<<<<<< HEAD
         if "P" in self.get_spacegroup_symbol() or lattice == "hexagonal":
+=======
+        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return conv
 
         if lattice == "rhombohedral":
@@ -377,6 +525,7 @@ class SpacegroupAnalyzer(object):
                 transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]],
                                   dtype=np.float) / 3
 
+<<<<<<< HEAD
         elif "I" in self.get_spacegroup_symbol():
             transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
                               dtype=np.float) / 2
@@ -384,6 +533,15 @@ class SpacegroupAnalyzer(object):
             transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
                               dtype=np.float) / 2
         elif "C" in self.get_spacegroup_symbol():
+=======
+        elif "I" in self.get_space_group_symbol():
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
+                              dtype=np.float) / 2
+        elif "F" in self.get_space_group_symbol():
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
+                              dtype=np.float) / 2
+        elif "C" in self.get_space_group_symbol():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             if self.get_crystal_system() == "monoclinic":
                 transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
                                   dtype=np.float) / 2
@@ -450,10 +608,17 @@ class SpacegroupAnalyzer(object):
                             key=lambda k: k['length'])
 
         if latt_type in ("orthorhombic", "cubic"):
+<<<<<<< HEAD
             #you want to keep the c axis where it is
             #to keep the C- settings
             transf = np.zeros(shape=(3, 3))
             if self.get_spacegroup_symbol().startswith("C"):
+=======
+            # you want to keep the c axis where it is
+            # to keep the C- settings
+            transf = np.zeros(shape=(3, 3))
+            if self.get_space_group_symbol().startswith("C"):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 transf[2] = [0, 0, 1]
                 a, b = sorted(latt.abc[:2])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -470,8 +635,13 @@ class SpacegroupAnalyzer(object):
             latt = Lattice.orthorhombic(a, b, c)
 
         elif latt_type == "tetragonal":
+<<<<<<< HEAD
             #find the "a" vectors
             #it is basically the vector repeated two times
+=======
+            # find the "a" vectors
+            # it is basically the vector repeated two times
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for d in range(len(sorted_dic)):
@@ -482,12 +652,21 @@ class SpacegroupAnalyzer(object):
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
             latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
+<<<<<<< HEAD
             #for the conventional cell representation,
             #we allways show the rhombohedral lattices as hexagonal
 
             #check first if we have the refined structure shows a rhombohedral
             #cell
             #if so, make a supercell
+=======
+            # for the conventional cell representation,
+            # we allways show the rhombohedral lattices as hexagonal
+
+            # check first if we have the refined structure shows a rhombohedral
+            # cell
+            # if so, make a supercell
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
@@ -505,7 +684,11 @@ class SpacegroupAnalyzer(object):
             #you want to keep the c axis where it is
             #to keep the C- settings
 
+<<<<<<< HEAD
             if self.get_spacegroup().int_symbol.startswith("C"):
+=======
+            if self.get_space_group_operations().int_symbol.startswith("C"):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -521,8 +704,13 @@ class SpacegroupAnalyzer(object):
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
                     if landang[1][0] > 90:
+<<<<<<< HEAD
                         #if the angle is > 90 we invert a and b to get
                         #an angle < 90
+=======
+                        # if the angle is > 90 we invert a and b to get
+                        # an angle < 90
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         landang = Lattice(
                             [-m[t[0]], -m[t[1]], m[2]]).lengths_and_angles
                         transf = np.zeros(shape=(3, 3))
@@ -548,8 +736,13 @@ class SpacegroupAnalyzer(object):
                                       [0, c * cos(alpha), c * sin(alpha)]]
 
                 if new_matrix is None:
+<<<<<<< HEAD
                     #this if is to treat the case
                     #where alpha==90 (but we still have a monoclinic sg
+=======
+                    # this if is to treat the case
+                    # where alpha==90 (but we still have a monoclinic sg
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     new_matrix = [[a, 0, 0],
                                   [0, b, 0],
                                   [0, 0, c]]
@@ -558,9 +751,15 @@ class SpacegroupAnalyzer(object):
                         transf[c][sorted_dic[c]['orig_index']] = 1
             #if not C-setting
             else:
+<<<<<<< HEAD
                 #try all permutations of the axis
                 #keep the ones with the non-90 angle=alpha
                 #and b<c
+=======
+                # try all permutations of the axis
+                # keep the ones with the non-90 angle=alpha
+                # and b<c
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 new_matrix = None
                 for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
@@ -590,8 +789,13 @@ class SpacegroupAnalyzer(object):
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                 if new_matrix is None:
+<<<<<<< HEAD
                     #this if is to treat the case
                     #where alpha==90 (but we still have a monoclinic sg
+=======
+                    # this if is to treat the case
+                    # where alpha==90 (but we still have a monoclinic sg
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     new_matrix = [[sorted_lengths[0], 0, 0],
                                   [0, sorted_lengths[1], 0],
                                   [0, 0, sorted_lengths[2]]]
@@ -695,6 +899,59 @@ class SpacegroupAnalyzer(object):
                                to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
+<<<<<<< HEAD
+=======
+    def get_kpoint_weights(self, kpoints, atol=1e-5):
+        """
+        Calculate the weights for a list of kpoints.
+
+        Args:
+            kpoints (Sequence): Sequence of kpoints. np.arrays is fine. Note
+                that the code does not check that the list of kpoints
+                provided does not contain duplicates.
+            atol (float): Tolerance for fractional coordinates comparisons.
+
+        Returns:
+            List of weights, in the SAME order as kpoints.
+        """
+        kpts = np.array(kpoints)
+        shift = []
+        mesh = []
+        for i in range(3):
+            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+            if len(nonzero) != len(kpts):
+                # gamma centered
+                if not nonzero:
+                    mesh.append(1)
+                else:
+                    m = np.abs(np.round(1/np.array(nonzero)))
+                    mesh.append(int(max(m)))
+                shift.append(0)
+            else:
+                # Monk
+                m = np.abs(np.round(0.5/np.array(nonzero)))
+                mesh.append(int(max(m)))
+                shift.append(1)
+
+        mapping, grid = spglib.get_ir_reciprocal_mesh(
+            np.array(mesh), self._cell, is_shift=shift)
+        mapping = list(mapping)
+        grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
+        weights = []
+        mapped = defaultdict(int)
+        for k in kpoints:
+            for i, g in enumerate(grid):
+                if np.allclose(pbc_diff(k, g), (0, 0, 0), atol=atol):
+                    mapped[tuple(g)] += 1
+                    weights.append(mapping.count(mapping[i]))
+                    break
+        if (len(mapped) != len(set(mapping))) or (
+                not all([v == 1 for v in mapped.values()])):
+            raise ValueError("Unable to find 1:1 corresponding between input "
+                             "kpoints and irreducible grid!")
+        return [w/sum(weights) for w in weights]
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class PointGroupAnalyzer(object):
     """
@@ -1238,4 +1495,25 @@ class PointGroupOperations(list):
         return self.sch_symbol
 
     def __repr__(self):
+<<<<<<< HEAD
         return self.__str__()
+=======
+        return self.__str__()
+
+
+if __name__ == "__main__":
+    from pymatgen.io.vasp import Vasprun
+    v = Vasprun("../../test_files/vasprun.xml")
+    a = SpacegroupAnalyzer(v.final_structure)
+    print(v.actual_kpoints)
+    import spglib
+
+    shift = (1, 1, 1)
+    mapping, grid = spglib.get_ir_reciprocal_mesh(
+        np.array([1, 1, 3]), a._cell, is_shift=shift)
+    mapping = list(mapping)
+    grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / [1, 1, 3]
+    print(grid)
+    wts = a.get_kpoint_weights(v.actual_kpoints)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

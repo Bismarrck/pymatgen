@@ -155,8 +155,13 @@ class EnumlibAdaptor(object):
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
+<<<<<<< HEAD
             fitter.get_spacegroup_symbol(),
             fitter.get_spacegroup_number(),
+=======
+            fitter.get_space_group_symbol(),
+            fitter.get_space_group_number(),
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             len(symmetrized_structure.equivalent_sites))
         )
 
@@ -207,7 +212,11 @@ class EnumlibAdaptor(object):
         def get_sg_info(ss):
             finder = SpacegroupAnalyzer(Structure.from_sites(ss),
                                         self.symm_prec)
+<<<<<<< HEAD
             return finder.get_spacegroup_number()
+=======
+            return finder.get_space_group_number()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         min_sgnum = get_sg_info(curr_sites)

@@ -82,11 +82,27 @@ class RatioFunction(object):
 
 class CSMFiniteRatioFunction(RatioFunction):
 
+<<<<<<< HEAD
     ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha']}
+=======
+    ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha'],
+                         'smoothstep': ['lower_csm', 'upper_csm'],
+                         'smootherstep': ['lower_csm', 'upper_csm']
+                         }
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def power2_decreasing_exp(self, vals):
         return power2_decreasing_exp(vals, edges=[0.0, self.__dict__['max_csm']], alpha=self.__dict__['alpha'])
 
+<<<<<<< HEAD
+=======
+    def smootherstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower_csm'], self.__dict__['upper_csm']], inverse=True)
+
+    def smoothstep(self, vals):
+        return smootherstep(vals, edges=[self.__dict__['lower_csm'], self.__dict__['upper_csm']], inverse=True)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def fractions(self, data):
         if len(data) == 0:
             return None
@@ -107,6 +123,13 @@ class CSMFiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
+<<<<<<< HEAD
+=======
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     ratios = fractions
 
 
@@ -151,6 +174,13 @@ class CSMInfiniteRatioFunction(RatioFunction):
                 return None
             return np.sum(np.array(fractions) * np.array(data))
 
+<<<<<<< HEAD
+=======
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     ratios = fractions
 
 
@@ -159,4 +189,12 @@ class DeltaCSMRatioFunction(RatioFunction):
     ALLOWED_FUNCTIONS = {'smootherstep': ['delta_csm_min', 'delta_csm_max']}
 
     def smootherstep(self, vals):
+<<<<<<< HEAD
         return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
+=======
+        return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(function=dd['function'], options_dict=dd['options'])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

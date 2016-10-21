@@ -29,7 +29,11 @@ from monty.serialization import loadfn
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
+<<<<<<< HEAD
 from pymatgen.analysis.structure_analyzer import oxide_type
+=======
+from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 import abc
 
@@ -159,7 +163,11 @@ class PotcarCorrection(Correction):
         return 0
 
     def __str__(self):
+<<<<<<< HEAD
         return "{} Potcar Correction".format(self.input_set.name)
+=======
+        return "{} Potcar Correction".format(self.input_set.__name__)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 @cached_class
@@ -213,6 +221,7 @@ class AnionCorrection(Correction):
 
     def get_correction(self, entry):
         comp = entry.composition
+<<<<<<< HEAD
 
         rform = entry.composition.reduced_formula
 
@@ -223,6 +232,25 @@ class AnionCorrection(Correction):
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
+=======
+        if len(comp) == 1:  # Skip element entry
+            return 0
+
+        correction = 0
+        # Check for sulfide corrections
+        if Element("S") in comp:
+            sf_type = "sulfide"
+            if entry.data.get("sulfide_type"):
+                sf_type = entry.data["sulfide_type"]
+            elif hasattr(entry, "structure"):
+                sf_type = sulfide_type(entry.structure)
+            if sf_type in self.sulfide_correction:
+                correction += self.sulfide_correction[sf_type] * comp["S"]
+
+        # Check for oxide, peroxide, superoxide, and ozonide corrections.
+        if Element("O") in comp:
+            if self.correct_peroxide:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
                         ox_corr = self.oxide_correction[
@@ -239,8 +267,15 @@ class AnionCorrection(Correction):
                         correction += self.oxide_correction[ox_type] * \
                             nbonds
                     elif ox_type == "hydroxide":
+<<<<<<< HEAD
                         correction += self.oxide_correction["oxide"] * comp["O"]
                 else:
+=======
+                        correction += self.oxide_correction["oxide"] * \
+                                      comp["O"]
+                else:
+                    rform = entry.composition.reduced_formula
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * \
                             comp["O"]
@@ -252,9 +287,16 @@ class AnionCorrection(Correction):
                             comp["O"]
                     elif Element("O") in comp.elements and len(comp.elements)\
                             > 1:
+<<<<<<< HEAD
                         correction += self.oxide_correction['oxide'] * comp["O"]
         else:
             correction += self.oxide_correction['oxide'] * comp["O"]
+=======
+                        correction += self.oxide_correction['oxide'] * \
+                                      comp["O"]
+            else:
+                correction += self.oxide_correction['oxide'] * comp["O"]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         return correction
 

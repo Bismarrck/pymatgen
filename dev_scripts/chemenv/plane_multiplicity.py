@@ -5,7 +5,11 @@
 from __future__ import division, unicode_literals
 
 """
+<<<<<<< HEAD
 Development script to get the multiplicity of the separation planes for some model coordination environments
+=======
+Development script to get the multiplicity of the separation facets for some model coordination environments
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 
 __author__ = "David Waroquiers"

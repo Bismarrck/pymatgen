@@ -1,14 +1,23 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+<<<<<<< HEAD
 
 from __future__ import division, unicode_literals
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 Created on Nov 10, 2012
 
 @author: shyue
 """
+<<<<<<< HEAD
+=======
+from __future__ import division, unicode_literals
+
+from pymatgen.util.testing import PymatgenTest
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 __author__ = "Shyue Ping Ong"
@@ -27,7 +36,11 @@ from pymatgen.core.composition import Composition, CompositionError, \
 import random
 
 
+<<<<<<< HEAD
 class CompositionTest(unittest.TestCase):
+=======
+class CompositionTest(PymatgenTest):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def setUp(self):
         self.comp = list()
@@ -118,6 +131,16 @@ class CompositionTest(unittest.TestCase):
         self.assertRaises(CompositionError, Composition,
                           "(co2)(po4)2")
 
+<<<<<<< HEAD
+=======
+        self.assertEqual(Composition("K Na 2").reduced_formula, "KNa2")
+
+        self.assertEqual(Composition("K3 Na 2").reduced_formula, "K3Na2")
+
+        self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula,
+                         "Na3Zr(PO4)3")
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_mixed_valence(self):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8})
         self.assertEqual(comp.reduced_formula, "Li4Fe3")
@@ -159,6 +182,13 @@ class CompositionTest(unittest.TestCase):
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
+<<<<<<< HEAD
+=======
+        # test rounding
+        c = Composition({'Na': 2 - Composition.amount_tolerance / 2, 'Cl': 2})
+        self.assertEqual('NaCl', c.reduced_formula)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_integer_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
@@ -230,6 +260,13 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
 
+<<<<<<< HEAD
+=======
+    def test_pickle(self):
+        for c in self.comp:
+            self.serialize_with_pickle(c, test_eq=True)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
                          "Li4 Mn2 Fe2 P3 O16",

@@ -1,4 +1,9 @@
 # coding: utf-8
+<<<<<<< HEAD
+=======
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import

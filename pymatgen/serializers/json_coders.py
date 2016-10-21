@@ -19,9 +19,12 @@ __date__ = "Apr 30, 2012"
 import json
 import functools
 
+<<<<<<< HEAD
 from monty.serialization import loadfn, dumpfn
 from monty.dev import deprecated
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 def pmg_serialize(method):
     """
@@ -48,6 +51,7 @@ def json_pretty_dump(obj, filename):
     with open(filename, "w") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
 
+<<<<<<< HEAD
 
 @deprecated(loadfn, "Will be removed in pmg 4.0.")
 def pmg_load(filename, **kwargs):
@@ -81,3 +85,5 @@ def pmg_dump(obj, filename, **kwargs):
             method.
     """
     return dumpfn(obj, filename, **kwargs)
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

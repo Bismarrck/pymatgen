@@ -7,10 +7,17 @@ present in FireWorks (https://pypi.python.org/pypi/FireWorks).
 Work done by D. Waroquiers, A. Jain, and M. Kocher.
 
 The main difference wrt the Fireworks implementation is that the QueueAdapter
+<<<<<<< HEAD
 objects provide a programmatic interface for setting important attributes 
 such as the number of MPI nodes, the number of OMP threads and the memory requirements.
 This programmatic interface is used by the `TaskManager` for optimizing the parameters
 of the run before submitting the job (Abinit provides the autoparal option that 
+=======
+objects provide a programmatic interface for setting important attributes
+such as the number of MPI nodes, the number of OMP threads and the memory requirements.
+This programmatic interface is used by the `TaskManager` for optimizing the parameters
+of the run before submitting the job (Abinit provides the autoparal option that
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 allows one to get a list of parallel configuration and their expected efficiency).
 """
 from __future__ import print_function, division, unicode_literals
@@ -28,7 +35,11 @@ from . import qutils as qu
 
 from collections import namedtuple
 from subprocess import Popen, PIPE
+<<<<<<< HEAD
 from atomicfile import AtomicFile
+=======
+from pymatgen.util.io_utils import AtomicFile
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property
@@ -44,7 +55,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
+<<<<<<< HEAD
     "MpiRunner",
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     "make_qadapter",
 ]
 
@@ -68,7 +82,11 @@ class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
 
 class MpiRunner(object):
     """
+<<<<<<< HEAD
     This object provides an abstraction for the mpirunner provided 
+=======
+    This object provides an abstraction for the mpirunner provided
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     by the different MPI libraries. It's main task is handling the
     different syntax and options supported by the different mpirunners.
     """
@@ -77,7 +95,11 @@ class MpiRunner(object):
         self.type = None
         self.options = options
 
+<<<<<<< HEAD
     def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None, exec_args=None):
+=======
+    def string_to_run(self, qad, executable, stdin=None, stdout=None, stderr=None, exec_args=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
@@ -85,6 +107,7 @@ class MpiRunner(object):
         if exec_args:
             executable = executable + " " + " ".join(list_strings(exec_args))
 
+<<<<<<< HEAD
         if self.has_mpirun:
             if self.type is None:
                 # TODO: better treatment of mpirun syntax.
@@ -95,14 +118,44 @@ class MpiRunner(object):
                 raise NotImplementedError("type %s is not supported!")
         else:
             #assert mpi_procs == 1
+=======
+        basename = os.path.basename(self.name)
+        if basename in ["mpirun", "mpiexec", "srun"]:
+            if self.type is None:
+                #$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
+                num_opt = "-n " + str(qad.mpi_procs)
+                cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
+            else:
+                raise NotImplementedError("type %s is not supported!" % self.type)
+
+        elif basename == "runjob":
+            #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            #runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            # exe must be absolute path or relative to cwd.
+            bg_size, rpn = qad.bgsize_rankspernode()
+            #num_opt = "-n " + str(qad.mpi_procs)
+            num_opt = "--ranks-per-node " + str(rpn)
+            cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS",
+                           "--exe `which " + executable + "` ", stdin, stdout, stderr])
+        else:
+            if qad.mpi_procs != 1:
+                raise ValueError("Cannot use mpi_procs > when mpi_runner basename=%" % basename)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
 
+<<<<<<< HEAD
     @property
     def has_mpirun(self):
         """True if we are running via mpirun, mpiexec ..."""
         return self.name is not None
+=======
+    #@property
+    #def has_mpirun(self):
+    #    """True if we are running via mpirun, mpiexec ..."""
+    #    return self.name is not None
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class OmpEnv(AttrDict):
@@ -168,7 +221,11 @@ class Hardware(object):
         - A cpu socket is the connector to these systems and the cpu cores
 
         - A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
+<<<<<<< HEAD
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
+=======
+          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
           but sharing the cores memory controller and other logical units.
     """
     def __init__(self, **kwargs):
@@ -184,13 +241,21 @@ class Hardware(object):
             raise ValueError("invalid parameters: %s" % kwargs)
 
         if kwargs:
+<<<<<<< HEAD
             raise ValueError("Found invalid keywords in the partition section:\n %s" % kwargs.keys())
+=======
+            raise ValueError("Found invalid keywords in the partition section:\n %s" % list(kwargs.keys()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __str__(self):
         """String representation."""
         lines = []
         app = lines.append
+<<<<<<< HEAD
         app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," % 
+=======
+        app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," %
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             (self.num_nodes, self.sockets_per_node, self.cores_per_socket, self.mem_per_node))
         return "\n".join(lines)
 
@@ -233,10 +298,17 @@ class Hardware(object):
 
 class _ExcludeNodesFile(object):
     """
+<<<<<<< HEAD
     This file contains the list of nodes to be excluded. 
     Nodes are indexed by queue name.
     """ 
     DIRPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+=======
+    This file contains the list of nodes to be excluded.
+    Nodes are indexed by queue name.
+    """
+    DIRPATH = os.path.join(os.path.expanduser("~"), ".abinit", "abipy")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     FILEPATH = os.path.join(DIRPATH, "exclude_nodes.json")
 
     def __init__(self):
@@ -274,8 +346,13 @@ def show_qparams(qtype, stream=sys.stdout):
 
 
 def all_qtypes():
+<<<<<<< HEAD
     """List of all qtypes supported."""
     return [cls.QTYPE for cls in all_subclasses(QueueAdapter)]
+=======
+    """Return sorted list with all qtypes supported."""
+    return sorted([cls.QTYPE for cls in all_subclasses(QueueAdapter)])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 def make_qadapter(**kwargs):
@@ -285,7 +362,11 @@ def make_qadapter(**kwargs):
 
     .. example::
 
+<<<<<<< HEAD
         from qadapters import SlurmAdapter 
+=======
+        from qadapters import SlurmAdapter
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         class MyAdapter(SlurmAdapter):
             QTYPE = "myslurm"
@@ -298,7 +379,11 @@ def make_qadapter(**kwargs):
 
     .. warning::
 
+<<<<<<< HEAD
         MyAdapter should be pickleable, hence one should declare it 
+=======
+        MyAdapter should be pickleable, hence one should declare it
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         at the module level so that pickle can import it at run-time.
     """
     # Get all known subclasses of QueueAdapter.
@@ -311,6 +396,13 @@ def make_qadapter(**kwargs):
     return d[qtype](**kwargs)
 
 
+<<<<<<< HEAD
+=======
+class QScriptTemplate(string.Template):
+    delimiter = '$$'
+
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class QueueAdapterError(Exception):
     """Base Error class for exceptions raise by QueueAdapter."""
 
@@ -328,7 +420,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
     Concrete classes should extend this class with implementations that work on specific queue systems.
 
     .. note::
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         A `QueueAdapter` has a handler (:class:`QueueJob`) defined in qjobs.py that allows one
         to contact the resource manager to get info about the status of the job.
         Each concrete implementation of `QueueAdapter` should have a corresponding `QueueJob`.
@@ -338,6 +434,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
     MaxNumLaunchesError = MaxNumLaunchesError
 
     @classmethod
+<<<<<<< HEAD
     def autodoc(cls):
         return """
 # dictionary with info on the hardware available on this particular queue.
@@ -388,6 +485,72 @@ limits:
                        # Use `force_nodes` to enfore entire nodes allocation.
                        # `shared` mode does not enforce any constraint (default).
     max_num_launches   # limit to the time a specific task can be restarted (default 10)
+=======
+    def all_qtypes(cls):
+        """Return sorted list with all qtypes supported."""
+        return sorted([subcls.QTYPE for subcls in all_subclasses(cls)])
+
+    @classmethod
+    def autodoc(cls):
+        return """
+# Dictionary with info on the hardware available on this queue.
+hardware:
+    num_nodes:           # Number of nodes available on this queue (integer, MANDATORY).
+    sockets_per_node:    # Number of sockets per node (integer, MANDATORY).
+    cores_per_socket:    # Number of cores per socket (integer, MANDATORY).
+                         # The total number of cores available on this queue is
+                         # `num_nodes * sockets_per_node * cores_per_socket`.
+
+# Dictionary with the options used to prepare the enviroment before submitting the job
+job:
+    setup:            # List of commands (strings) executed before running (DEFAULT: empty)
+    omp_env:          # Dictionary with OpenMP environment variables (DEFAULT: empty i.e. no OpenMP)
+    modules:          # List of modules to be imported before running the code (DEFAULT: empty).
+                      # NB: Error messages produced by module load are redirected to mods.err
+    shell_env:        # Dictionary with shell environment variables.
+    mpi_runner:       # MPI runner. Possible values in [mpirun, mpiexec, None]
+                      # DEFAULT: None i.e. no mpirunner is used.
+    shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
+                      # if mpirun or mpiexec are not available on the fron-end. If not
+                      # given, small sequential jobs are executed with `mpi_runner`.
+    pre_run:          # List of commands (strings) executed before the run (DEFAULT: empty)
+    post_run:         # List of commands (strings) executed after the run (DEFAULT: empty)
+
+# dictionary with the name of the queue and optional parameters
+# used to build/customize the header of the submission script.
+queue:
+    qname:            # Name of the queue (string, MANDATORY)
+    qparams:          # Dictionary with values used to generate the header of the job script
+                      # See pymatgen.io.abinit.qadapters.py for the list of supported values.
+
+# dictionary with the constraints that must be fulfilled in order to run on this queue.
+limits:
+    min_cores:         # Minimum number of cores (integer, DEFAULT: 1)
+    max_cores:         # Maximum number of cores (integer, MANDATORY). Hard limit to hint_cores:
+                       # it's the limit beyond which the scheduler will not accept the job (MANDATORY).
+    hint_cores:        # The limit used in the initial setup of jobs.
+                       # Fix_Critical method may increase this number until max_cores is reached
+    min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
+                       # (DEFAULT: hardware.mem_per_core)
+    max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
+                       # (DEFAULT: hardware.mem_per_node)
+    timelimit:         # Initial time-limit. Accepts time according to slurm-syntax i.e:
+                       # "days-hours" or "days-hours:minutes" or "days-hours:minutes:seconds" or
+                       # "minutes" or "minutes:seconds" or "hours:minutes:seconds",
+    timelimit_hard:    # The hard time-limit for this queue. Same format as timelimit.
+                       # Error handlers could try to submit jobs with increased timelimit
+                       # up to timelimit_hard. If not specified, timelimit_hard == timelimit
+    condition:         # MongoDB-like condition (DEFAULT: empty, i.e. not used)
+    allocation:        # String defining the policy used to select the optimal number of CPUs.
+                       # possible values are in ["nodes", "force_nodes", "shared"]
+                       # "nodes" means that we should try to allocate entire nodes if possible.
+                       # This is a soft limit, in the sense that the qadapter may use a configuration
+                       # that does not fulfill this requirement. In case of failure, it will try to use the
+                       # smallest number of nodes compatible with the optimal configuration.
+                       # Use `force_nodes` to enfore entire nodes allocation.
+                       # `shared` mode does not enforce any constraint (DEFAULT: shared).
+    max_num_launches:  # Limit to the number of times a specific task can be restarted (integer, DEFAULT: 5)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 
     def __init__(self, **kwargs):
@@ -402,7 +565,11 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
+<<<<<<< HEAD
             max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 10
+=======
+            max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 5
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             qverbatim:
             min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
@@ -523,7 +690,11 @@ limits:
     def _parse_limits(self, d):
         # Time limits.
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
+<<<<<<< HEAD
         tl_hard = d.pop("timelimit_hard", None)
+=======
+        tl_hard = d.pop("timelimit_hard",None)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         tl_hard = qu.timelimit_parser(tl_hard) if tl_hard is not None else self.timelimit
         self.set_timelimit_hard(tl_hard)
 
@@ -535,19 +706,31 @@ limits:
             raise ValueError("min_cores %s cannot be greater than max_cores %s" % (self.min_cores, self.max_cores))
 
         # Memory
+<<<<<<< HEAD
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
+=======
+        # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
 
         # Misc
+<<<<<<< HEAD
         self.max_num_launches = int(d.pop("max_num_launches", 10))
+=======
+        self.max_num_launches = int(d.pop("max_num_launches", 5))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.condition = Condition(d.pop("condition", {}))
         self.allocation = d.pop("allocation", "shared")
         if self.allocation not in ("nodes", "force_nodes", "shared"):
             raise ValueError("Wrong value for `allocation` option")
 
         if d:
+<<<<<<< HEAD
             raise ValueError("Found unknown keyword(s) in limits section:\n %s" % d.keys())
+=======
+            raise ValueError("Found unknown keyword(s) in limits section:\n %s" % list(d.keys()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def _parse_job(self, d):
         setup = d.pop("setup", None)
@@ -568,6 +751,13 @@ limits:
         if not isinstance(self.mpi_runner, MpiRunner):
             self.mpi_runner = MpiRunner(self.mpi_runner)
 
+<<<<<<< HEAD
+=======
+        self.shell_runner = d.pop("shell_runner", None)
+        if self.shell_runner is not None:
+            self.shell_runner = MpiRunner(self.shell_runner)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         pre_run = d.pop("pre_run", None)
         if is_string(pre_run): pre_run = [pre_run]
         self.pre_run = pre_run[:] if pre_run is not None else []
@@ -577,7 +767,11 @@ limits:
         self.post_run = post_run[:] if post_run is not None else []
 
         if d:
+<<<<<<< HEAD
             raise ValueError("Found unknown keyword(s) in job section:\n %s" % d.keys())
+=======
+            raise ValueError("Found unknown keyword(s) in job section:\n %s" % list(d.keys()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def _parse_queue(self, d):
         # Init params
@@ -590,7 +784,11 @@ limits:
             raise ValueError("Nodes must be either in standard, shared or exclusive mode "
                              "while qnodes parameter was {}".format(self.qnodes))
         if d:
+<<<<<<< HEAD
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
+=======
+            raise ValueError("Found unknown keyword(s) in queue section:\n %s" % list(d.keys()))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __str__(self):
         lines = ["%s:%s" % (self.__class__.__name__, self.qname)]
@@ -609,9 +807,15 @@ limits:
     @lazy_property
     def supported_qparams(self):
         """
+<<<<<<< HEAD
         Dictionary with the supported parameters that can be passed to the 
         queue manager (obtained by parsing QTEMPLATE).
         """ 
+=======
+        Dictionary with the supported parameters that can be passed to the
+        queue manager (obtained by parsing QTEMPLATE).
+        """
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         import re
         return re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
 
@@ -703,7 +907,11 @@ limits:
         if not self.max_mem_per_proc >= self.mem_per_proc >= self.min_mem_per_proc:
             app("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
 
+<<<<<<< HEAD
         if self.priority <= 0: 
+=======
+        if self.priority <= 0:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             app("priority must be > 0")
 
         if not (1 <= self.min_cores <= self.hw.num_cores >= self.hint_cores):
@@ -734,7 +942,11 @@ limits:
         """Set the name of the queue."""
         self._qname = qname
 
+<<<<<<< HEAD
     # todo this assumes only one wall time. i.e. the one in the mamanager file is the one always used
+=======
+    # todo this assumes only one wall time. i.e. the one in the mananager file is the one always used.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     # we should use the standard walltime to start with but also allow to increase the walltime
 
     @property
@@ -764,7 +976,11 @@ limits:
     def master_mem_overhead(self):
         """The memory overhead for the master process in megabytes."""
         return self._master_mem_overhead
+<<<<<<< HEAD
                                                 
+=======
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def set_mem_per_proc(self, mem_mb):
         """
         Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
@@ -794,7 +1010,11 @@ limits:
     @abc.abstractmethod
     def cancel(self, job_id):
         """
+<<<<<<< HEAD
         Cancel the job. 
+=======
+        Cancel the job.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             job_id: Job identifier.
@@ -878,7 +1098,11 @@ limits:
             raise self.Error("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                             (mpi_procs, omp_threads, mem_per_proc))
 
+<<<<<<< HEAD
     def optimize_params(self):
+=======
+    def optimize_params(self, qnodes=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
         Subclasses may provide a specialized version.
@@ -886,6 +1110,7 @@ limits:
         logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 
+<<<<<<< HEAD
     def get_subs_dict(self):
         """
         Return substitution dict for replacements into the template
@@ -894,6 +1119,16 @@ limits:
         #d = self.qparams.copy()
         d = self.qparams
         d.update(self.optimize_params())
+=======
+    def get_subs_dict(self, qnodes=None):
+        """
+        Return substitution dict for replacements into the template
+        Subclasses may want to customize this method.
+        """
+        #d = self.qparams.copy()
+        d = self.qparams
+        d.update(self.optimize_params(qnodes=qnodes))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # clean null values
         subs_dict = {k: v for k, v in d.items() if v is not None}
         #print("subs_dict:", subs_dict)
@@ -901,10 +1136,17 @@ limits:
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
+<<<<<<< HEAD
         # get substitution dict for replacements into the template 
         subs_dict = self.get_subs_dict()
 
         # Set job_name and the names for the stderr and stdout of the 
+=======
+        # get substitution dict for replacements into the template
+        subs_dict = self.get_subs_dict()
+
+        # Set job_name and the names for the stderr and stdout of the
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
         subs_dict['job_name'] = job_name.replace('/', '_')
@@ -913,7 +1155,11 @@ limits:
 
         qtemplate = QScriptTemplate(self.QTEMPLATE)
         # might contain unused parameters as leftover $$.
+<<<<<<< HEAD
         unclean_template = qtemplate.safe_substitute(subs_dict)  
+=======
+        unclean_template = qtemplate.safe_substitute(subs_dict)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # Remove lines with leftover $$.
         clean_template = []
@@ -947,30 +1193,53 @@ limits:
         # Add the bash section.
         se = ScriptEditor()
 
+<<<<<<< HEAD
+=======
+        # Cd to launch_dir immediately.
+        se.add_line("cd " + os.path.abspath(launch_dir))
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if self.setup:
             se.add_comment("Setup section")
             se.add_lines(self.setup)
             se.add_emptyline()
 
         if self.modules:
+<<<<<<< HEAD
+=======
+            # stderr is redirected to mods.err file.
+            # module load 2>> mods.err
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             se.add_comment("Load Modules")
             se.add_line("module purge")
             se.load_modules(self.modules)
             se.add_emptyline()
 
+<<<<<<< HEAD
         if self.has_omp:
             se.add_comment("OpenMp Environment")
             se.declare_vars(self.omp_env)
             se.add_emptyline()
+=======
+        se.add_comment("OpenMp Environment")
+        if self.has_omp:
+            se.declare_vars(self.omp_env)
+            se.add_emptyline()
+        else:
+            se.declare_vars({"OMP_NUM_THREADS": 1})
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if self.shell_env:
             se.add_comment("Shell Environment")
             se.declare_vars(self.shell_env)
             se.add_emptyline()
 
+<<<<<<< HEAD
         # Cd to launch_dir
         se.add_line("cd " + os.path.abspath(launch_dir))
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if self.pre_run:
             se.add_comment("Commands before execution")
             se.add_lines(self.pre_run)
@@ -978,7 +1247,11 @@ limits:
 
         # Construct the string to run the executable with MPI and mpi_procs.
         if is_string(executable):
+<<<<<<< HEAD
             line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
+=======
+            line = self.mpi_runner.string_to_run(self, executable,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                                  stdin=stdin, stdout=stdout, stderr=stderr, exec_args=exec_args)
             se.add_line(line)
         else:
@@ -1125,13 +1398,24 @@ limits:
         base_increase = int(self.timelimit_hard / 10)
 
         new_time = self.timelimit + base_increase*factor
+<<<<<<< HEAD
         if new_time < self.timelimit_hard:
             self.set_timelimit(new_time)
+=======
+        print('qadapter: trying to increase time')
+        if new_time < self.timelimit_hard:
+            self.set_timelimit(new_time)
+            print('new time set: ', new_time)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return new_time
 
         self.priority = -1
 
+<<<<<<< HEAD
         raise self.Error("increasing time is not possible, the hard limit has been raised")
+=======
+        raise self.Error("increasing time is not possible, the hard limit has been reached")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 ####################
 # Concrete classes #
@@ -1223,7 +1507,11 @@ $${qverbatim}
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
+<<<<<<< HEAD
     def optimize_params(self):
+=======
+    def optimize_params(self, qnodes=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         params = {}
         if self.allocation == "nodes":
             # run on the smallest number of nodes compatible with the configuration
@@ -1345,10 +1633,17 @@ $${qverbatim}
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
+<<<<<<< HEAD
     def optimize_params(self):
         return {"select": self.get_select()}
 
     def get_select(self, ret_dict=False):
+=======
+    def optimize_params(self, qnodes=None):
+        return {"select": self.get_select(qnodes=qnodes)}
+
+    def get_select(self, ret_dict=False, qnodes=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Select is not the most intuitive command. For more info see:
 
@@ -1402,7 +1697,11 @@ $${qverbatim}
             #print(num_nodes, rest_cores)
             # TODO: test this
 
+<<<<<<< HEAD
             if rest_cores == 0 or num_nodes == 0:  
+=======
+            if rest_cores == 0 or num_nodes == 0:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 logger.info("HYBRID MPI-OPENMP run, perfectly divisible among nodes: %s" % self.run_info)
                 chunks = max(num_nodes, 1)
                 mpiprocs = self.mpi_procs // chunks
@@ -1410,7 +1709,11 @@ $${qverbatim}
                 chunks = chunks
                 ncpus = mpiprocs * self.omp_threads
                 mpiprocs = mpiprocs
+<<<<<<< HEAD
                 vmem = mpiprocs * mem_per_proc 
+=======
+                vmem = mpiprocs * mem_per_proc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 ompthreads = self.omp_threads
 
             else:
@@ -1424,6 +1727,7 @@ $${qverbatim}
         else:
             raise RuntimeError("You should not be here")
         """
+<<<<<<< HEAD
         if self.qnodes == "standard":
             return self._get_select_standard(ret_dict=ret_dict)
         else:
@@ -1435,6 +1739,31 @@ $${qverbatim}
         if self.qnodes == "exclusive":
             return self._get_select_with_master_mem_overhead_exclusive(ret_dict=ret_dict)
         elif self.qnodes == "shared":
+=======
+        if qnodes is None:
+            qnodes = self.qnodes
+        else:
+            if qnodes not in ["standard", "shared", "exclusive"]:
+                raise ValueError("Nodes must be either in standard, shared or exclusive mode "
+                                 "while qnodes parameter was {}".format(self.qnodes))
+        if qnodes == "standard":
+            return self._get_select_standard(ret_dict=ret_dict)
+        else:
+            return self._get_select_with_master_mem_overhead(ret_dict=ret_dict, qnodes=qnodes)
+
+    def _get_select_with_master_mem_overhead(self, ret_dict=False, qnodes=None):
+        if self.has_omp:
+            raise NotImplementedError("select with master mem overhead not yet implemented with has_omp")
+        if qnodes is None:
+            qnodes = self.qnodes
+        else:
+            if qnodes not in ["standard", "shared", "exclusive"]:
+                raise ValueError("Nodes must be either in standard, shared or exclusive mode "
+                                 "while qnodes parameter was {}".format(self.qnodes))
+        if qnodes == "exclusive":
+            return self._get_select_with_master_mem_overhead_exclusive(ret_dict=ret_dict)
+        elif qnodes == "shared":
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             return self._get_select_with_master_mem_overhead_shared(ret_dict=ret_dict)
         else:
             raise ValueError("Wrong value of qnodes parameter : {}".format(self.qnodes))
@@ -1469,7 +1798,11 @@ $${qverbatim}
         if max_ncpus_master >= self.mpi_procs:
             chunk, ncpus, vmem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
             select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
+<<<<<<< HEAD
             s = "{chunk}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+=======
+            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             tot_ncpus = chunk*ncpus
         else:
             ncpus_left = self.mpi_procs-max_ncpus_master
@@ -1581,7 +1914,10 @@ $${qverbatim}
         return njobs, process
 
     def exclude_nodes(self, nodes):
+<<<<<<< HEAD
         """No meaning for Shell"""
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return False
 
 
@@ -1651,9 +1987,15 @@ class SGEAdapter(QueueAdapter):
 #$ -q $${queue_name}
 #$ -pe $${parallel_environment} $${ncpus}
 #$ -l h_rt=$${walltime}
+<<<<<<< HEAD
 # request a per slot memory limit of size bytes. 
 ##$ -l h_vmem=$${mem_per_slot}  
 ##$ -l mf=$${mem_per_slot}  
+=======
+# request a per slot memory limit of size bytes.
+##$ -l h_vmem=$${mem_per_slot}
+##$ -l mf=$${mem_per_slot}
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 ###$ -j no
 #$ -M $${mail_user}
 #$ -m $${mail_type}
@@ -1701,8 +2043,13 @@ $${qverbatim}
         queue_id = None
         if process.returncode == 0:
             try:
+<<<<<<< HEAD
                 # output should of the form 
                 # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+=======
+                # output should of the form
+                # Your job 1659048 ("NAME_OF_JOB") has been submitted
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 queue_id = int(out.split(' ')[2])
             except:
                 # probably error parsing job code
@@ -1804,7 +2151,11 @@ $${qverbatim}
         if process.returncode == 0:
             # parse the result
             # lines should have this form:
+<<<<<<< HEAD
             ## 
+=======
+            ##
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             ## active jobs: N  eligible jobs: M  blocked jobs: P
             ##
             ## Total job:  1
@@ -1816,5 +2167,122 @@ $${qverbatim}
         return njobs, process
 
 
+<<<<<<< HEAD
 class QScriptTemplate(string.Template):
     delimiter = '$$'
+=======
+class BlueGeneAdapter(QueueAdapter):
+    """
+    Adapter for LoadLever on BlueGene architectures.
+
+    See:
+        http://www.prace-ri.eu/best-practice-guide-blue-gene-q-html/#id-1.5.4.8
+        https://www.lrz.de/services/compute/supermuc/loadleveler/
+    """
+    QTYPE = "bluegene"
+
+    QTEMPLATE = """\
+#!/bin/bash
+# @ job_name = $${job_name}
+# @ class = $${class}
+# @ error = $${_qout_path}
+# @ output = $${_qerr_path}
+# @ wall_clock_limit = $${wall_clock_limit}
+# @ notification = $${notification}
+# @ notify_user = $${mail_user}
+# @ environment = $${environment}
+# @ account_no = $${account_no}
+# @ job_type = bluegene
+# @ bg_connectivity = $${bg_connectivity}
+# @ bg_size = $${bg_size}
+$${qverbatim}
+# @ queue
+"""
+
+    def set_qname(self, qname):
+        super(BlueGeneAdapter, self).set_qname(qname)
+        if qname:
+            self.qparams["class"] = qname
+
+    #def set_mpi_procs(self, mpi_procs):
+    #    """Set the number of CPUs used for MPI."""
+    #    super(BlueGeneAdapter, self).set_mpi_procs(mpi_procs)
+    #    #self.qparams["ntasks"] = mpi_procs
+
+    #def set_omp_threads(self, omp_threads):
+    #    super(BlueGeneAdapter, self).set_omp_threads(omp_threads)
+    #    #self.qparams["cpus_per_task"] = omp_threads
+
+    #def set_mem_per_proc(self, mem_mb):
+    #    """Set the memory per process in megabytes"""
+    #    super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
+    #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
+
+    def set_timelimit(self, timelimit):
+        """Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
+        super(BlueGeneAdapter, self).set_timelimit(timelimit)
+        self.qparams["wall_clock_limit"] = qu.time2loadlever(timelimit)
+
+    def cancel(self, job_id):
+        return os.system("llcancel %d" % job_id)
+
+    def bgsize_rankspernode(self):
+	    """Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
+	    bg_size = int(math.ceil((self.mpi_procs * self.omp_threads)/ self.hw.cores_per_node))
+	    bg_size = max(bg_size, 32) # TODO hardcoded
+	    ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
+
+	    return bg_size, ranks_per_node
+
+    def optimize_params(self, qnodes=None):
+        params = {}
+        bg_size, rpn = self.bgsize_rankspernode()
+        print("in optimize params")
+        print("mpi_procs:", self.mpi_procs, "omp_threads:",self.omp_threads)
+        print("bg_size:",bg_size,"ranks_per_node",rpn)
+
+        return {"bg_size": bg_size}
+
+    def _submit_to_queue(self, script_file):
+        """Submit a job script to the queue."""
+        process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+
+        # grab the return code. llsubmit returns 0 if the job was successful
+        queue_id = None
+        if process.returncode == 0:
+            try:
+                # on JUQUEEN, output should of the form
+                #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+                token = out.split()[3]
+                s = token.split(".")[-1].replace('"', "")
+                queue_id = int(s)
+            except:
+                # probably error parsing job code
+                logger.critical("Could not parse job id following llsubmit...")
+                raise
+
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
+
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+
+        njobs = None
+        if process.returncode == 0:
+            # parse the result. lines should have this form:
+            #
+            # Id                       Owner      Submitted   ST PRI Class        Running On
+            # ------------------------ ---------- ----------- -- --- ------------ -----------
+            # juqueen1c1.281508.0      paj15530    1/23 13:20 I  50  n001
+            # 1 job step(s) in query, 1 waiting, 0 pending, 0 running, 0 held, 0 preempted
+            #
+            # count lines that include the username in it
+            outs = out.split('\n')
+            njobs = len([line.split() for line in outs if username in line])
+
+        return njobs, process
+
+    def exclude_nodes(self, nodes):
+        return False
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

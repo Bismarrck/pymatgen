@@ -2,6 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+<<<<<<< HEAD
 from __future__ import division, unicode_literals
 
 """
@@ -1351,3 +1352,15 @@ class FeffParserError(Exception):
 
     def __str__(self):
         return "FeffParserError : " + self.msg
+=======
+from __future__ import unicode_literals
+
+"""
+This package provides the modules to perform FEFF IO.
+
+FEFF: http://feffproject.org/feffproject-feff.html
+"""
+
+from .inputs import *
+from .outputs import *
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

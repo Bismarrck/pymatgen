@@ -1,7 +1,10 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -18,7 +21,11 @@ from pymatgen.io.abinit.works import *
 from pymatgen.io.abinit.tasks import *
 from pymatgen.io.abinit.pseudos import Pseudo
 
+<<<<<<< HEAD
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+=======
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                          'test_files', "abinit")
 
 
@@ -42,6 +49,14 @@ class FakeAbinitInput(object):
                           [0.00, -2.2171384943, 3.1355090603]])
         return Structure(lattice, ["Si", "Si"], coords)
 
+<<<<<<< HEAD
+=======
+    def get(self, key, default=None):
+        """The real AbinitInput is a dict-like object."""
+        if default is not None: return default
+        return key
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class FlowUnitTest(PymatgenTest):
     """Provides helper function for testing Abinit flows."""
@@ -75,12 +90,21 @@ qadapters:
             LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
         mpi_runner: mpirun
 
+<<<<<<< HEAD
 # Connection to the MongoDb database (optional) 
 db_connector:
     database: abinit
     collection: test
     #host: 0.0.0.0 
     #port: 8080 
+=======
+# Connection to the MongoDb database (optional)
+db_connector:
+    database: abinit
+    collection: test
+    #host: 0.0.0.0
+    #port: 8080
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     #user: gmatteo
     #password: helloworld
 
@@ -117,9 +141,15 @@ class FlowTest(FlowUnitTest):
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
         print(task0_w0.status.colored)
+<<<<<<< HEAD
         atrue(len(flow) == 1) 
         aequal(flow.num_tasks, 1)
         atrue(flow.has_db) 
+=======
+        atrue(len(flow) == 1)
+        aequal(flow.num_tasks, 1)
+        atrue(flow.has_db)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
@@ -129,7 +159,11 @@ class FlowTest(FlowUnitTest):
         task0_w0.history.info("Hello %s", "world")
         assert len(task0_w0.history) == 1
         print(task0_w0.history)
+<<<<<<< HEAD
         record = task0_w0.history.pop() 
+=======
+        record = task0_w0.history.pop()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         print(record, repr(record))
         assert record.get_message(asctime=False) == "Hello world"
         assert len(task0_w0.history) == 0
@@ -200,6 +234,11 @@ class FlowTest(FlowUnitTest):
 
         flow.show_info()
         flow.show_summary()
+<<<<<<< HEAD
+=======
+        flow.show_inputs()
+        flow.show_inputs(varnames="znucl")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # Test show_status
         flow.show_status()

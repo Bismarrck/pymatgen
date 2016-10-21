@@ -192,7 +192,11 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
         def get_sg(s):
             finder = SpacegroupAnalyzer(s, symprec=self.symprec)
+<<<<<<< HEAD
             return finder.get_spacegroup_number()
+=======
+            return finder.get_space_group_number()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for s in self.structure_list[h]:
             if self.symprec is None or \
@@ -235,7 +239,11 @@ class RemoveExistingFilter(AbstractStructureFilter):
 
         def get_sg(s):
             finder = SpacegroupAnalyzer(s, symprec=self.symprec)
+<<<<<<< HEAD
             return finder.get_spacegroup_number()
+=======
+            return finder.get_space_group_number()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for s in self.existing_structures:
             if self.structure_matcher._comparator.get_hash(structure.composition) ==\

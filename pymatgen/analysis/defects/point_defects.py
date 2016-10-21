@@ -71,7 +71,11 @@ class ValenceIonicRadiusEvaluator(object):
     @property
     def structure(self):
         """
+<<<<<<< HEAD
         Returns oxidation state decorated structurel.
+=======
+        Returns oxidation state decorated structure.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         return self._structure.copy()
 

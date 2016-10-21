@@ -2,11 +2,29 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+<<<<<<< HEAD
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 """
 This module implements classes for generating/parsing Lammps data files.
+=======
+from __future__ import division, print_function, unicode_literals, absolute_import
+
+"""
+This module implements classes for generating/parsing Lammps data file i.e
+the file that defines the system configuration(atomic positions, bonds,
+angles and dihedrals) + values of various fit paramters.
+
+Restrictions:
+    The ATOMS section in the data file that defines the atomic positions
+    is assumed to be in the following format(atom style = full, this is the
+    superset of several other atom styles such as angle, bond, atomic, charge
+    and molecular):
+    atom_id, molecule_id, atom_type, charge(optional), x, y, z
+
+    For more info, please refer to: http://lammps.sandia.gov/doc/read_data.html
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 """
 
 from six.moves import range
@@ -14,12 +32,21 @@ from io import open
 import re
 from collections import OrderedDict
 
+<<<<<<< HEAD
+=======
+import numpy as np
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.structure import Molecule, Structure
 
 __author__ = 'Kiran Mathew'
 __email__ = "kmathew@lbl.gov"
+<<<<<<< HEAD
+=======
+__credits__ = 'Brandon Wood'
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class LammpsData(MSONable):
@@ -29,8 +56,12 @@ class LammpsData(MSONable):
     Args:
         box_size (list): [[x_min, x_max], [y_min,y_max], [z_min,z_max]]
         atomic_masses (list): [[atom type, mass],...]
+<<<<<<< HEAD
         atoms_data (list):
             [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
+=======
+        atoms_data (list): [[atom id, mol id, atom type, charge, x, y, z ...], ... ]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     """
 
     def __init__(self, box_size, atomic_masses, atoms_data):
@@ -59,6 +90,35 @@ class LammpsData(MSONable):
         self.set_lines_from_list(lines, "Atoms", self.atoms_data)
         return '\n'.join(lines)
 
+<<<<<<< HEAD
+=======
+    @staticmethod
+    def check_box_size(molecule, box_size):
+        """
+        Check the box size and if necessary translate the molecule so that
+        all the sites are contained within the bounding box.
+
+        Args:
+            molecule(Molecule)
+            box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+        """
+        box_lengths_req = [np.max(molecule.cart_coords[:, i])-np.min(molecule.cart_coords[:, i])
+                           for i in range(3)]
+        box_lengths = [min_max[1] - min_max[0] for min_max in box_size]
+        try:
+            np.testing.assert_array_less(box_lengths_req, box_lengths)
+        except AssertionError:
+            box_size = [[0.0, np.ceil(i*1.1)] for i in box_lengths_req]
+            print("Minimum required box lengths {} larger than the provided box lengths{}. "
+                  "Resetting the box size to {}".format(
+                box_lengths_req, box_lengths, box_size))
+        com = molecule.center_of_mass
+        new_com = [(side[1] + side[0]) / 2 for side in box_size]
+        translate_by = np.array(new_com) - np.array(com)
+        molecule.translate_sites(range(len(molecule)), translate_by)
+        return box_size
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def write_data_file(self, filename):
         """
         write lammps data input file from the string representation
@@ -73,7 +133,11 @@ class LammpsData(MSONable):
     @staticmethod
     def get_basic_system_info(structure):
         """
+<<<<<<< HEAD
         Return basic system info from the given structure
+=======
+        Return basic system info from the given structure.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             structure (Structure)
@@ -84,15 +148,22 @@ class LammpsData(MSONable):
         """
         natoms = len(structure)
         natom_types = len(structure.symbol_set)
+<<<<<<< HEAD
         box_size = [[0.0, structure.lattice.a],
                     [0.0, structure.lattice.b],
                     [0.0, structure.lattice.c]]
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         elements = structure.composition.elements
         elements = sorted(elements, key=lambda el: el.atomic_mass)
         atomic_masses_dict = OrderedDict(
             [(el.symbol, [i + 1, el.data["Atomic mass"]])
              for i, el in enumerate(elements)])
+<<<<<<< HEAD
         return natoms, natom_types, box_size, atomic_masses_dict
+=======
+        return natoms, natom_types, atomic_masses_dict
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @staticmethod
     def get_atoms_data(structure, atomic_masses_dict, set_charge=True):
@@ -110,8 +181,12 @@ class LammpsData(MSONable):
             set_charge (bool): whether or not to set the charge field in Atoms
 
         Returns:
+<<<<<<< HEAD
             [[atom_id, molecule tag, atom_type, charge(if present), x, y, z],
             ... ]
+=======
+            [[atom_id, molecule tag, atom_type, charge(if present), x, y, z], ... ]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         atoms_data = []
         for i, site in enumerate(structure):
@@ -124,8 +199,13 @@ class LammpsData(MSONable):
                     atoms_data.append([i + 1, 1, atom_type, 0.0,
                                        site.x, site.y, site.z])
             else:
+<<<<<<< HEAD
                 atoms_data.append(
                     [i + 1, 1, atom_type, site.x, site.y, site.z])
+=======
+                atoms_data.append([i + 1, 1, atom_type,
+                                   site.x, site.y, site.z])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return atoms_data
 
     @staticmethod
@@ -136,19 +216,30 @@ class LammpsData(MSONable):
 
         Args:
             lines (list)
+<<<<<<< HEAD
             block_name (string): name of the data block, e.g. 'Atoms',
                 'Bonds' etc
+=======
+            block_name (string): name of the data block,
+                e.g. 'Atoms', 'Bonds' etc
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             input_list (list): list of values
         """
         if input_list:
             lines.append("\n" + block_name + " \n")
+<<<<<<< HEAD
             _ = [lines.append(" ".join([str(x) for x in ad])) for ad in
                  input_list]
+=======
+            for ad in input_list:
+                lines.append(" ".join([str(x) for x in ad]))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @staticmethod
     def from_structure(input_structure, box_size, set_charge=True):
         """
         Set LammpsData from the given structure. If the input structure is
+<<<<<<< HEAD
         a Molecule, the box_size will be used to created a boxed molecule
         else the sites within the structure will be set in a box with
         dimension set from either box_size or the lattice of the structure,
@@ -156,6 +247,14 @@ class LammpsData(MSONable):
 
         Args:
             input_structure (Structure)
+=======
+        a Structure, it is converted to a molecule. TIf the molecule doesnt fit
+        in the input box, the box size is updated based on the max and min site
+        coordinates of the molecules.
+
+        Args:
+            input_structure (Molecule/Structure)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             box_size (list): [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
             set_charge (bool): whether or not to set the charge field in
             Atoms. If true, the charge will be non-zero only if the
@@ -164,10 +263,19 @@ class LammpsData(MSONable):
         Returns:
             LammpsData
         """
+<<<<<<< HEAD
         boxed_molecule = get_boxed_molecule(input_structure, box_size)
         natoms, natom_types, box_size, atomic_masses_dict = \
             LammpsData.get_basic_system_info(boxed_molecule)
         atoms_data = LammpsData.get_atoms_data(boxed_molecule,
+=======
+        if isinstance(input_structure, Structure):
+            input_structure = Molecule.from_sites(input_structure.sites)
+        box_size = LammpsData.check_box_size(input_structure, box_size)
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsData.get_basic_system_info(input_structure.copy())
+        atoms_data = LammpsData.get_atoms_data(input_structure,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                                atomic_masses_dict,
                                                set_charge=set_charge)
         return LammpsData(box_size, atomic_masses_dict.values(), atoms_data)
@@ -236,12 +344,22 @@ class LammpsData(MSONable):
 
 class LammpsForceFieldData(LammpsData):
     """
+<<<<<<< HEAD
     Sets Lammps data input file from force field parameters.
+=======
+    Sets Lammps data input file from force field parameters. It is recommended
+    that the the convenience method from_forcefield_and_topology be used to
+    create the object.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     Args:
         box_size (list): [[x_min,x_max], [y_min,y_max], [z_min,z_max]]
         atomic_masses (list): [ [atom type, atomic mass], ... ]
+<<<<<<< HEAD
         pair_coeffs (list): vdw coefficients,
+=======
+        pair_coeffs (list): pair coefficients,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             [[unique id, sigma, epsilon ], ... ]
         bond_coeffs (list): bond coefficients,
             [[unique id, value1, value2 ], ... ]
@@ -360,6 +478,7 @@ class LammpsForceFieldData(LammpsData):
         """
         if hasattr(forcefield, param_name):
             param = getattr(forcefield, param_name)
+<<<<<<< HEAD
             if param:
                 param_coeffs = [[i + 1] + list(v) for i, v in
                                 enumerate(param.values())]
@@ -367,12 +486,25 @@ class LammpsForceFieldData(LammpsData):
                 return param_coeffs, param_map
             else:
                 return [], {}
+=======
+            param_coeffs = []
+            param_map = {}
+            if param:
+                for i, item in enumerate(param.items()):
+                    param_coeffs.append([i + 1] + list(item[1]))
+                    param_map[item[0]] = i+1
+            return param_coeffs, param_map
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         else:
             raise AttributeError
 
     @staticmethod
     def get_atoms_data(mols, mols_number, molecule, atomic_masses_dict,
+<<<<<<< HEAD
                        topologies):
+=======
+                       topologies, atom_to_mol=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Return the atoms data.
 
@@ -383,12 +515,18 @@ class LammpsForceFieldData(LammpsData):
                 in the mols list.
             topologies (list): list of Topology objects, one for each molecule
                 type in mols list
+<<<<<<< HEAD
+=======
+            atom_to_mol (dict):  maps atom_id --> [mol_type, mol_id,
+                local atom id in the mol with id mol_id]
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Returns:
             atoms_data: [[atom id, mol type, atom type, charge, x, y, z], ... ]
             molid_to_atomid: [ [global atom id 1, id 2, ..], ...], the
                 index will be the global mol id
         """
+<<<<<<< HEAD
         atom_to_mol = {}
         molid_to_atomid = []
         atoms_data = []
@@ -409,12 +547,41 @@ class LammpsForceFieldData(LammpsData):
         # set atoms data from the final molecule assembly(the packed molecule
         # obtained from packmol using the molecules from mols list and the
         # molecule numbers from mol_number list).
+=======
+        atoms_data = []
+        nmols = len(mols)
+        # set up map atom_to_mol:
+        #   atom_id --> [mol_type, mol_id, local atom id in the mol with id mol id]
+        # set up map molid_to_atomid:
+        #   gobal molecule id --> [[atom_id1, atom_id2,...], ...]
+        # This assumes that the atomic order in the assembled molecule can be
+        # obtained from the atomic order in the constituent molecules.
+        if not atom_to_mol:
+            atom_to_mol = {}
+            molid_to_atomid = []
+            shift_ = 0
+            mol_id = 0
+            for mol_type in range(nmols):
+                natoms = len(mols[mol_type])
+                for num_mol_id in range(mols_number[mol_type]):
+                    tmp = []
+                    for mol_atom_id in range(natoms):
+                        atom_id = num_mol_id * natoms + mol_atom_id + shift_
+                        atom_to_mol[atom_id] = [mol_type, mol_id, mol_atom_id]
+                        tmp.append(atom_id)
+                    mol_id += 1
+                    molid_to_atomid.append(tmp)
+                shift_ += len(mols[mol_type]) * mols_number[mol_type]
+        # set atoms data from the molecule assembly consisting of
+        # molecules from mols list with their count from mol_number list.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # atom id, mol id, atom type, charge from topology, x, y, z
         for i, site in enumerate(molecule):
             atom_type = atomic_masses_dict[site.specie.symbol][0]
             # atom_type = molecule.symbol_set.index(site.species_string) + 1
             atom_id = i + 1
             mol_type = atom_to_mol[i][0] + 1
+<<<<<<< HEAD
             mol_atom_id = atom_to_mol[i][1] + 1
             charge = 0.0
             if hasattr(topologies[0], "charges"):
@@ -422,6 +589,15 @@ class LammpsForceFieldData(LammpsData):
                     charge = topologies[mol_type - 1].charges[mol_atom_id - 1][
                         0]
             atoms_data.append([atom_id, mol_type, atom_type, charge,
+=======
+            mol_id = atom_to_mol[i][1] + 1
+            mol_atom_id = atom_to_mol[i][2] + 1
+            charge = 0.0
+            if hasattr(topologies[0], "charges"):
+                if topologies[mol_type - 1].charges:
+                    charge = topologies[mol_type - 1].charges[mol_atom_id - 1]
+            atoms_data.append([atom_id, mol_id, atom_type, charge,
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                                site.x, site.y, site.z])
         return atoms_data, molid_to_atomid
 
@@ -447,6 +623,7 @@ class LammpsForceFieldData(LammpsData):
         Returns:
             [ [parameter id, parameter type, global atom id1, global atom id2, ...], ... ]
         """
+<<<<<<< HEAD
         if hasattr(topologies[0], param_name) and getattr(topologies[0],
                                                           param_name):
             nmols = len(mols)
@@ -456,10 +633,24 @@ class LammpsForceFieldData(LammpsData):
             # set the map param_to_mol:
             # {global param_id :[global mol id, mol_type, local param id in the param], ... }
             param_to_mol = {}
+=======
+        param_data = []
+        if hasattr(topologies[0], param_name) and getattr(topologies[0], param_name):
+            nmols = len(mols)
+            mol_id = 0
+            skip = 0
+            shift_ = 0
+            # set the parameter data using the topology info
+            # example: loop over all bonds in the system
+            # mol_id --> global molecule id
+            # mol_type --> type of molecule
+            # mol_param_id --> local parameter id in that molecule
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for mol_type in range(nmols):
                 param_obj = getattr(topologies[mol_type], param_name)
                 nparams = len(param_obj)
                 for num_mol_id in range(mols_number[mol_type]):
+<<<<<<< HEAD
                     mol_id += 1
                     for mol_param_id in range(nparams):
                         param_id = num_mol_id * nparams + mol_param_id + shift[
@@ -513,6 +704,52 @@ class LammpsForceFieldData(LammpsData):
                                      topologies):
         """
         Return LammpsForceFieldData object from force field and topology info.
+=======
+                    for mol_param_id in range(nparams):
+                        param_id = num_mol_id * nparams + mol_param_id + shift_
+                        # example: get the bonds list for mol_type molecule
+                        param_obj = getattr(topologies[mol_type], param_name)
+                        # connectivity info(local atom ids and type) for the
+                        # parameter with the local id 'mol_param_id'.
+                        # example: single bond = [i, j, bond_type]
+                        param = param_obj[mol_param_id]
+                        param_atomids = []
+                        # loop over local atom ids that constitute the parameter
+                        # for the molecule type, mol_type
+                        # example: single bond = [i,j,bond_label]
+                        for atomid in param[:-1]:
+                            # local atom id to global atom id
+                            global_atom_id = molid_to_atomid[mol_id][atomid]
+                            param_atomids.append(global_atom_id + 1)
+                        param_type = param[-1]
+                        param_type_reversed = tuple(reversed(param_type))
+                        # example: get the unique number id for the bond_type
+                        if param_type in param_map:
+                            key = param_type
+                        elif param_type_reversed in param_map:
+                            key = param_type_reversed
+                        else:
+                            key = None
+                        if key:
+                            param_type_id = param_map[key]
+                            param_data.append(
+                                [param_id + 1 - skip, param_type_id] + param_atomids)
+                        else:
+                            skip += 1
+                            print("{} or {} Not available".format(param_type,
+                                                                  param_type_reversed))
+                    mol_id += 1
+                shift_ += nparams * mols_number[mol_type]
+        return param_data
+
+    @staticmethod
+    def from_forcefield_and_topology(mols, mols_number, box_size, molecule,
+                                     forcefield, topologies):
+        """
+        Return LammpsForceFieldData object from force field and topology info
+        for the 'molecule' assembled from the constituent molecules specified
+        in the 'mols' list with their count specified in the 'mols_number' list.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             mols (list): List of Molecule objects
@@ -533,13 +770,19 @@ class LammpsForceFieldData(LammpsData):
             forcefield, "bonds")
         angle_coeffs, angle_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "angles")
+<<<<<<< HEAD
         pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(forcefield,
                                                               "vdws")
+=======
+        pair_coeffs, _ = LammpsForceFieldData.get_param_coeff(
+            forcefield, "pairs")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         dihedral_coeffs, dihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "dihedrals")
         improper_coeffs, imdihedral_map = LammpsForceFieldData.get_param_coeff(
             forcefield, "imdihedrals")
         # atoms data, topology used for setting charge if present
+<<<<<<< HEAD
         molecule = get_boxed_molecule(molecule, box_size)
         natoms, natom_types, box_size, atomic_masses_dict = LammpsData.get_basic_system_info(
             molecule)
@@ -569,6 +812,22 @@ class LammpsForceFieldData(LammpsData):
                                                                mols_number,
                                                                topologies,
                                                                molid_to_atomid)
+=======
+        box_size = LammpsForceFieldData.check_box_size(molecule, box_size)
+        natoms, natom_types, atomic_masses_dict = \
+            LammpsData.get_basic_system_info(molecule.copy())
+        atoms_data, molid_to_atomid = LammpsForceFieldData.get_atoms_data(
+            mols, mols_number, molecule, atomic_masses_dict, topologies)
+        # set the other data from the molecular topologies
+        bonds_data = LammpsForceFieldData.get_param_data(
+            "bonds", bond_map, mols, mols_number, topologies, molid_to_atomid)
+        angles_data = LammpsForceFieldData.get_param_data(
+            "angles", angle_map, mols, mols_number, topologies, molid_to_atomid)
+        dihedrals_data = LammpsForceFieldData.get_param_data(
+            "dihedrals", dihedral_map, mols, mols_number, topologies, molid_to_atomid)
+        imdihedrals_data = LammpsForceFieldData.get_param_data(
+            "imdihedrals", imdihedral_map, mols, mols_number, topologies, molid_to_atomid)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return LammpsForceFieldData(box_size, atomic_masses_dict.values(),
                                     pair_coeffs, bond_coeffs,
                                     angle_coeffs, dihedral_coeffs,
@@ -579,7 +838,16 @@ class LammpsForceFieldData(LammpsData):
     @staticmethod
     def from_file(data_file):
         """
+<<<<<<< HEAD
         Return LammpsForceFieldData object from the data file
+=======
+        Return LammpsForceFieldData object from the data file. It is assumed
+        that the forcefield paramter sections for pairs, bonds, angles,
+        dihedrals and improper dihedrals are named as follows(not case sensitive):
+        "Pair Coeffs", "Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs" and
+        "Improper Coeffs". For "Pair Coeffs", values for factorial(n_atom_types)
+        pairs must be specified.
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             data_file (string): the data file name
@@ -608,8 +876,12 @@ class LammpsForceFieldData(LammpsData):
         box_pattern = re.compile(
             "^\s*([0-9eE\.+-]+)\s+([0-9eE\.+-]+)\s+[xyz]lo\s+[xyz]hi")
         # id, value1, value2
+<<<<<<< HEAD
         general_coeff_pattern = re.compile(
             "^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$")
+=======
+        general_coeff_pattern = re.compile("^\s*(\d+)\s+([0-9\.]+)\s+([0-9\.]+)$")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # id, type, atom_id1, atom_id2
         bond_data_pattern = re.compile("^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$")
         # id, type, atom_id1, atom_id2, atom_id3
@@ -629,6 +901,10 @@ class LammpsForceFieldData(LammpsData):
                     m = types_pattern.search(line)
                     if m.group(2) == "atom":
                         natom_types = int(m.group(1))
+<<<<<<< HEAD
+=======
+                        npair_types = natom_types # i != j skipped
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if m.group(2) == "bond":
                         nbond_types = int(m.group(1))
                     if m.group(2) == "angle":
@@ -643,6 +919,7 @@ class LammpsForceFieldData(LammpsData):
                 if box_pattern.search(line):
                     m = box_pattern.search(line)
                     box_size.append([float(m.group(1)), float(m.group(2))])
+<<<<<<< HEAD
                 if "Pair Coeffs" in line:
                     read_pair_coeffs = True
                     continue
@@ -654,22 +931,41 @@ class LammpsForceFieldData(LammpsData):
                         read_pair_coeffs = False if len(
                             pair_coeffs) >= natom_types else True
                 if "Bond Coeffs" in line:
+=======
+                if "Pair Coeffs".lower() in line.lower():
+                    read_pair_coeffs = True
+                    continue
+                if read_pair_coeffs:
+                    tokens = line.split()
+                    if tokens:
+                        pair_coeffs.append([int(tokens[0])] + [float(i) for i in tokens[1:]])
+                        read_pair_coeffs = False if len(pair_coeffs) >= npair_types else True
+                if "Bond Coeffs".lower() in line.lower():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     read_bond_coeffs = True
                     continue
                 if read_bond_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
+<<<<<<< HEAD
                         bond_coeffs.append([int(m.group(1)), float(m.group(2)),
                                             float(m.group(3))])
                         read_bond_coeffs = False if len(
                             bond_coeffs) >= nbond_types else True
                 if "Angle Coeffs" in line:
+=======
+                        bond_coeffs.append(
+                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
+                        read_bond_coeffs = False if len(bond_coeffs) >= nbond_types else True
+                if "Angle Coeffs".lower() in line.lower():
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     read_angle_coeffs = True
                     continue
                 if read_angle_coeffs:
                     m = general_coeff_pattern.search(line)
                     if m:
                         angle_coeffs.append(
+<<<<<<< HEAD
                             [int(m.group(1)), float(m.group(2)),
                              float(m.group(3))])
                         read_angle_coeffs = False if len(
@@ -697,6 +993,28 @@ class LammpsForceFieldData(LammpsData):
                                                  m.groups()[1:]])
                         read_improper_coeffs = False if len(
                             improper_coeffs) > nimproper_types else True
+=======
+                            [int(m.group(1)), float(m.group(2)), float(m.group(3))])
+                        read_angle_coeffs = False if len(angle_coeffs) >= nangle_types else True
+                if "Dihedral Coeffs".lower() in line.lower():
+                    read_dihedral_coeffs = True
+                    continue
+                if read_dihedral_coeffs:
+                    tokens = line.split()
+                    if tokens:
+                        dihedral_coeffs.append(
+                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
+                        read_dihedral_coeffs = False if len(dihedral_coeffs) >= ndihedral_types else True
+                if "Improper Coeffs".lower() in line.lower():
+                    read_improper_coeffs = True
+                    continue
+                if read_improper_coeffs:
+                    tokens = line.split()
+                    if tokens:
+                        improper_coeffs.append(
+                            [int(tokens[0])] + [float(i) for i in tokens[1:]])
+                        read_improper_coeffs = False if len(improper_coeffs) >= nimproper_types else True
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 if atoms_pattern.search(line):
                     m = atoms_pattern.search(line)
                     # atom id, mol id, atom type
@@ -704,6 +1022,7 @@ class LammpsForceFieldData(LammpsData):
                     # charge, x, y, z, vx, vy, vz ...
                     line_data.extend([float(i) for i in m.groups()[3:]])
                     atoms_data.append(line_data)
+<<<<<<< HEAD
                 if bond_data_pattern.search(line):
                     m = bond_data_pattern.search(line)
                     bonds_data.append([int(i) for i in m.groups()])
@@ -711,6 +1030,15 @@ class LammpsForceFieldData(LammpsData):
                     m = angle_data_pattern.search(line)
                     angles_data.append([int(i) for i in m.groups()])
                 if dihedral_data_pattern.search(line):
+=======
+                if bond_data_pattern.search(line) and atoms_data:
+                    m = bond_data_pattern.search(line)
+                    bonds_data.append([int(i) for i in m.groups()])
+                if angle_data_pattern.search(line) and atoms_data:
+                    m = angle_data_pattern.search(line)
+                    angles_data.append([int(i) for i in m.groups()])
+                if dihedral_data_pattern.search(line) and atoms_data:
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     m = dihedral_data_pattern.search(line)
                     dihedral_data.append([int(i) for i in m.groups()])
         return LammpsForceFieldData(box_size, atomic_masses, pair_coeffs,
@@ -718,6 +1046,7 @@ class LammpsForceFieldData(LammpsData):
                                     dihedral_coeffs, improper_coeffs,
                                     atoms_data, bonds_data, angles_data,
                                     dihedral_data, imdihedral_data)
+<<<<<<< HEAD
 
 
 def get_boxed_molecule(input_structure, box_size):
@@ -750,3 +1079,5 @@ def get_boxed_molecule(input_structure, box_size):
         raise ValueError("molecule must be an object of Molecule or "
                          "Structure ")
     return boxed_molecule
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

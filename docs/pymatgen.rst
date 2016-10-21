@@ -9,6 +9,10 @@ Subpackages
     pymatgen.alchemy
     pymatgen.analysis
     pymatgen.apps
+<<<<<<< HEAD
+=======
+    pymatgen.cli
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     pymatgen.command_line
     pymatgen.core
     pymatgen.electronic_structure

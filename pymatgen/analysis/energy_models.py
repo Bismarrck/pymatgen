@@ -112,7 +112,11 @@ class SymmetryModel(EnergyModel):
     def get_energy(self, structure):
         f = SpacegroupAnalyzer(structure, symprec=self.symprec,
                            angle_tolerance=self.angle_tolerance)
+<<<<<<< HEAD
         return -f.get_spacegroup_number()
+=======
+        return -f.get_space_group_number()
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def as_dict(self):
         return {"version": __version__,

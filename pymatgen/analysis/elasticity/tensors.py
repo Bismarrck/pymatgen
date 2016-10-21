@@ -24,11 +24,23 @@ __date__ = "March 22, 2012"
 
 
 from scipy.linalg import polar
+<<<<<<< HEAD
 import numpy as np
 import itertools
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from numpy.linalg import norm
+=======
+from scipy.linalg import sqrtm
+import numpy as np
+import itertools
+import warnings
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
+from numpy.linalg import norm
+from pymatgen.analysis.elasticity import reverse_voigt_map
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class TensorBase(np.ndarray):
     """
@@ -36,7 +48,11 @@ class TensorBase(np.ndarray):
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
 
+<<<<<<< HEAD
     def __new__(cls, input_array):
+=======
+    def __new__(cls, input_array, vscale = None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Create a TensorBase object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -45,18 +61,42 @@ class TensorBase(np.ndarray):
         Args:
             input_array: (3xN array-like): the 3xN array-like representing
                 a tensor quantity
+<<<<<<< HEAD
         """
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
         if not all([i == 3 for i in obj.shape]):
             raise ValueError("Pymatgen only supports 3-dimensional tensors")
         
+=======
+            vscale: (N x M array-like): a matrix corresponding
+                to the coefficients of the voigt-notation tensor
+        """
+        obj = np.asarray(input_array).view(cls)
+        obj.rank = len(obj.shape)
+
+        vshape = tuple([3]*(obj.rank % 2) + [6]*(obj.rank // 2))
+        obj._vscale = np.ones(vshape)
+        if vscale is not None:
+            obj._vscale = vscale
+        if obj._vscale.shape != vshape:
+            raise ValueError("Voigt scaling matrix must be the shape of the "
+                             "voigt notation matrix or vector.")
+        if not all([i == 3 for i in obj.shape]):
+            raise ValueError("Pymatgen only supports 3-dimensional tensors")
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
         self.rank = getattr(obj, 'rank', None)
+<<<<<<< HEAD
+=======
+        self._vscale = getattr(obj, '_vscale', None)
+        self._vdict = getattr(obj, '_vdict', None)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __array_wrap__(self, obj):
         """
@@ -114,7 +154,10 @@ class TensorBase(np.ndarray):
                                                    [0., 0., 0.])
         return self.transform(sop)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @property
     def symmetrized(self):
         """
@@ -163,7 +206,83 @@ class TensorBase(np.ndarray):
         """
         return (self - self.fit_to_structure(structure) < tol).all()
 
+<<<<<<< HEAD
     def convert_to_ieee(self, structure, atol = 0.1, ltol = 0.05):
+=======
+    @property
+    def voigt(self):
+        """
+        Returns the tensor in Voigt notation
+        """
+        if self.rank > 4:
+            raise ValueError("Voigt notation not standardized "
+                             "for tensor ranks higher than 4.")
+        v_matrix = np.zeros(self._vscale.shape)
+        voigt_map = self.get_voigt_dict(self.rank)
+        for ind in voigt_map:
+            v_matrix[voigt_map[ind]] = self[ind]
+        if not self.is_voigt_symmetric:
+            warnings.warn("Tensor is not symmetric, information may "
+                          "be lost in voigt conversion.")
+        return v_matrix*self._vscale
+
+    @property
+    def is_voigt_symmetric(self):
+        """
+        Tests symmetry of tensor to that necessary for voigt-conversion
+        by grouping indices into pairs and constructing a sequence of
+        possible permutations to be used in a tensor transpose
+        """
+        transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
+        transpose_pieces += [[range(j, j + 2)] for j in 
+                             range(self.rank % 2, self.rank, 2)]
+        for n in range(self.rank % 2, len(transpose_pieces)):
+            if len(transpose_pieces[n][0]) == 2:
+                transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
+        for trans_seq in itertools.product(*transpose_pieces):
+            trans_seq = list(itertools.chain(*trans_seq))
+            if (self - self.transpose(trans_seq) > 1e-10).any():
+                return False
+        return True
+
+    @staticmethod
+    def get_voigt_dict(rank):
+        """
+        Returns a dictionary that maps indices in the tensor to those
+        in a voigt representation based on input rank
+
+        Args:
+            Rank (int): Tensor rank to generate the voigt map
+        """
+        vdict = {}
+        for ind in itertools.product(*[range(3)]*rank):
+            v_ind = ind[:rank % 2]
+            for j in range(rank // 2):
+                pos = rank % 2 + 2*j
+                v_ind += (reverse_voigt_map[ind[pos:pos+2]],)
+            vdict[ind] = v_ind
+        return vdict
+        
+    @classmethod
+    def from_voigt(cls, voigt_input):
+        """
+        Constructor based on the voigt notation vector or matrix.
+
+        Args: 
+        """
+        voigt_input = np.array(voigt_input)
+        rank = sum(voigt_input.shape) // 3
+        t = cls(np.zeros([3]*rank))
+        if voigt_input.shape != t._vscale.shape:
+            raise ValueError("Invalid shape for voigt matrix")
+        voigt_input /= t._vscale
+        voigt_map = t.get_voigt_dict(rank)
+        for ind in voigt_map:
+            t[ind] = voigt_input[voigt_map[ind]]
+        return t
+
+    def convert_to_ieee(self, structure):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -172,13 +291,17 @@ class TensorBase(np.ndarray):
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
+<<<<<<< HEAD
             atol (float): angle tolerance for conversion routines
             ltol (float): length tolerance for conversion routines
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         def get_uvec(vec):
             """ Gets a unit vector parallel to input vector"""
             return vec / np.linalg.norm(vec)
 
+<<<<<<< HEAD
         vecs = structure.lattice.matrix
         lengths = np.array(structure.lattice.abc)
         angles = np.array(structure.lattice.angles)
@@ -199,6 +322,19 @@ class TensorBase(np.ndarray):
                              "conversion from non-conventional settings "\
                              "is not yet supported.".format(xtal_sys))
 
+=======
+        # Check conventional setting:
+        sga = SpacegroupAnalyzer(structure)
+        dataset = sga.get_symmetry_dataset()
+        trans_mat = dataset['transformation_matrix']
+        conv_latt = Lattice(np.transpose(np.dot(np.transpose(
+            structure.lattice.matrix), np.linalg.inv(trans_mat))))
+        xtal_sys = sga.get_crystal_system()
+        
+        vecs = conv_latt.matrix
+        lengths = np.array(conv_latt.abc)
+        angles = np.array(conv_latt.angles)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         a = b = c = None
         rotation = np.zeros((3,3))
 
@@ -207,10 +343,18 @@ class TensorBase(np.ndarray):
             rotation = [vecs[i]/lengths[i] for i in range(3)]
 
         # IEEE rules: a=b in length; c,a || x3, x1
+<<<<<<< HEAD
         elif xtal_sys == "tetragonal":            
             rotation = np.array([vec/mag for (mag, vec) in 
                                  sorted(zip(lengths, vecs))])
             if abs(lengths[2] - lengths[1]) < ltol:
+=======
+        elif xtal_sys == "tetragonal":
+            rotation = np.array([vec/mag for (mag, vec) in 
+                                 sorted(zip(lengths, vecs),
+                                        key = lambda x: x[0])])
+            if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
 
@@ -220,6 +364,7 @@ class TensorBase(np.ndarray):
             rotation = np.roll(rotation, 2, axis = 0)
 
         # IEEE rules: c,a || x3,x1, c is threefold axis
+<<<<<<< HEAD
         elif xtal_sys in ("trigonal", "hexagonal"):
             # Rhombohedral lattice
             if rhombohedral:
@@ -234,13 +379,29 @@ class TensorBase(np.ndarray):
                 rotation[2] = get_uvec(vecs[tf_mask])
                 rotation[0] = get_uvec(vecs[non_tf_mask][0])
                 rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+=======
+        # Note this also includes rhombohedral crystal systems
+        elif xtal_sys in ("trigonal", "hexagonal"):
+            # find threefold axis:
+            tf_index = np.argmin(abs(angles - 120.))
+            non_tf_mask = np.logical_not(angles == angles[tf_index])
+            rotation[2] = get_uvec(vecs[tf_index])
+            rotation[0] = get_uvec(vecs[non_tf_mask][0])
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
             # Find unique axis
+<<<<<<< HEAD
             umask = abs(angles - 90.0) > atol
             n_umask = np.logical_not(umask)
             rotation[1] = get_uvec(vecs[umask])
+=======
+            u_index = np.argmax(abs(angles - 90.))
+            n_umask = np.logical_not(angles == angles[u_index])
+            rotation[1] = get_uvec(vecs[u_index])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             # Shorter of remaining lattice vectors for c axis
             c = [vec/mag for (mag, vec) in 
                  sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
@@ -263,7 +424,11 @@ class SquareTensor(TensorBase):
     (stress, strain etc.).
     """
 
+<<<<<<< HEAD
     def __new__(cls, input_array):
+=======
+    def __new__(cls, input_array, vscale=None):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Create a SquareTensor object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -271,6 +436,7 @@ class SquareTensor(TensorBase):
         initialized with non-square matrix.
 
         Args:
+<<<<<<< HEAD
             stress_matrix (3x3 array-like): the 3x3 array-like
                 representing the Green-Lagrange strain
         """
@@ -280,6 +446,19 @@ class SquareTensor(TensorBase):
             raise ValueError("SquareTensor only takes 2-D "
                              "tensors as input")
         return obj
+=======
+            input_array (3x3 array-like): the 3x3 array-like
+                representing the content of the tensor
+            vscale (6x1 array-like): 6x1 array-like scaling the
+                voigt-notation vector with the tensor entries
+        """
+
+        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale=vscale)
+        if not (len(obj.shape) == 2):
+            raise ValueError("SquareTensor only takes 2-D "
+                             "tensors as input")
+        return obj.view(cls)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         
     @property
     def trans(self):

@@ -7,6 +7,10 @@ from __future__ import unicode_literals
 import unittest2 as unittest
 import tempfile
 from monty.tempfile import ScratchDir
+<<<<<<< HEAD
+=======
+from monty.json import MontyDecoder
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
@@ -175,6 +179,14 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
 
+<<<<<<< HEAD
+=======
+        kpoints = MPRelaxSet(self.structure, user_kpoints_settings={
+            "reciprocal_density": 1000}).kpoints
+        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         kpoints = self.mitset.kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
@@ -224,7 +236,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
     def test_write_input(self):
         with ScratchDir(".") as d:
             self.mitset.write_input(d, make_dir_if_not_present=True)
+<<<<<<< HEAD
             print(self.mitset.structure.formula)
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
                 self.assertTrue(os.path.exists(f))
             self.assertFalse(os.path.exists("Fe4P4O16.cif"))
@@ -233,6 +248,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
             self.assertTrue(os.path.exists("Fe4P4O16.cif"))
 
 
+<<<<<<< HEAD
 # class MITMDVaspInputSetTest(unittest.TestCase):
 #
 #     def setUp(self):
@@ -315,6 +331,8 @@ class MITMPRelaxSetTest(unittest.TestCase):
 #         self.assertNotIn("NPAR", incar)
 
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class MPStaticSetTest(PymatgenTest):
 
     def setUp(self):
@@ -357,6 +375,12 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
+<<<<<<< HEAD
+=======
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
+        non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -391,6 +415,7 @@ class MPNonSCFSetTest(PymatgenTest):
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
+<<<<<<< HEAD
         # Code below is just to make sure that the parameters are the same
         # between the old MPStaticVaspInputSet and the new MPStaticSet.
         # TODO: Delete code below in future.
@@ -413,6 +438,8 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(kpoints.style, vis.kpoints.style)
         self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
 
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")
         vis = MPNonSCFSet.from_prev_calc(
@@ -510,7 +537,13 @@ class MITNEBSetTest(unittest.TestCase):
 
     def test_write_input(self):
         with ScratchDir(".") as d:
+<<<<<<< HEAD
             self.vis.write_input(d)
+=======
+            self.vis.write_input(d, write_cif=True,
+                                 write_endpoint_inputs=True,
+                                 write_path_cif=True)
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             self.assertTrue(os.path.exists("INCAR"))
             self.assertTrue(os.path.exists("KPOINTS"))
             self.assertTrue(os.path.exists("POTCAR"))
@@ -519,6 +552,12 @@ class MITNEBSetTest(unittest.TestCase):
             self.assertTrue(os.path.exists("02/POSCAR"))
             self.assertTrue(os.path.exists("03/POSCAR"))
             self.assertFalse(os.path.exists("04/POSCAR"))
+<<<<<<< HEAD
+=======
+            self.assertTrue(os.path.exists("00/INCAR"))
+            self.assertTrue(os.path.exists("path.cif"))
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class MPSOCSetTest(PymatgenTest):
 

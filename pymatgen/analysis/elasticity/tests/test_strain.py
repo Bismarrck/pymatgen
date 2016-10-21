@@ -84,7 +84,10 @@ class StrainTest(PymatgenTest):
                                   [0., 0., 0.]])
 
     def test_new(self):
+<<<<<<< HEAD
         # test warning for constructing Strain without defo. matrix
+=======
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         with warnings.catch_warnings(record=True) as w:
             Strain([[0., 0.01, 0.],
                     [0.01, 0.0002, 0.],
@@ -114,7 +117,15 @@ class StrainTest(PymatgenTest):
                                     [[1, 0.02, 0],
                                      [0, 1, 0],
                                      [0, 0, 1]])
+<<<<<<< HEAD
         self.assertIsNone(self.no_dfm.deformation_matrix)
+=======
+        self.assertArrayAlmostEqual(self.no_dfm.deformation_matrix,
+                                    [[0.99995,0.0099995, 0],
+                                     [0.0099995,1.00015, 0],
+                                     [0, 0, 1]])
+
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         # independent deformation
         self.assertArrayEqual(self.ind_str.independent_deformation, (0, 1))
@@ -124,7 +135,13 @@ class StrainTest(PymatgenTest):
         # voigt
         self.assertArrayAlmostEqual(self.non_ind_str.voigt,
                                     [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
+<<<<<<< HEAD
 
+=======
+    def test_convert_strain_to_deformation(self):
+        defo = Deformation.from_index_amount((1,2), 0.01)
+        pass
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class DeformedStructureSetTest(PymatgenTest):
     def setUp(self):
@@ -138,6 +155,10 @@ class DeformedStructureSetTest(PymatgenTest):
     def test_init(self):
         with self.assertRaises(ValueError):
             DeformedStructureSet(self.structure, num_norm=5)
+<<<<<<< HEAD
+=======
+        with self.assertRaises(ValueError):
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             DeformedStructureSet(self.structure, num_shear=5)
         self.assertEqual(self.structure, self.default_dss.undeformed_structure)
 

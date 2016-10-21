@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 PyDispatcher==2.0.5
 numpy==1.11.0
 pybtex==0.20.1
@@ -12,3 +13,18 @@ Cython==0.24
 matplotlib==1.5.1
 palettable==2.1.1
 spglib==1.9.4.2
+=======
+pydispatcher==2.0.5
+numpy==1.11.2
+pybtex==0.20.1
+requests==2.11.1
+monty==0.9.6
+pyyaml==3.12
+six==1.10.0
+scipy==0.18.1
+tabulate==0.7.5
+enum34==1.1.6; python_version < '3.5'
+matplotlib==1.5.3
+palettable==2.1.1
+spglib==1.9.7.1
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

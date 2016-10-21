@@ -8,6 +8,10 @@ Subpackages
 
     pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files
     pymatgen.analysis.chemenv.coordination_environments.strategy_files
+<<<<<<< HEAD
+=======
+    pymatgen.analysis.chemenv.coordination_environments.tests
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 Submodules
 ----------

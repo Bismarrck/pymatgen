@@ -160,7 +160,11 @@ class PourbaixPlotter(object):
 
     def plot_planes(self):
         """
+<<<<<<< HEAD
         Plot the free energy planes as a function of pH and V
+=======
+        Plot the free energy facets as a function of pH and V
+>>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         if self.show_unstable:
             entries = self._pd._all_entries
