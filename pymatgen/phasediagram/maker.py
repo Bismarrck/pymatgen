@@ -4,18 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module provides classes to create phase diagrams.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 25, 2012"
-
 import collections
 import numpy as np
 import itertools
@@ -30,6 +18,20 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.util.coord_utils import Simplex
+
+
+"""
+This module provides classes to create phase diagrams.
+"""
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Nov 25, 2012"
 
 
 class PhaseDiagram(MSONable):
@@ -167,13 +169,26 @@ class PhaseDiagram(MSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
-        self.simplices = [qhull_data[f, :-1] for f in self.facets]
+        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
+        self._stable_entries = set(self.qhull_entries[i] for i in
+                                   set(itertools.chain(*self.facets)))
+
+    def pd_coords(self, comp):
+        """
+        The phase diagram is generated in a reduced dimensional space
+        (n_elements - 1). This function returns the coordinates in that space.
+        These coordinates are compatible with the stored simplex objects.
+        """
+        if set(comp.elements).difference(self.elements):
+            raise ValueError('{} has elements not in the phase diagram {}'
+                             ''.format(comp, self.elements))
+        return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
     def all_entries_hulldata(self):
@@ -198,8 +213,7 @@ class PhaseDiagram(MSONable):
         """
         Returns the stable entries in the phase diagram.
         """
-        return set((self.qhull_entries[i]
-                    for i in itertools.chain(*self.facets)))
+        return self._stable_entries
 
     def get_form_energy(self, entry):
         """
@@ -261,7 +275,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     the grand potential, which can be written as the Legendre transform of the
     Gibbs free energy as follows
 
-    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\
+    Grand potential = G - u_X N_X
 
     The algorithm is based on the work in the following papers:
 
@@ -435,7 +449,7 @@ class PhaseDiagramError(Exception):
     pass
 
 
-def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
+def get_facets(qhull_data, joggle=False):
     """
     Get the simplex facets for the Convex hull.
 
@@ -445,8 +459,6 @@ def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
             dimension)
         joggle (boolean): Whether to joggle the input to avoid precision
             errors.
-        force_use_pyhull (boolean): Whether the pyhull algorithm is always
-            used, even when scipy is present.
 
     Returns:
         List of simplices of the Convex Hull.

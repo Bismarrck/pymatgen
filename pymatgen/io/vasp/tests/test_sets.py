@@ -4,16 +4,12 @@
 
 from __future__ import unicode_literals
 
-import unittest2 as unittest
+import unittest
 import tempfile
-from monty.tempfile import ScratchDir
-<<<<<<< HEAD
-=======
 from monty.json import MontyDecoder
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 from pymatgen.io.vasp.sets import *
-from pymatgen.io.vasp.inputs import Poscar, Incar, Kpoints
+from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
@@ -29,15 +25,16 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.structure = poscar.structure
         self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
+        self.lattice = Lattice(
+            [[3.8401979337, 0.00, 0.00],
+             [1.9200989668, 3.3257101909, 0.00],
+             [0.00, -2.2171384943, 3.1355090603]])
 
         self.mitset = MITRelaxSet(self.structure)
         self.mitset_unsorted = MITRelaxSet(self.structure, sort_structure=False)
@@ -80,6 +77,12 @@ class MITMPRelaxSetTest(unittest.TestCase):
         s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
 
+        # Check that it works even when oxidation states are present. Was a bug
+        # previously.
+        s = Structure(lattice, ['Si4+', 'Si4+', 'Fe2+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
@@ -89,7 +92,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
 
         incar = self.mitset.incar
         self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
-        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+        self.assertAlmostEqual(incar['EDIFF'], 1e-5)
 
         si = 14
         coords = list()
@@ -164,37 +167,45 @@ class MITMPRelaxSetTest(unittest.TestCase):
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [1.9, 0])
 
-        #Make sure Matproject sulfides are ok.
+        # Make sure Matproject sulfides are ok.
         self.assertNotIn('LDAUU', MPRelaxSet(struct).incar)
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = MITRelaxSet(struct).incar
         self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
 
-        #Make sure Matproject sulfates are ok.
+        # Make sure Matproject sulfates are ok.
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
+        
+        #test for default LDAUU value
+        
+        userset_ldauu_fallback = MPRelaxSet(struct,
+            user_incar_settings={'LDAUU': {'Fe': 5.0}}
+        )
+        self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
-
-<<<<<<< HEAD
-=======
-        kpoints = MPRelaxSet(self.structure, user_kpoints_settings={
-            "reciprocal_density": 1000}).kpoints
-        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        kpoints = MPRelaxSet(self.structure, user_kpoints_settings={
+            "reciprocal_density": 1000}).kpoints
+        self.assertEqual(kpoints.kpts, [[6, 10, 13]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+
+        kpoints_obj = Kpoints(kpts=[[3, 3, 3]])
+        kpoints_return = MPRelaxSet(self.structure, user_kpoints_settings=kpoints_obj).kpoints
+        self.assertEqual(kpoints_return.kpts, [[3, 3, 3]])
+
         kpoints = self.mitset.kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[25]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
 
         recip_paramset = MPRelaxSet(self.structure, force_gamma=True)
         recip_paramset.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_paramset.kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_all_input(self):
@@ -202,7 +213,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
         s = self.structure.copy()
         s.make_supercell(4)
-        paramset = MITRelaxSet(s)
+        paramset = MPRelaxSet(s)
         d = paramset.all_input
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
@@ -234,105 +245,17 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(p.incar["EDIFF"], 1e-10)
 
     def test_write_input(self):
-        with ScratchDir(".") as d:
-            self.mitset.write_input(d, make_dir_if_not_present=True)
-<<<<<<< HEAD
-            print(self.mitset.structure.formula)
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-            for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
-                self.assertTrue(os.path.exists(f))
-            self.assertFalse(os.path.exists("Fe4P4O16.cif"))
-            self.mitset.write_input(d, make_dir_if_not_present=True,
-                                    include_cif=True)
-            self.assertTrue(os.path.exists("Fe4P4O16.cif"))
+        self.mitset.write_input(".", make_dir_if_not_present=True)
+        for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
+            self.assertTrue(os.path.exists(f))
+        self.assertFalse(os.path.exists("Fe4P4O16.cif"))
+        self.mitset.write_input(".", make_dir_if_not_present=True,
+                                include_cif=True)
+        self.assertTrue(os.path.exists("Fe4P4O16.cif"))
+        for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR", "Fe4P4O16.cif"]:
+            os.remove(f)
 
 
-<<<<<<< HEAD
-# class MITMDVaspInputSetTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         filepath = os.path.join(test_dir, 'POSCAR')
-#         poscar = Poscar.from_file(filepath)
-#         self.struct = poscar.structure
-#         self.mitmdparam = MITMDVaspInputSet(300, 1200, 10000)
-#
-#     def test_get_potcar_symbols(self):
-#         syms = self.mitmdparam.get_potcar_symbols(self.struct)
-#         self.assertEqual(syms, ['Fe', 'P', 'O'])
-#
-#     def test_get_incar(self):
-#         incar = self.mitmdparam.get_incar(self.struct)
-#         self.assertNotIn("LDAUU", incar)
-#         self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
-#
-#     def test_get_kpoints(self):
-#         kpoints = self.mitmdparam.get_kpoints(self.struct)
-#         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
-#         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-#
-#     def test_to_from_dict(self):
-#         d = self.mitmdparam.as_dict()
-#         v = dec.process_decoded(d)
-#         self.assertEqual(type(v), MITMDVaspInputSet)
-#         self.assertEqual(v.incar_settings["TEBEG"], 300)
-#
-#
-# class MITNEBVaspInputSetTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         filepath = os.path.join(test_dir, 'POSCAR')
-#         poscar = Poscar.from_file(filepath)
-#         self.struct = poscar.structure
-#         self.vis = MITNEBVaspInputSet(nimages=10, hubbard_off=True)
-#
-#     def test_get_potcar_symbols(self):
-#         syms = self.vis.get_potcar_symbols(self.struct)
-#         self.assertEqual(syms, ['Fe', 'P', 'O'])
-#
-#     def test_get_incar(self):
-#         incar = self.vis.get_incar(self.struct)
-#         self.assertNotIn("LDAUU", incar)
-#         self.assertAlmostEqual(incar['EDIFF'], 0.00005)
-#
-#     def test_get_kpoints(self):
-#         kpoints = self.vis.get_kpoints(self.struct)
-#         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
-#         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
-#
-#     def test_to_from_dict(self):
-#         d = self.vis.as_dict()
-#         v = dec.process_decoded(d)
-#         self.assertEqual(v.incar_settings["IMAGES"], 10)
-#
-#     def test_write_inputs(self):
-#         c1 = [[0.5] * 3, [0.9] * 3]
-#         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
-#         s1 = Structure(Lattice.cubic(5), ['Si', 'Si'], c1)
-#         s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
-#         structs = []
-#         for s in s1.interpolate(s2, 3, pbc=True):
-#             structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
-#
-#         fc = self.vis._process_structures(structs)[2].frac_coords
-#         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
-#
-#
-# class MVLVaspInputSetTest(PymatgenTest):
-#
-#     def setUp(self):
-#         self.mvlparam = MVLElasticInputSet()
-#
-#     def test_get_incar(self):
-#         incar = self.mvlparam.get_incar(self.get_structure("Graphite"))
-#         self.assertEqual(incar["IBRION"], 6)
-#         self.assertEqual(incar["NFREE"], 2)
-#         self.assertEqual(incar["POTIM"], 0.015)
-#         self.assertNotIn("NPAR", incar)
-
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 class MPStaticSetTest(PymatgenTest):
 
     def setUp(self):
@@ -375,12 +298,13 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(leps_vis.incar["IBRION"], 8)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
-<<<<<<< HEAD
-=======
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[13, 11, 11]])
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[11, 10, 10]])
         non_prev_vis = MPStaticSet(vis.structure, reciprocal_density=200)
-        self.assertEqual(non_prev_vis.kpoints.kpts, [[15, 13, 13]])
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        self.assertEqual(non_prev_vis.kpoints.kpts, [[14, 12, 12]])
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
+                                                  lcalcpol=True)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -394,10 +318,13 @@ class MPNonSCFSetTest(PymatgenTest):
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
         vis = MPNonSCFSet.from_prev_calc(
-            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
+            user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
+        # Check that the user_incar_settings works
+        self.assertEqual(vis.incar["SIGMA"], 0.025)
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
         # Check as from dict.
@@ -415,31 +342,6 @@ class MPNonSCFSetTest(PymatgenTest):
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
-<<<<<<< HEAD
-        # Code below is just to make sure that the parameters are the same
-        # between the old MPStaticVaspInputSet and the new MPStaticSet.
-        # TODO: Delete code below in future.
-        MPNonSCFVaspInputSet.from_previous_vasp_run(
-            previous_vasp_dir=prev_run, output_dir=self.tmp, mode="Line")
-
-        incar = Incar.from_file(os.path.join(self.tmp, "INCAR"))
-
-        for k, v1 in vis.incar.items():
-            v2 = incar.get(k)
-            try:
-                v1 = v1.upper()
-                v2 = v2.upper()
-            except:
-                # Convert strings to upper case for comparison. Ignore other
-                # types.
-                pass
-            self.assertEqual(v1, v2, str(v1)+str(v2))
-        kpoints = Kpoints.from_file(os.path.join(self.tmp, "KPOINTS"))
-        self.assertEqual(kpoints.style, vis.kpoints.style)
-        self.assertArrayAlmostEqual(kpoints.kpts, vis.kpoints.kpts)
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def test_optics(self):
         prev_run = os.path.join(test_dir, "relaxation")
         vis = MPNonSCFSet.from_prev_calc(
@@ -491,7 +393,7 @@ class MITMDSetTest(unittest.TestCase):
         self.assertEqual(syms, ['Fe', 'P', 'O'])
         incar = param.incar
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
+        self.assertAlmostEqual(incar['EDIFF'], 1e-5)
         kpoints = param.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
@@ -523,12 +425,12 @@ class MITNEBSetTest(unittest.TestCase):
     def test_incar(self):
         incar = self.vis.incar
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 0.00005)
+        self.assertAlmostEqual(incar['EDIFF'], 0.00001)
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
-        self.assertEqual(kpoints.kpts, [[8, 8, 8]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        self.assertEqual(kpoints.kpts, [[25]])
+        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
 
     def test_as_from_dict(self):
         d = self.vis.as_dict()
@@ -536,48 +438,46 @@ class MITNEBSetTest(unittest.TestCase):
         self.assertEqual(v.config_dict["INCAR"]["IMAGES"], 2)
 
     def test_write_input(self):
-        with ScratchDir(".") as d:
-<<<<<<< HEAD
-            self.vis.write_input(d)
-=======
-            self.vis.write_input(d, write_cif=True,
-                                 write_endpoint_inputs=True,
-                                 write_path_cif=True)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-            self.assertTrue(os.path.exists("INCAR"))
-            self.assertTrue(os.path.exists("KPOINTS"))
-            self.assertTrue(os.path.exists("POTCAR"))
-            self.assertTrue(os.path.exists("00/POSCAR"))
-            self.assertTrue(os.path.exists("01/POSCAR"))
-            self.assertTrue(os.path.exists("02/POSCAR"))
-            self.assertTrue(os.path.exists("03/POSCAR"))
-            self.assertFalse(os.path.exists("04/POSCAR"))
-<<<<<<< HEAD
-=======
-            self.assertTrue(os.path.exists("00/INCAR"))
-            self.assertTrue(os.path.exists("path.cif"))
+        self.vis.write_input(".", write_cif=True,
+                             write_endpoint_inputs=True,
+                             write_path_cif=True)
+        self.assertTrue(os.path.exists("INCAR"))
+        self.assertTrue(os.path.exists("KPOINTS"))
+        self.assertTrue(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("00/POSCAR"))
+        self.assertTrue(os.path.exists("01/POSCAR"))
+        self.assertTrue(os.path.exists("02/POSCAR"))
+        self.assertTrue(os.path.exists("03/POSCAR"))
+        self.assertFalse(os.path.exists("04/POSCAR"))
+        self.assertTrue(os.path.exists("00/INCAR"))
+        self.assertTrue(os.path.exists("path.cif"))
+        for d in ["00", "01", "02", "03"]:
+            shutil.rmtree(d)
+        for f in ["INCAR", "KPOINTS", "POTCAR", "path.cif"]:
+            os.remove(f)
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class MPSOCSetTest(PymatgenTest):
 
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
-                                      saxis=(1, 0, 0))
+                                      saxis=(1, 0, 0),
+                                      user_incar_settings={"SIGMA": 0.025})
         self.assertEqual(vis.incar["ISYM"], -1)
         self.assertTrue(vis.incar["LSORBIT"])
         self.assertEqual(vis.incar["ICHARG"], 11)
         self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+        self.assertEqual(vis.incar['SIGMA'], 0.025)
 
 
 class MVLSlabSetTest(PymatgenTest):
 
     def setUp(self):
 
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
+        if "PMG_VASP_PSP_DIR" not in os.environ:
+            os.environ["PMG_VASP_PSP_DIR"] = test_dir
         s = PymatgenTest.get_structure("Li2O")
         gen = SlabGenerator(s, (1, 0, 0), 10, 10)
         self.slab = gen.get_slab()
@@ -585,24 +485,26 @@ class MVLSlabSetTest(PymatgenTest):
 
         vis_bulk = MVLSlabSet(self.bulk, bulk=True)
         vis = MVLSlabSet(self.slab)
-        vis_bulk_gpu = MVLSlabSet(self.bulk, bulk=True, gpu=True)
+        vis_dipole = MVLSlabSet(self.slab, auto_dipole=True)
 
         self.d_bulk = vis_bulk.all_input
         self.d_slab = vis.all_input
-        self.d_bulk_gpu = vis_bulk_gpu.all_input
+        self.d_dipole = vis_dipole.all_input
+
+    def test_user_incar_settings(self):
+        # Make sure user incar settings properly override AMIX.
+        si = self.get_structure('Si')
+        vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
+        self.assertEqual(vis.incar["AMIX"], 0.1)
 
     def test_bulk(self):
 
         incar_bulk = self.d_bulk["INCAR"]
-        incar_bulk_gpu = self.d_bulk_gpu["INCAR"]
         poscar_bulk = self.d_bulk["POSCAR"]
 
         self.assertEqual(incar_bulk["ISIF"], 3)
         self.assertEqual(poscar_bulk.structure.formula,
                          self.bulk.formula)
-        # Test VASP-gpu compatibility
-        self.assertEqual(incar_bulk_gpu["KPAR"], 1)
-        self.assertTrue("NPAR" not in incar_bulk_gpu.keys())
 
     def test_slab(self):
 
@@ -621,6 +523,12 @@ class MVLSlabSetTest(PymatgenTest):
         self.assertEqual(potcar_slab.symbols[1], u'O')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
+        # Test auto-dipole
+        dipole_incar = self.d_dipole["INCAR"]
+        self.assertTrue(dipole_incar["LDIPOL"])
+        self.assertArrayAlmostEqual(dipole_incar["DIPOL"], 
+                                    [0.2323, 0.2323, 0.2165], decimal=4)
+        self.assertEqual(dipole_incar["IDIPOL"], 3)
 
     def test_kpoints(self):
 
@@ -654,27 +562,34 @@ class MPHSEBSTest(PymatgenTest):
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "static_silicon")
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
         self.assertTrue(vis.incar["LHFCALC"])
-        self.assertEqual(len(vis.kpoints.kpts), 31)
+        self.assertEqual(len(vis.kpoints.kpts), 16)
 
-        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line")
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="gap")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 18)
+
+        vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="line")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
-        self.assertEqual(len(vis.kpoints.kpts), 195)
+        self.assertEqual(vis.incar['ISYM'], 3)
+        self.assertEqual(len(vis.kpoints.kpts), 180)
 
 
 class FuncTest(PymatgenTest):
 
     def test_batch_write_input(self):
-        with ScratchDir("."):
-            structures = [PymatgenTest.get_structure("Li2O"),
-                          PymatgenTest.get_structure("LiFePO4")]
-            batch_write_input(structures)
-            for d in ['Li4Fe4P4O16_1', 'Li2O1_0']:
-                for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
-                    self.assertTrue(os.path.exists(os.path.join(d, f)))
+        structures = [PymatgenTest.get_structure("Li2O"),
+                      PymatgenTest.get_structure("LiFePO4")]
+        batch_write_input(structures)
+        for d in ['Li4Fe4P4O16_1', 'Li2O1_0']:
+            for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
+                self.assertTrue(os.path.exists(os.path.join(d, f)))
+        for d in ['Li4Fe4P4O16_1', 'Li2O1_0']:
+            shutil.rmtree(d)
+
 
 if __name__ == '__main__':
     unittest.main()

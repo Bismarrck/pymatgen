@@ -5,24 +5,40 @@
 from __future__ import division, unicode_literals
 
 """
-This module defines classes for point defects
+This module defines classes for point defects.
 """
+
+__author__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__email__ = "mbkumar@gmail.com, n.zimmermann@tuhh.de"
+__status__ = "Production"
+__date__ = "Nov 28, 2016"
+
 
 import os
 import abc
 import json
+import numpy as np
 from bisect import bisect_left
+import time
+from math import fabs
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_analyzer import OrderParameters
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
+    SpacegroupOperations
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    SpeciesComparator
 from pymatgen.analysis.bond_valence import BVAnalyzer
 import six
 from six.moves import filter
@@ -107,9 +123,9 @@ class ValenceIonicRadiusEvaluator(object):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
                 # by using calculated values instead.
-                if radius == None:
+                if radius is None:
                     radius = site.specie.atomic_radius_calculated
-                if radius == None:
+                if radius is None:
                     raise ValueError(
                             "cannot assign radius to element {}".format(
                             site.specie))
@@ -676,9 +692,10 @@ class Interstitial(Defect):
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
-        for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-            if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.species_string]
+        if self._valence_dict:
+            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+                if not site.specie.symbol == 'X':
+                    coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 
@@ -1421,37 +1438,31 @@ def symmetry_reduced_voronoi_nodes(
             return dist_sites, None, None
 
     if not high_accuracy_flag:
+        def get_dist_sites(vor_struct):
+            SpgA = SpacegroupAnalyzer
+            try:
+                symmetry_finder = SpgA(vor_struct, symprec=1e-1)
+                symm_struct = symmetry_finder.get_symmetrized_structure()
+            except:
+                vor_struct.merge_sites(0.1, 'delete')
+                symmetry_finder = SpgA(vor_struct, symprec=1e-1)
+                symm_struct = symmetry_finder.get_symmetrized_structure()
+            equiv_sites_list = symm_struct.equivalent_sites
+
+            if not equiv_sites_list:
+                dist_sites = vor_struct.sites
+            else:
+                dist_sites = []
+                for equiv_sites in equiv_sites_list:
+                    add_closest_equiv_site(dist_sites, equiv_sites)
+            return dist_sites
+
         vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct = \
             get_voronoi_nodes(structure, rad_dict)
-        vor_node_symmetry_finder = SpacegroupAnalyzer(vor_node_struct, symprec=1e-1)
-        vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
-        node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
 
-        node_dist_sites = []
-        for equiv_sites in node_equiv_sites_list:
-            add_closest_equiv_site(node_dist_sites, equiv_sites)
-
-        vor_edge_symmetry_finder = SpacegroupAnalyzer(
-            vor_edgecenter_struct, symprec=1e-1)
-        vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
-        edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
-
-        edgecenter_dist_sites = []
-        for equiv_sites in edgecenter_equiv_sites_list:
-            add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
-        if not edgecenter_equiv_sites_list:     # Fix this so doesn't arise
-            edgecenter_dist_sites = vor_edgecenter_struct.sites
-
-        vor_fc_symmetry_finder = SpacegroupAnalyzer(
-                        vor_facecenter_struct, symprec=1e-1)
-        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
-        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
-
-        facecenter_dist_sites = []
-        for equiv_sites in facecenter_equiv_sites_list:
-            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
-        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
-            facecenter_dist_sites = vor_facecenter_struct.sites
+        node_dist_sites = get_dist_sites(vor_node_struct)
+        edgecenter_dist_sites = get_dist_sites(vor_edgecenter_struct)
+        facecenter_dist_sites = get_dist_sites(vor_facecenter_struct)
 
         return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
     else:
@@ -1504,3 +1515,440 @@ def symmetry_reduced_voronoi_nodes(
         #    facecenter_dist_sites = vor_facecenter_struct.sites
 
         #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
+
+
+def get_neighbors_of_site_with_index(struct, n, p=None):
+    """
+    Determine the neighbors around the site that has index n in the input
+    Structure object struct, given the approach defined by parameters
+    p.  All supported neighbor-finding approaches and listed and
+    explained in the following.  All approaches start by creating a
+    tentative list of neighbors using a large cutoff radius defined in
+    parameter dictionary p via key "cutoff".
+    "min_dist": find nearest neighbor and its distance d_nn; consider all
+            neighbors which are within a distance of d_nn * (1 + delta),
+            where delta is an additional parameter provided in the
+            dictionary p via key "delta".
+    "scaled_VIRE": compute the radii, r_i, of all sites on the basis of
+            the valence-ionic radius evaluator (VIRE); consider all
+            neighbors for which the distance to the central site is less
+            than the sum of the radii multiplied by an a priori chosen
+            parameter, delta,
+            (i.e., dist < delta * (r_central + r_neighbor)).
+    "min_relative_VIRE": same approach as "min_dist", except that we
+            use relative distances (i.e., distances divided by the sum of the
+            atom radii from VIRE).
+    "min_relative_OKeeffe": same approach as "min_relative_VIRE", except
+            that we use the bond valence parameters from O'Keeffe's bond valence
+            method (J. Am. Chem. Soc. 1991, 3226-3229) to calculate
+            relative distances.
+
+    Args:
+        struct (Structure): input structure.
+        n (int): index of site in Structure object for which
+                neighbors are to be determined.
+        p (dict): specification (via "approach" key; default is "min_dist")
+                and parameters of neighbor-finding approach.
+                Default cutoff radius is 6 Angstrom (key: "cutoff").
+                Other default parameters are as follows.
+                min_dist: "delta": 0.15;
+                min_relative_OKeeffe: "delta": 0.05;
+                min_relative_VIRE: "delta": 0.05;
+                scaled_VIRE: "delta": 2.
+
+    Returns: ([site]) list of sites that are considered to be nearest
+            neighbors to site with index n in Structure object struct.
+    """
+    sites = []
+    if p is None:
+        p = {"approach": "min_dist", "delta": 0.15,
+                "cutoff": 6}
+
+    if p["approach"] not in [
+            "min_relative_OKeeffe", "min_dist", "min_relative_VIRE", \
+            "scaled_VIRE"]:
+        raise RuntimeError("Unsupported neighbor-finding approach"
+                " (\"{}\")".format(p["approach"]))
+
+    if p["approach"] == "min_relative_OKeeffe" or p["approach"] == "min_dist":
+        neighs_dists = struct.get_neighbors(struct[n], p["cutoff"])
+        try:
+            eln = struct[n].specie.element
+        except:
+            eln = struct[n].species_string
+    elif p["approach"] == "scaled_VIRE" or p["approach"] == "min_relative_VIRE":
+        vire = ValenceIonicRadiusEvaluator(struct)
+        if np.linalg.norm(struct[n].coords-vire.structure[n].coords) > 1e-6:
+            raise RuntimeError("Mismatch between input structure and VIRE structure.")
+        neighs_dists = vire.structure.get_neighbors(vire.structure[n], p["cutoff"])
+        rn = vire.radii[vire.structure[n].species_string]
+
+    reldists_neighs = []
+    for neigh, dist in neighs_dists:
+        if p["approach"] == "scaled_VIRE":
+            dscale = p["delta"] * (vire.radii[neigh.species_string] + rn)
+            if dist < dscale:
+                sites.append(neigh)
+        elif p["approach"] == "min_relative_VIRE":
+            reldists_neighs.append([dist / (
+                    vire.radii[neigh.species_string] + rn), neigh])
+        elif p["approach"] == "min_relative_OKeeffe":
+            try:
+                el2 = neigh.specie.element
+            except:
+                el2 = neigh.species_string
+            reldists_neighs.append([dist / get_okeeffe_distance_prediction(
+                    eln, el2), neigh])
+        elif p["approach"] == "min_dist":
+            reldists_neighs.append([dist, neigh])
+
+    if p["approach"] == "min_relative_VIRE" or \
+            p["approach"] == "min_relative_OKeeffe" or \
+            p["approach"] == "min_dist":
+        min_reldist = min([reldist for reldist, neigh in reldists_neighs])
+        for reldist, neigh in reldists_neighs:
+            if reldist / min_reldist < 1.0 + p["delta"]:
+                sites.append(neigh)
+
+    return sites
+
+
+
+class StructureMotifInterstitial(Defect):
+
+    """
+    Subclass of Defect to generate interstitial sites at positions
+    where the interstitialcy is coordinated by nearest neighbors
+    in a way that resembles basic structure motifs
+    (e.g., tetrahedra, octahedra).  The algorithm will be formally
+    introducted in an upcoming publication
+    by Nils E. R. Zimmermann, Anubhav Jain, and Maciej Haranczyk,
+    and it is already used by the Python Charged Defect Toolkit
+    (PyCDT, https://arxiv.org/abs/1611.07481).
+    """
+
+    __supported_types = ("tetalt", "octalt", "bcc")
+
+    def __init__(self, struct, inter_elem,
+                 motif_types=("tetalt", "octalt"),
+                 op_threshs=(0.3, 0.5),
+                 dl=0.2, doverlap=1.0, facmaxdl=1.01, verbose=False):
+        """
+        Generates symmetrically distinct interstitial sites at positions
+        where the interstitial is coordinated by nearest neighbors
+        in a pattern that resembles a supported structure motif
+        (e.g., tetrahedra, octahedra).
+
+        Args:
+            struct (Structure): input structure for which symmetrically
+                distinct interstitial sites are to be found.
+            inter_elem (string): element symbol of desired interstitial.
+            motif_types ([string]): list of structure motif types that are
+                to be considered.  Permissible types are:
+                tet (tetrahedron), oct (octahedron).
+            op_threshs ([float]): threshold values for the underlying order
+                parameters to still recognize a given structural motif
+                (i.e., for an OP value >= threshold the coordination pattern
+                match is positive, for OP < threshold the match is
+                negative.
+            dl (float): grid fineness in Angstrom.  The input
+                structure is divided into a grid of dimension
+                a/dl x b/dl x c/dl along the three crystallographic
+                directions, with a, b, and c being the lengths of
+                the three lattice vectors of the input unit cell.
+            doverlap (float): distance that is considered
+                to flag an overlap between any trial interstitial site
+                and a host atom.
+            facmaxdl (float): factor to be multiplied with the maximum grid
+                width that is then used as a cutoff distance for the
+                clustering prune step.
+            verbose (bool): flag indicating whether (True) or not (False;
+                default) to print additional information to screen.
+        """
+        # Initialize interstitial finding.
+        self._structure = struct.copy()
+        self._motif_types = motif_types[:]
+        if len(self._motif_types) == 0:
+            raise RuntimeError("no motif types provided.")
+        self._op_threshs = op_threshs[:]
+        for imotif, motif in enumerate(self._motif_types):
+            if motif not in self.__supported_types:
+                raise RuntimeError("unsupported motif type: {}.".format(
+                        motif))
+        self._dl = dl
+        self._defect_sites = []
+        self._defect_types = []
+        self._defect_site_multiplicity = []
+        self._defect_cns = []
+        self._defect_opvals = []
+
+        rots, trans = SpacegroupAnalyzer(
+                struct)._get_symmetry()        
+        nbins = [int(struct.lattice.a / dl), \
+                int(struct.lattice.b / dl), \
+                int(struct.lattice.c / dl)]
+        dls = [struct.lattice.a / float(nbins[0]), \
+                struct.lattice.b / float(nbins[1]), \
+                struct.lattice.c / float(nbins[2])]
+        maxdl = max(dls)
+        if verbose:
+            print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
+            print("dls: {} {} {}".format(dls[0], dls[1], dls[2]))
+        struct_w_inter = struct.copy()
+        struct_w_inter.append(inter_elem, [0, 0, 0])
+        natoms = len(list(struct_w_inter.sites))
+        ops = OrderParameters(motif_types, cutoff=-10.0)
+        trialsites = []
+
+        # Loop over trial positions that are based on a regular
+        # grid in fractional coordinate space
+        # within the unit cell.
+        for ia in range(nbins[0]):
+            a = (float(ia)+0.5) / float(nbins[0])
+            for ib in range(nbins[1]):
+                b = (float(ib)+0.5) / float(nbins[1])
+                for ic in range(nbins[2]):
+                    c = (float(ic)+0.5) / float(nbins[2])
+                    struct_w_inter.replace(
+                            natoms-1, inter_elem, coords=[a, b, c],
+                            coords_are_cartesian=False)
+                    if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms-1].coords, doverlap)) == 1:
+                        delta = 0.1
+                        ddelta = 0.1
+                        delta_end = 0.8
+                        while delta < delta_end:
+                            neighs = get_neighbors_of_site_with_index(
+                                    struct_w_inter, natoms-1, p={
+                                    "approach": "min_dist", "delta": delta,
+                                    "cutoff": 6})
+                            nneighs = len(neighs)
+                            if nneighs > 6:
+                                break
+                            if nneighs not in [4, 6]:
+                                delta += ddelta
+                                continue
+
+                            allsites = [s for s in neighs]
+                            indeces_neighs = [i for i in range(len(allsites))]
+                            allsites.append(struct_w_inter.sites[natoms-1])
+                            opvals = ops.get_order_parameters(
+                                        allsites, len(allsites)-1,
+                                        indeces_neighs=indeces_neighs)
+                            motif_type = "unrecognized"
+                            if "tetalt" in motif_types:
+                                if nneighs == 4 and \
+                                        opvals[motif_types.index("tetalt")] > \
+                                        op_threshs[motif_types.index("tetalt")]:
+                                    motif_type = "tet"
+                                    this_op = opvals[motif_types.index("tetalt")]
+                            if "octalt" in motif_types:
+                                if nneighs == 6 and \
+                                        opvals[motif_types.index("octalt")] > \
+                                        op_threshs[motif_types.index("octalt")]:
+                                    motif_type = "oct"
+                                    this_op = opvals[motif_types.index("octalt")]
+
+                            if motif_type != "unrecognized":
+                                cns = {}
+                                for isite, site in enumerate(neighs):
+                                    if isinstance(site.specie, Element):
+                                        elem = site.specie.symbol
+                                    else:
+                                        elem = site.specie.element.symbol
+                                    if elem in list(cns.keys()):
+                                        cns[elem] = cns[elem] + 1
+                                    else:
+                                        cns[elem] = 1
+                                trialsites.append({
+                                        "mtype": motif_type,
+                                        "opval": this_op,
+                                        "delta": delta,
+                                        "coords": struct_w_inter.sites[natoms-1].coords[:],
+                                        "fracs": np.array([a, b, c]),
+                                        "cns": dict(cns)})
+                                break
+
+                            delta += ddelta
+
+        # Prune list of trial sites by clustering and find the site
+        # with the largest order parameter value in each cluster.
+        nintersites = len(trialsites)
+        unique_motifs = []
+        for ts in trialsites:
+            if ts["mtype"] not in unique_motifs:
+                unique_motifs.append(ts["mtype"])
+        labels = {}
+        connected = []
+        for i in range(nintersites):
+            connected.append([])
+            for j in range(nintersites):
+                dist, image = struct_w_inter.lattice.get_distance_and_image(
+                        trialsites[i]["fracs"],
+                        trialsites[j]["fracs"])
+                connected[i].append(True if dist < (maxdl*facmaxdl) else False)
+        include = []
+        for motif in unique_motifs:
+            labels[motif] = []
+            for i, ts in enumerate(trialsites):
+                labels[motif].append(i if ts["mtype"] == motif else -1)
+            change = True
+            while change:
+                change = False
+                for i in range(nintersites-1):
+                    if change:
+                        break
+                    if labels[motif][i] == -1:
+                        continue
+                    for j in range(i+1, nintersites):
+                        if labels[motif][j] == -1:
+                            continue
+                        if connected[i][j] and labels[motif][i] != labels[motif][j]:
+                            if labels[motif][i] < labels[motif][j]:
+                                labels[motif][j] = labels[motif][i]
+                            else:
+                                labels[motif][i] = labels[motif][j]
+                            change = True
+                            break
+            unique_ids = []
+            for l in labels[motif]:
+                if l != -1 and l not in unique_ids:
+                    unique_ids.append(l)
+            if verbose:
+                print("unique_ids {} {}".format(motif, unique_ids))
+            for uid in unique_ids:
+                maxq = 0.0
+                imaxq = -1
+                for i in range(nintersites):
+                    if labels[motif][i] == uid:
+                        if imaxq < 0 or trialsites[i]["opval"] > maxq:
+                            imaxq = i
+                            maxq = trialsites[i]["opval"]
+                include.append(imaxq)
+
+        # Prune by symmetry.
+        multiplicity = {}
+        discard = []
+        for motif in unique_motifs:
+            discard_motif = []
+            for indi, i in enumerate(include):
+                if trialsites[i]["mtype"] != motif or \
+                        i in discard_motif:
+                    continue
+                multiplicity[i] = 1
+                symposlist = [trialsites[i]["fracs"].dot(
+                        np.array(m, dtype=float)) for m in rots]
+                for t in trans:
+                    symposlist.append(trialsites[i]["fracs"]+np.array(t))
+                for indj in range(indi+1, len(include)):
+                    j = include[indj]
+                    if trialsites[j]["mtype"] != motif or \
+                            j in discard_motif:
+                        continue
+                    for sympos in symposlist:
+                        dist, image = struct.lattice.get_distance_and_image(
+                                sympos, trialsites[j]["fracs"])
+                        if dist < maxdl * facmaxdl:
+                            discard_motif.append(j)
+                            multiplicity[i] += 1
+                            break
+            for i in discard_motif:
+                if i not in discard:
+                    discard.append(i)
+
+        if verbose:
+            print("Initial trial sites: {}\nAfter clustering: {}\n"
+                    "After symmetry pruning: {}".format(
+                    len(trialsites), len(include),
+                    len(include)-len(discard)))
+        c = 0
+        for i in include:
+            if i not in discard:
+                self._defect_sites.append(
+                    PeriodicSite(
+                        Element(inter_elem),
+                        trialsites[i]["fracs"],
+                        self._structure.lattice,
+                        to_unit_cell=False,
+                        coords_are_cartesian=False,
+                        properties=None))
+                self._defect_types.append(trialsites[i]["mtype"])
+                self._defect_cns.append(trialsites[i]["cns"])
+                self._defect_site_multiplicity.append(multiplicity[i])
+                self._defect_opvals.append(trialsites[i]["opval"])
+
+
+    def enumerate_defectsites(self):
+        """
+        Get all defect sites.
+
+        Returns:
+            defect_sites ([PeriodicSite]): list of periodic sites
+                    representing the interstitials.
+        """
+        return self._defect_sites
+
+
+    def get_motif_type(self, i):
+        """
+        Get the motif type of defect with index i (e.g., "tet").
+
+        Returns:
+            motif (string): motif type.
+        """
+        return self._defect_types[i]
+
+
+    def get_coordinating_elements_cns(self, i):
+        """
+        Get element-specific coordination numbers of defect with index i.
+
+        Returns:
+            elem_cn (dict): dictionary storing the coordination numbers (int)
+                    with string representation of elements as keys.
+                    (i.e., {elem1 (string): cn1 (int), ...}).
+        """
+        return self._defect_cns[i]
+
+
+    def get_op_value(self, i):
+        """
+        Get order-parameter value of defect with index i.
+
+        Returns:
+            opval (float): OP value.
+        """
+        return self._defect_opvals[i]
+
+
+    def make_supercells_with_defects(self, scaling_matrix):
+        """
+        Generate a sequence of supercells
+        in which each supercell contains a single interstitial,
+        except for the first supercell in the sequence
+        which is a copy of the defect-free input structure.
+
+        Args:
+            scaling_matrix (3x3 integer array): scaling matrix
+                to transform the lattice vectors.
+        Returns:
+            scs ([Structure]): sequence of supercells.
+
+        """
+        scs = []
+        sc = self._structure.copy()
+        sc.make_supercell(scaling_matrix)
+        scs.append(sc)
+        for ids, defect_site in enumerate(self._defect_sites):
+            sc_with_inter = sc.copy()
+            sc_with_inter.append(defect_site.species_string,
+                    defect_site.frac_coords,
+                    coords_are_cartesian=False,
+                    validate_proximity=False,
+                    properties=None)
+            if not sc_with_inter:
+                raise RuntimeError("could not generate supercell with"
+                        " interstitial {}".format(ids+1))
+            scs.append(sc_with_inter.copy())
+        return scs
+
+

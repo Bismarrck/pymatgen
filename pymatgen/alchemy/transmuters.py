@@ -72,19 +72,6 @@ class StandardTransmuter(object):
                 self.append_transformation(trans,
                                            extend_collection=extend_collection)
 
-    def get_transformed_structures(self):
-        """
-        Returns all TransformedStructures.
-
-        .. deprecated:: v2.1.0
-
-            Use transformed_structures attribute instead. Will be removed in
-            next version.
-        """
-        warnings.warn("Use transformed_structures attribute instead.",
-                      DeprecationWarning)
-        return self.transformed_structures
-
     def __getitem__(self, index):
         return self.transformed_structures[index]
 
@@ -309,7 +296,7 @@ class CifTransmuter(StandardTransmuter):
         structure_data = []
         read_data = False
         for line in lines:
-            if re.match("^\s*data", line):
+            if re.match(r"^\s*data", line):
                 structure_data.append([])
                 read_data = True
             if read_data:
@@ -416,7 +403,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
             programs.
     """
     for i, s in enumerate(transformed_structures):
-        formula = re.sub("\s+", "", s.final_structure.formula)
+        formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,

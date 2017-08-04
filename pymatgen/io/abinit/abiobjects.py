@@ -33,15 +33,15 @@ from monty.json import MontyEncoder, MontyDecoder
 def lattice_from_abivars(cls=None, *args, **kwargs):
     """
     Returns a `Lattice` object from a dictionary
-    with the Abinit variables `acell` and `rprim` in Bohr.
+    with the Abinit variables `acell` and either `rprim` in Bohr or `angdeg`
     If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
 
     Args:
-        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if cls is None
+        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
 
     Example:
 
-    lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
+        lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
     """
     cls = Lattice if cls is None else cls
     kwargs.update(dict(*args))
@@ -51,24 +51,52 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     angdeg = d.get("angdeg", None)
     acell = d["acell"]
 
-    # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
     if rprim is not None:
-        assert angdeg is None
+        if angdeg is not None:
+            raise ValueError("angdeg and rprimd are mutually exclusive")
         rprim = np.reshape(rprim, (3,3))
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
     elif angdeg is not None:
-        # angdeg(0) is the angle between the 2nd and 3rd vectors,
-        # angdeg(1) is the angle between the 1st and 3rd vectors,
-        # angdeg(2) is the angle between the 1st and 2nd vectors,
-        raise NotImplementedError("angdeg convention should be tested")
-        angles = angdeg
-        angles[1] = -angles[1]
-        l = ArrayWithUnit(acell, "bohr").to("ang")
-        return cls.from_lengths_and_angles(l, angdeg)
-    else:
-        raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+        angdeg = np.reshape(angdeg, 3)
+
+        if np.any(angdeg <= 0.):
+            raise ValueError("Angles must be > 0 but got %s" % str(angdeg))
+        if angdeg.sum() >= 360.:
+            raise ValueError("The sum of angdeg must be lower that 360, angdeg %s" % str(angdeg))
+
+        # This code follows the implementation in ingeo.F90
+        # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
+        tol12 = 1e-12
+        pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
+        rprim = np.zeros((3,3))
+        if (abs(angdeg[0] -angdeg[1]) < tol12 and abs(angdeg[1] - angdeg[2]) < tol12 and
+            abs(angdeg[0]-90.) + abs(angdeg[1]-90.) + abs(angdeg[2] -90) > tol12):
+            # Treat the case of equal angles (except all right angles):
+            # generates trigonal symmetry wrt third axis
+            cosang = cos(pi * angdeg[0]/180.0)
+            a2 = 2.0/3.0*(1.0 - cosang)
+            aa = sqrt(a2)
+            cc = sqrt(1.0-a2)
+            rprim[0,0] = aa     ; rprim[0,1] = 0.0              ; rprim[0,2] = cc
+            rprim[1,0] = -0.5*aa; rprim[1,1] = sqrt(3.0)*0.5*aa ; rprim[1,2] = cc
+            rprim[2,0] = -0.5*aa; rprim[2,1] = -sqrt(3.0)*0.5*aa; rprim[2,2] = cc
+        else:
+            # Treat all the other cases
+            rprim[0,0] = 1.0
+            rprim[1,0] = cos(pi*angdeg[2]/180.)
+            rprim[1,1] = sin(pi*angdeg[2]/180.)
+            rprim[2,0] = cos(pi*angdeg[1]/180.)
+            rprim[2,1] = (cos(pi*angdeg[0]/180.0)-rprim[1,0]*rprim[2,0])/rprim[1,1]
+            rprim[2,2] = sqrt(1.0-rprim[2,0]**2-rprim[2,1]**2)
+
+        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+    raise ValueError("Don't know how to construct a Lattice from dict:\n%s" % pformat(d))
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):
@@ -98,7 +126,8 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     cls = Structure if cls is None else cls
 
-    lattice = Lattice.from_dict(d, fmt="abivars")
+    #lattice = Lattice.from_dict(d, fmt="abivars")
+    lattice = lattice_from_abivars(**d)
     coords, coords_are_cartesian = d.get("xred", None), False
 
     if coords is None:
@@ -124,10 +153,11 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     if not isinstance(typat, collections.Iterable):
         typat = [typat]
 
-    assert len(typat) == len(coords)
+    if len(typat) != len(coords):
+        raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
-    # Note Fortran --> C indexing
-    #znucl_type = np.rint(znucl_type)
+    # Note conversion to int and Fortran --> C indexing
+    typat = np.array(typat, dtype=np.int)
     species = [znucl_type[typ-1] for typ in typat]
 
     return cls(lattice, species, coords, validate_proximity=False,
@@ -135,7 +165,9 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
 
 def structure_to_abivars(structure, **kwargs):
-    """Returns a dictionary with the ABINIT variables."""
+    """
+    Receives a structure and returns a dictionary with the ABINIT variables.
+    """
     types_of_specie = structure.types_of_specie
     natom = structure.num_sites
 
@@ -435,7 +467,6 @@ class Electrons(AbivarAble, MSONable):
         self.comment = comment
         self.smearing = Smearing.as_smearing(smearing)
         self.spin_mode = SpinMode.as_spinmode(spin_mode)
-
         self.nband = nband
         self.fband = fband
         self.charge = charge
@@ -478,7 +509,6 @@ class Electrons(AbivarAble, MSONable):
         d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
         return cls(**d)
 
-
     def to_abivars(self):
         abivars = self.spin_mode.to_abivars()
 
@@ -507,8 +537,6 @@ class KSampling(AbivarAble, MSONable):
     """
     Input variables defining the K-point sampling.
     """
-    # Modes supported by the constructor.
-
 
     def __init__(self, mode=KSamplingModes.monkhorst, num_kpts= 0,
                  kpts=((1, 1, 1),),
@@ -604,13 +632,11 @@ class KSampling(AbivarAble, MSONable):
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
 
-            kptnrm = np.ones(num_kpts)
-
             abivars.update({
                 "kptopt"     : 0,
                 "kpt"        : kpts,
                 "nkpt"       : num_kpts,
-                "kptnrm"     : kptnrm,
+                "kptnrm"     : np.ones(num_kpts),
                 "wtk"        : kpts_weights,  # for iscf/=-2, wtk.
                 "chksymbreak": chksymbreak,
             })
@@ -764,7 +790,8 @@ class KSampling(AbivarAble, MSONable):
         """
         lattice = structure.lattice
         lengths = lattice.abc
-        ngrid = kppa / structure.num_sites
+        shifts = np.reshape(shifts, (-1, 3))
+        ngrid = kppa / structure.num_sites / len(shifts)
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.)
 
@@ -796,8 +823,6 @@ class KSampling(AbivarAble, MSONable):
 =======
         comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-
-        shifts = np.reshape(shifts, (-1, 3))
 
         return cls(
             mode="monkhorst", num_kpts=0, kpts=[num_div], kpt_shifts=shifts,
@@ -958,7 +983,6 @@ class PPModel(AbivarAble, MSONable):
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
-
 
     @classmethod
     def as_ppmodel(cls, obj):
@@ -1173,6 +1197,7 @@ class Screening(AbivarAble):
             "gwpara"    : self.gwpara,
             "awtr"      : self.awtr,
             "symchi"    : self.symchi,
+            "nband"     : self.nband,
             #"gwcalctyp": self.gwcalctyp,
             #"fftgw"    : self.fftgw,
             "optdriver" : self.optdriver,
@@ -1292,6 +1317,7 @@ class SelfEnergy(AbivarAble):
             gw_qprange=self.gw_qprange,
             gwpara=self.gwpara,
             optdriver=self.optdriver,
+            nband=self.nband
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
@@ -1352,7 +1378,7 @@ class ExcHamiltonian(AbivarAble):
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             coulomb_mode: Treatment of the Coulomb term.
             ecuteps: Cutoff energy for W in Hartree.
-            mdf_epsinf: Macroscopic dielectric function :math:`\epsilon_\inf` used in
+            mdf_epsinf: Macroscopic dielectric function :math:`\\epsilon_\\inf` used in
                 the model dielectric function.
             exc_type: Approximation used for the BSE Hamiltonian
             with_lf: True if local field effects are included <==> exchange term is included

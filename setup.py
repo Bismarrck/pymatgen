@@ -2,24 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import glob
 import os
 from io import open
 import sys
-<<<<<<< HEAD
-
-from setuptools import setup, find_packages, Extension
-
-try:
-    from numpy.distutils.misc_util import get_numpy_include_dirs
-except ImportError:
-    print("numpy.distutils.misc_util cannot be imported. Please install numpy"
-          "first before install pymatgen...")
-    sys.exit(-1)
-
-SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
-
-=======
 import platform
 
 from setuptools import setup, find_packages, Extension
@@ -30,8 +15,21 @@ class build_ext(_build_ext):
     def finalize_options(self):
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
+        if sys.version_info[0] >= 3:
+            import builtins
+            if hasattr(builtins, '__NUMPY_SETUP__'):
+                del builtins.__NUMPY_SETUP__
+            import importlib
+            import numpy
+            importlib.reload(numpy)
+        else:
+            import __builtin__
+            if hasattr(__builtin__, '__NUMPY_SETUP__'):
+                del __builtin__.__NUMPY_SETUP__
+            import imp
+            import numpy
+            imp.reload(numpy)
+
         self.include_dirs.append(numpy.get_include())
 
 SETUP_PTH = os.path.dirname(__file__)
@@ -39,55 +37,31 @@ SETUP_PTH = os.path.dirname(__file__)
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
 
-<<<<<<< HEAD
-
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.6.1",
-    install_requires=["numpy>=1.9", "six", "atomicfile", "requests",
-                      "pybtex", "pyyaml", "monty>=0.7.0", "scipy>=0.14",
-                      "tabulate", "enum34", "spglib"],
-    extras_require={"plotting": ["matplotlib>=1.1", "prettyplotlib"],
-                    "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
-                    "ase_adaptor": ["ase>=3.3"],
-                    "vis": ["vtk>=6.0.0"],
-                    "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"],
-                    "chemenv": ["unittest2"]},
-    package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml", "*.csv"],
-                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt",
-                                                                                                        "*.json"],
-                  "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-                  "pymatgen.io.vasp": ["*.yaml"],
-                  "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml"],
-=======
-setup(
-    name="pymatgen",
-    packages=find_packages(),
-    version="4.4.8",
+    version="2017.7.21",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
-    install_requires=["numpy>=1.9", "six", "requests", "pydispatcher>=2.0.5",
-                      "pybtex", "pyyaml>=3.11", "monty>=0.9.6", "scipy>=0.14",
-                      "tabulate", "spglib>=1.9.7.1",
-                      "matplotlib>=1.5", "palettable>=2.1.1"],
+    install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
+                      "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
+                      "tabulate", "spglib>=1.9.9.44",
+                      "matplotlib>=1.5", "palettable>=2.1.1", "sympy"],
     extras_require={
         ':python_version == "2.7"': [
             'enum34',
         ],
+        "matproj.snl": ["pybtex"],
         "pourbaix diagrams, bandstructure": ["pyhull>=1.5.3"],
         "ase_adaptor": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+        "abinit": ["pydispatcher>=2.0.5", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
@@ -95,7 +69,6 @@ setup(
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml", "*.json"],
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
@@ -122,12 +95,8 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-<<<<<<< HEAD
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -139,13 +108,6 @@ setup(
     ],
     ext_modules=[Extension("pymatgen.optimization.linear_assignment",
                            ["pymatgen/optimization/linear_assignment.c"],
-<<<<<<< HEAD
-                           include_dirs=get_numpy_include_dirs()),
-                 Extension("pymatgen.util.coord_utils_cython",
-                           ["pymatgen/util/coord_utils_cython.c"],
-                           include_dirs=get_numpy_include_dirs())],
-    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
-=======
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_utils_cython",
                            ["pymatgen/util/coord_utils_cython.c"],
@@ -161,5 +123,4 @@ setup(
               'pydii = pymatgen.cli.pydii:main',
           ]
     }
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 )

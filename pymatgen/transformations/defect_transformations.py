@@ -83,18 +83,6 @@ class VacancyTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"supercell_dim":self.supercell_dim,
-                             "species":self.species,
-                             "valences":self.valences,
-                             "radii":self.radii},
-                "@module":self.__class__.__module__,
-                "@class":self.__class__.__name__ }
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class SubstitutionDefectTransformation(AbstractTransformation):
     """
@@ -110,11 +98,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         """
         #self.substitute_specie = substitute_specie
         #self.site_specie = site_specie
-<<<<<<< HEAD
-        self._species_map = species_map
-=======
         self.species_map = species_map
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.supercell_dim = supercell_dim
         self.valences = valences
         self.radii = radii
@@ -135,11 +119,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         except ValueError:
             num_to_return = 1
 
-<<<<<<< HEAD
-        species = self._species_map.keys()
-=======
         species = self.species_map.keys()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         vac = Vacancy(structure,self.valences,self.radii)
         scs = vac.make_supercells_with_defects(
             self.supercell_dim,species,num_to_return)
@@ -152,13 +132,8 @@ class SubstitutionDefectTransformation(AbstractTransformation):
                 site_specie = vac_site.specie.element.symbol
             elif isinstance(vac_site.specie,Element):
                 site_specie = vac_site.specie.symbol
-<<<<<<< HEAD
-            if site_specie in self._species_map.keys():
-                substitute_specie = self._species_map[site_specie]
-=======
             if site_specie in self.species_map.keys():
                 substitute_specie = self.species_map[site_specie]
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
                 sub_scs.append(vac_sc.get_sorted_structure())
 
@@ -177,11 +152,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
 
     def __str__(self):
         specie_map_string = ", ".join(
-<<<<<<< HEAD
-            [str(k) + "->" + str(v) for k, v in self._specie_map.items()])
-=======
-            [str(k) + "->" + str(v) for k, v in self.specie_map.items()])
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+            [str(k) + "->" + str(v) for k, v in self.species_map.items()])
         inp_args = ["Specie map = {}".format(specie_map_string),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
@@ -199,24 +170,6 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        sp_map = []
-        for k, v in self._species_map.items():
-            if isinstance(v, dict):
-                v = [(str(k2), v2) for k2, v2 in v.items()]
-                sp_map.append((str(k), v))
-            else:
-                sp_map.append((str(k), str(v)))
-        return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"species_map":sp_map,
-                             "supercell_dim":self.supercell_dim,
-                             "valences":self.valences,"radii":self.radii},
-                "@module":self.__class__.__module__,
-                "@class":self.__class__.__name__ }
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class AntisiteDefectTransformation(AbstractTransformation):
     """
@@ -286,27 +239,13 @@ class AntisiteDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"supercell_dim":self.supercell_dim,
-                             "valences":self.valences,"radii":self.radii},
-                "@module":self.__class__.__module__,
-                "@class":self.__class__.__name__ }
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class InterstitialTransformation(AbstractTransformation):
     """
     Generates interstitial structures from the input structure
     """
     def __init__(self, interstitial_specie, supercell_dim,
-<<<<<<< HEAD
-                 valences={}, radii={}):
-=======
                  valences=None, radii=None):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         :param supercell_dim:
         :param valences:
@@ -314,15 +253,9 @@ class InterstitialTransformation(AbstractTransformation):
         :return:
         """
         self.supercell_dim = supercell_dim
-<<<<<<< HEAD
-        self.valences = valences
-        self.radii = radii
-        self.inter_specie = interstitial_specie
-=======
         self.valences = valences or {}
         self.radii = radii or {}
         self.interstitial_specie = interstitial_specie
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -351,11 +284,7 @@ class InterstitialTransformation(AbstractTransformation):
             inter = Interstitial(s,val,rad,oxi_state=True)
 
         scs = inter.make_supercells_with_defects(
-<<<<<<< HEAD
-            self.supercell_dim, self.inter_specie)
-=======
             self.supercell_dim, self.interstitial_specie)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         #if num_to_return < len(scs)-1:
         #    raise ValueError("InterstitialTransformation has no ordering "
@@ -371,11 +300,7 @@ class InterstitialTransformation(AbstractTransformation):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii),
-<<<<<<< HEAD
-                    "interstitial specie = {}".format(self.inter_specie)]
-=======
                     "interstitial specie = {}".format(self.interstitial_specie)]
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return "Interstitial Transformation : " + ", ".join(inp_args)
 
     def __repr__(self):
@@ -388,14 +313,3 @@ class InterstitialTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
-
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"supercell_dim":self.supercell_dim,
-                             "valences":self.valences,"radii":self.radii,
-                             "interstitial_specie":self.inter_specie},
-                "@module":self.__class__.__module__,
-                "@class":self.__class__.__name__ }
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

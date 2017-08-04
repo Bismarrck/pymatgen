@@ -4,6 +4,27 @@
 
 from __future__ import division, unicode_literals
 
+import re
+import math
+import subprocess
+import itertools
+import logging
+
+import numpy as np
+from monty.fractions import lcm
+import fractions
+
+from six.moves import reduce
+
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import DummySpecie
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -33,26 +54,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 16, 2012"
 
-import re
-import math
-import subprocess
-import itertools
-import logging
-
-import numpy as np
-from monty.fractions import lcm
-import fractions
-
-from six.moves import reduce
-
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
 
 logger = logging.getLogger(__name__)
 
@@ -306,7 +307,7 @@ class EnumlibAdaptor(object):
         for line in output.strip().split("\n"):
             if line.strip().endswith("RunTot"):
                 start_count = True
-            elif start_count and re.match("\d+\s+.*", line.strip()):
+            elif start_count and re.match(r"\d+\s+.*", line.strip()):
                 count = int(line.split()[-1])
         logger.debug("Enumeration resulted in {} structures".format(count))
         return count
@@ -333,8 +334,8 @@ class EnumlibAdaptor(object):
         for n in range(1, num_structs + 1):
             with open("vasp.{:06d}".format(n)) as f:
                 data = f.read()
-                data = re.sub("scale factor", "1", data)
-                data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
+                data = re.sub(r'scale factor', "1", data)
+                data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
                 poscar = Poscar.from_string(data, self.index_species)
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to

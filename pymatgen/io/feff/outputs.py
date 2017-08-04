@@ -187,20 +187,20 @@ class Xmu(MSONable):
     """
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
-    situation; \mu, \mu_0, and \chi = \chi * \mu_0/ \mu_0/(edge+50eV) as
+    situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
     functions of absolute energy E, relative energy E − E_f and wave number k.
 
     Args:
         header: Header object
         parameters: Tags object
-        absorbing_atom (str): absorbing atom symbol
+        absorbing_atom (str/int): absorbing atom symbol or index
         data (numpy.ndarray, Nx6): cross_sections
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\sqrt(E −E_fermi)
+        wavenumber: k=\\sqrt(E −E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.
@@ -233,7 +233,12 @@ class Xmu(MSONable):
         header = Header.from_file(feff_inp_file)
         parameters = Tags.from_file(feff_inp_file)
         pots = Potential.pot_string_from_file(feff_inp_file)
-        absorbing_atom = pots.splitlines()[1].split()[2]
+        # site index (Note: in feff it starts from 1)
+        if "RECIPROCAL" in parameters:
+            absorbing_atom = parameters["TARGET"]
+        # species symbol
+        else:
+            absorbing_atom = pots.splitlines()[1].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
     @property
@@ -254,7 +259,7 @@ class Xmu(MSONable):
     @property
     def wavenumber(self):
         """
-        Returns The wave number in units of \AA^-1. k=\sqrt(E −E_f) where E is
+        Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is
         the energy and E_f is the Fermi level computed from electron gas theory
         at the average interstitial charge density.
         """

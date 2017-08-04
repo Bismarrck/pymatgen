@@ -4,42 +4,23 @@
 
 from __future__ import division, unicode_literals
 
-<<<<<<< HEAD
-"""
-This module implements more advanced transformations.
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 24, 2012"
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 import numpy as np
-from fractions import gcd, Fraction
+from fractions import Fraction
+try:
+    from math import gcd
+except ImportError:
+    from fractions import gcd
 from itertools import groupby
 from warnings import warn
-<<<<<<< HEAD
-
-import six
-
-from pymatgen.core.structure import Specie, Composition
-from pymatgen.core.periodic_table import get_el_sp
-=======
 import logging
 import math
 
 import six
-from monty.json import MontyDecoder
+import warnings
 from monty.fractions import lcm
 
 from pymatgen.core.structure import Composition
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
@@ -52,11 +33,8 @@ from pymatgen.structure_prediction.substitution_probability import \
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
-<<<<<<< HEAD
-from monty.json import MontyDecoder
-=======
 from pymatgen.analysis.bond_valence import BVAnalyzer
-
+from pymatgen.core.surface import SlabGenerator
 
 """
 This module implements more advanced transformations.
@@ -71,7 +49,6 @@ __date__ = "Jul 24, 2012"
 
 
 logger = logging.getLogger(__name__)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -84,19 +61,11 @@ class ChargeBalanceTransformation(AbstractTransformation):
             is supported
     """
     def __init__(self, charge_balance_sp):
-<<<<<<< HEAD
-        self._charge_balance_sp = str(charge_balance_sp)
-
-    def apply_transformation(self, structure):
-        charge = structure.charge
-        specie = get_el_sp(self._charge_balance_sp)
-=======
         self.charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure):
         charge = structure.charge
         specie = get_el_sp(self.charge_balance_sp)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         num_to_remove = charge / specie.oxi_state
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
@@ -104,22 +73,13 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by "
                              "ChargeBalanceTransformation")
         trans = SubstitutionTransformation(
-<<<<<<< HEAD
-            {self._charge_balance_sp: {self._charge_balance_sp:
-                1 - removal_fraction}})
-=======
             {self.charge_balance_sp: {
                 self.charge_balance_sp: 1 - removal_fraction}})
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         return trans.apply_transformation(structure)
 
     def __str__(self):
         return "Charge Balance Transformation : " + \
-<<<<<<< HEAD
-               "Species to remove = {}".format(str(self._charge_balance_sp))
-=======
                "Species to remove = {}".format(str(self.charge_balance_sp))
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -132,15 +92,6 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"charge_balance_sp": self._charge_balance_sp},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class SuperTransformation(AbstractTransformation):
     """
@@ -195,17 +146,6 @@ class SuperTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "transformations": self._transformations,
-                    "nstructures_per_trans": self.nstructures_per_trans},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class MultipleSubstitutionTransformation(object):
     """
@@ -240,19 +180,11 @@ class MultipleSubstitutionTransformation(object):
             charge_balance_species: If specified, will balance the charge on
                 the structure using that specie.
         """
-<<<<<<< HEAD
-        self._sp_to_replace = sp_to_replace
-        self._r_fraction = r_fraction
-        self._substitution_dict = substitution_dict
-        self._charge_balance_species = charge_balance_species
-        self._order = order
-=======
         self.sp_to_replace = sp_to_replace
         self.r_fraction = r_fraction
         self.substitution_dict = substitution_dict
         self.charge_balance_species = charge_balance_species
         self.order = order
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
@@ -260,28 +192,13 @@ class MultipleSubstitutionTransformation(object):
                              " best structure output. Must use"
                              " return_ranked_list.")
         outputs = []
-<<<<<<< HEAD
-        for charge, el_list in self._substitution_dict.items():
-=======
         for charge, el_list in self.substitution_dict.items():
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             mapping = {}
             if charge > 0:
                 sign = "+"
             else:
                 sign = "-"
             dummy_sp = "X{}{}".format(str(charge), sign)
-<<<<<<< HEAD
-            mapping[self._sp_to_replace] = {
-                self._sp_to_replace: 1 - self._r_fraction,
-                dummy_sp: self._r_fraction}
-            trans = SubstitutionTransformation(mapping)
-            dummy_structure = trans.apply_transformation(structure)
-            if self._charge_balance_species is not None:
-                cbt = ChargeBalanceTransformation(self._charge_balance_species)
-                dummy_structure = cbt.apply_transformation(dummy_structure)
-            if self._order:
-=======
             mapping[self.sp_to_replace] = {
                 self.sp_to_replace: 1 - self.r_fraction,
                 dummy_sp: self.r_fraction}
@@ -291,7 +208,6 @@ class MultipleSubstitutionTransformation(object):
                 cbt = ChargeBalanceTransformation(self.charge_balance_species)
                 dummy_structure = cbt.apply_transformation(dummy_structure)
             if self.order:
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 trans = OrderDisorderedStructureTransformation()
                 dummy_structure = trans.apply_transformation(dummy_structure)
 
@@ -309,11 +225,7 @@ class MultipleSubstitutionTransformation(object):
 
     def __str__(self):
         return "Multiple Substitution Transformation : Substitution on " + \
-<<<<<<< HEAD
-               "{}".format(self._sp_to_replace)
-=======
                "{}".format(self.sp_to_replace)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def __repr__(self):
         return self.__str__()
@@ -326,19 +238,6 @@ class MultipleSubstitutionTransformation(object):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "sp_to_replace": self._sp_to_replace,
-                    "r_fraction": self._r_fraction,
-                    "substitution_dict": self._substitution_dict,
-                    "charge_balance_species": self._charge_balance_species},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class EnumerateStructureTransformation(AbstractTransformation):
     """
@@ -483,21 +382,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {
-                    "symm_prec": self.symm_prec,
-                    "min_cell_size": self.min_cell_size,
-                    "max_cell_size": self.max_cell_size,
-                    "refine_structure": self.refine_structure,
-                    "enum_precision_parameter": self.enum_precision_parameter,
-                    "check_ordered_symmetry": self.check_ordered_symmetry},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class SubstitutionPredictorTransformation(AbstractTransformation):
     """
@@ -510,13 +394,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     """
 
     def __init__(self, threshold=1e-2, **kwargs):
-<<<<<<< HEAD
-        self._kwargs = kwargs
-        self._threshold = threshold
-=======
         self.kwargs = kwargs
         self.threshold = threshold
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self._substitutor = SubstitutionPredictor(threshold=threshold,
                                                   **kwargs)
 
@@ -534,13 +413,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             st = SubstitutionTransformation(pred['substitutions'])
             output = {'structure': st.apply_transformation(structure),
                       'probability': pred['probability'],
-<<<<<<< HEAD
-                      'threshold': self._threshold, 'substitutions': {}}
-            #dictionary keys have to be converted to strings for JSON
-=======
                       'threshold': self.threshold, 'substitutions': {}}
             # dictionary keys have to be converted to strings for JSON
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
             outputs.append(output)
@@ -560,16 +434,6 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__,
-             "init_args": self._kwargs, "@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
-        d["init_args"]["threshold"] = self._threshold
-        return d
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class MagOrderingTransformation(AbstractTransformation):
     """
@@ -598,13 +462,8 @@ class MagOrderingTransformation(AbstractTransformation):
             raise ValueError('Order Parameter must lie between 0 and 1')
         else:
             self.order_parameter = order_parameter
-<<<<<<< HEAD
-        self.emodel = energy_model
-        self.enum_kwargs = kwargs
-=======
         self.energy_model = energy_model
         self.kwargs = kwargs
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @classmethod
     def determine_min_cell(cls, structure, mag_species_spin, order_parameter):
@@ -629,14 +488,10 @@ class MagOrderingTransformation(AbstractTransformation):
                 'The specified species do not exist in the structure'
                 ' to be enumerated')
 
-        return lcm(n_gcd, denom) / n_gcd
+        return lcm(int(n_gcd), denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
-<<<<<<< HEAD
-        #Make a mutable structure first
-=======
         # Make a mutable structure first
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         mods = Structure.from_sites(structure)
         for sp, spin in self.mag_species_spin.items():
             sp = get_el_sp(sp)
@@ -654,11 +509,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if mods.is_ordered:
             return [mods] if return_ranked_list > 1 else mods
 
-<<<<<<< HEAD
-        enum_args = self.enum_kwargs
-=======
         enum_args = self.kwargs
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         enum_args["min_cell_size"] = max(int(
             MagOrderingTransformation.determine_min_cell(
@@ -666,11 +517,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 self.order_parameter)),
             enum_args.get("min_cell_size", 1))
 
-<<<<<<< HEAD
-        max_cell = self.enum_kwargs.get('max_cell_size')
-=======
         max_cell = enum_args.get('max_cell_size')
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         if max_cell:
             if enum_args["min_cell_size"] > max_cell:
                 raise ValueError('Specified max cell size is smaller'
@@ -680,34 +527,28 @@ class MagOrderingTransformation(AbstractTransformation):
 
         t = EnumerateStructureTransformation(**enum_args)
 
-        alls = t.apply_transformation(mods,
-                                      return_ranked_list=return_ranked_list)
+        alls = t.apply_transformation(
+            mods, return_ranked_list=return_ranked_list)
 
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
+            warnings.warn("return_ranked_list cannot be cast to an int. "
+                          "Only 1 structure will be returned.")
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
-<<<<<<< HEAD
-        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_spacegroup_number()
-=======
         key = lambda x: SpacegroupAnalyzer(x, 0.1).get_space_group_number()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
             g = list(g)
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0],
-<<<<<<< HEAD
-                         "energy": self.emodel.get_energy(g[0])}
-=======
                          "energy": self.energy_model.get_energy(g[0])}
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                         for g in grouped])
 
         self._all_structures = sorted(out, key=lambda d: d["energy"])
@@ -728,26 +569,6 @@ class MagOrderingTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-<<<<<<< HEAD
-    def as_dict(self):
-        return {
-            "name": self.__class__.__name__, "version": __version__,
-            "init_args": {"mag_species_spin": self.mag_species_spin,
-                          "order_parameter": self.order_parameter,
-                          "energy_model": self.emodel.as_dict(),
-                          "enum_kwargs": self.enum_kwargs},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__}
-
-    @classmethod
-    def from_dict(cls, d):
-        init = d["init_args"]
-        return MagOrderingTransformation(
-            init["mag_species_spin"], init["order_parameter"],
-            energy_model=MontyDecoder().process_decoded(
-                init["energy_model"]),
-            **init["enum_kwargs"])
-=======
 
 def _find_codopant(target, oxidation_state, allowed_elements=None):
     """
@@ -769,10 +590,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
-            sp = Specie(sym, oxidation_state)
-            r = sp.ionic_radius
-            if r is not None:
-                candidates.append((r, sp))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                sp = Specie(sym, oxidation_state)
+                r = sp.ionic_radius
+                if r is not None:
+                    candidates.append((r, sp))
         except:
             pass
     return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
@@ -808,7 +631,7 @@ class DopingTransformation(AbstractTransformation):
             allowed_doping_species (list): Species that are allowed to be
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
-            \*\*kwargs:
+            \\*\\*kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """
@@ -967,4 +790,52 @@ class DopingTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return True
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+
+
+class SlabTransformation(AbstractTransformation):
+    """
+    A transformation that creates a slab from a structure.
+
+    """
+    def __init__(self, miller_index, min_slab_size, min_vacuum_size,
+                 lll_reduce=False, center_slab=False, primitive=True,
+                 max_normal_search=None, shift=0, tol=0.1):
+        """
+        Args:
+            miller_index (3-tuple or list): miller index of slab
+            min_slab_size (float): minimum slab size in angstroms
+            min_vacuum_size (float): minimum size of vacuum
+            lll_reduce (bool): whether to apply LLL reduction
+            center_slab (bool): whether to center the slab
+            primitive (bool): whether to reduce slabs to most primitive cell
+            max_normal_search (int): maximum index to include in linear
+                combinations of indices to find c lattice vector orthogonal
+                to slab surface
+            shift (float): shift to get termination
+            tol (float): tolerance for primitive cell finding
+        """
+        self.miller_index = miller_index
+        self.min_slab_size = min_slab_size
+        self.min_vacuum_size = min_vacuum_size
+        self.lll_reduce = lll_reduce
+        self.center_slab = center_slab
+        self.primitive = primitive
+        self.max_normal_search = max_normal_search
+        self.shift = shift
+        self.tol = 0.1
+
+    def apply_transformation(self, structure):
+        sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
+                           self.min_vacuum_size, self.lll_reduce, 
+                           self.center_slab, self.primitive,
+                           self.max_normal_search)
+        slab = sg.get_slab(self.shift, self.tol)
+        return slab
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return None

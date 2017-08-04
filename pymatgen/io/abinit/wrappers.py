@@ -5,6 +5,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import os
+import numpy as np
 
 from monty.string import list_strings
 from six.moves import map, cStringIO
@@ -24,10 +25,7 @@ __all__ = [
     "Mrgscr",
     "Mrggkk",
     "Mrgddb",
-<<<<<<< HEAD
-=======
     "Mrgdvdb",
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 ]
 
 
@@ -78,6 +76,8 @@ class ExecWrapper(object):
         """
         qadapter = self.manager.qadapter
         if not with_mpirun: qadapter.name = None
+        if self.verbose:
+            print("Working in:", workdir)
 
         script = qadapter.get_script_str(
             job_name=self.name,
@@ -163,20 +163,12 @@ class Mrggkk(ExecWrapper):
         #out_gkk = out_gkk if cwd is None else os.path.join(os.path.abspath(cwd), out_gkk)
 
         # We work with absolute paths.
-<<<<<<< HEAD
-        gswfk_file = absath(gswfk_file)
-=======
         gswfk_file = os.path.absath(gswfk_file)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         dfpt_files = [os.path.abspath(s) for s in list_strings(dfpt_files)]
         gkk_files = [os.path.abspath(s) for s in list_strings(gkk_files)]
 
         print("Will merge %d 1WF files, %d GKK file in output %s" %
-<<<<<<< HEAD
-              (len(dfpt_nfiles), len_gkk_files, out_gkk))
-=======
               (len(dfpt_files), len(gkk_files), out_gkk))
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if self.verbose:
             for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
@@ -261,8 +253,6 @@ class Mrgddb(ExecWrapper):
                     pass
 
         return out_ddb
-<<<<<<< HEAD
-=======
 
 
 class Mrgdvdb(ExecWrapper):
@@ -353,4 +343,39 @@ class Cut3D(ExecWrapper):
                 raise RuntimeError("The file was not converted correctly.")
 
         return self.stdout_fname, output_filepath
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+
+
+class Fold2Bloch(ExecWrapper):
+    """Wrapper for fold2Bloch Fortran executable."""
+    _name = "fold2Bloch"
+
+    def unfold(self, wfkpath, folds, workdir=None):
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir
+
+        self.stdin_fname = None
+        self.stdout_fname, self.stderr_fname = \
+            map(os.path.join, 2 * [workdir], ["fold2bloch.stdout", "fold2bloch.stderr"])
+
+        folds = np.array(folds, dtype=np.int).flatten()
+        if len(folds) not in (3, 9):
+            raise ValueError("Expecting 3 ints or 3x3 matrix but got %s" % (str(folds)))
+        fold_arg = ":".join((str(f) for f in folds))
+        wfkpath = os.path.abspath(wfkpath)
+        if not os.path.isfile(wfkpath):
+            raise RuntimeError("WFK file `%s` does not exist" % wfkpath)
+
+        # Usage: $ fold2Bloch file_WFK x:y:z (folds)
+        retcode = self.execute(workdir, exec_args=[wfkpath, fold_arg])
+        if retcode:
+            print("stdout:")
+            print(self.stdout_data)
+            print("stderr:")
+            print(self.stderr_data)
+            raise RuntimeError("fold2bloch returned %s" % retcode)
+
+        filepaths = [f for f in os.listdir(workdir) if f.endswith("_FOLD2BLOCH.nc")]
+        if len(filepaths) != 1:
+            raise RuntimeError("Cannot find *_FOLD2BLOCH.nc file in: %s" % str(os.listdir(workdir)))
+
+        return os.path.join(workdir, filepaths[0])

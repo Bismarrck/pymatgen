@@ -4,6 +4,19 @@
 
 from __future__ import division, unicode_literals
 
+import re
+import math
+import csv
+
+from six.moves import zip
+from monty.string import unicode2str
+
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition
+from monty.json import MSONable
+from pymatgen.core.ion import Ion
+from pymatgen.phasediagram.entries import PDEntry
+
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram
@@ -18,18 +31,6 @@ __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "December 10, 2012"
 
-import re
-import math
-import csv
-
-from six.moves import map, zip
-from monty.string import unicode2str
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Composition
-from monty.json import MSONable
-from pymatgen.core.ion import Ion
-from pymatgen.phasediagram.entries import PDEntry
 
 PREFAC = 0.0591
 
@@ -356,11 +357,10 @@ class PourbaixEntryIO(object):
                 Li_{2}O
         """
         elements = set()
-        #TODO: oh god please fix this next line
-        list(map(elements.update, [entry.entry.composition.elements
-                              for entry in entries]))
+        for entry in entries:
+            elements.update(entry.entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, "wt") as f:
             writer = csv.writer(f, delimiter=unicode2str(","),
                                 quotechar=unicode2str("\""),
                                 quoting=csv.QUOTE_MINIMAL)
@@ -395,7 +395,7 @@ class PourbaixEntryIO(object):
         Returns:
             List of Entries
         """
-        with open(filename, "r") as f:
+        with open(filename, "rt") as f:
             reader = csv.reader(f, delimiter=unicode2str(","),
                                 quotechar=unicode2str("\""),
                                 quoting=csv.QUOTE_MINIMAL)
@@ -405,7 +405,7 @@ class PourbaixEntryIO(object):
                 if not header_read:
                     elements = row[1:(len(row) - 4)]
                     header_read = True
-                else:
+                elif row:
                     name = row[0]
                     energy = float(row[-4])
                     conc = float(row[-1])

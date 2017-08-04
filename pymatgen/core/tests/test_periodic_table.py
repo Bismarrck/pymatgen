@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-import unittest2 as unittest
+import unittest
 import pickle
 
 <<<<<<< HEAD
@@ -77,7 +77,7 @@ class ElementTestCase(PymatgenTest):
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
         keys = ["name", "mendeleev_no", "atomic_mass",
-                "electronic_structure", "X", "atomic_radius",
+                "electronic_structure", "atomic_radius",
                 "min_oxidation_state", "max_oxidation_state",
                 "electrical_resistivity", "velocity_of_sound", "reflectivity",
                 "refractive_index", "poissons_ratio", "molar_volume",
@@ -92,7 +92,7 @@ class ElementTestCase(PymatgenTest):
                 "ionic_radii"]
 
         # Test all elements up to Uranium
-        for i in range(1, 93):
+        for i in range(1, 104):
             el = Element.from_Z(i)
             d = el.data
             for k in keys:
@@ -106,8 +106,10 @@ class ElementTestCase(PymatgenTest):
                 self.assertEqual(min(el.oxidation_states),
                                  el.min_oxidation_state)
 
-        self.assertRaises(ValueError, Element.from_Z, 1000)
+            if el.symbol not in ["He", "Ne", "Ar"]:
+                self.assertTrue(el.X > 0, "No electroneg for %s" % el)
 
+        self.assertRaises(ValueError, Element.from_Z, 1000)
 
     def test_oxidation_states(self):
         el = Element.Fe
@@ -251,14 +253,17 @@ class SpecieTestCase(PymatgenTest):
 
     def test_to_from_string(self):
         fe3 = Specie("Fe", 3, {"spin": 5})
-        self.assertEqual(str(fe3), "Fe3+spin=5")
-        fe = Specie.from_string("Fe3+spin=5")
+        self.assertEqual(str(fe3), "Fe3+,spin=5")
+        fe = Specie.from_string("Fe3+,spin=5")
         self.assertEqual(fe.spin, 5)
         mo0 = Specie("Mo", 0, {"spin": 5})
-        self.assertEqual(str(mo0), "Mo0+spin=5")
-        mo = Specie.from_string("Mo0+spin=4")
+        self.assertEqual(str(mo0), "Mo0+,spin=5")
+        mo = Specie.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
 
+    def test_no_oxidation_state(self):
+        mo0 = Specie("Mo", None, {"spin": 5})
+        self.assertEqual(str(mo0), "Mo,spin=5")
 
 class DummySpecieTestCase(unittest.TestCase):
 

@@ -10,8 +10,8 @@ import sys
 import itertools
 
 from tabulate import tabulate, tabulate_formats
-from pymatgen import Structure
-from pymatgen.io.vasp import Incar
+from pymatgen import Structure, SETTINGS
+from pymatgen.io.vasp import Incar, Potcar
 
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
@@ -97,14 +97,14 @@ def main():
                              "subdirectories.")
     groups.add_argument("-i", "--install", dest="install",
                         metavar="package_name",
-                        choices=["enum", "bader"],
+                        choices=["enumlib", "bader"],
                         help="Install various optional command line "
                              "tools needed for full functionality.")
 
     groups.add_argument("-a", "--add", dest="var_spec", nargs="+",
                         help="Variables to add in the form of space "
                              "separated key value pairs. E.g., "
-                             "VASP_PSP_DIR ~/psps")
+                             "PMG_VASP_PSP_DIR ~/psps")
     parser_config.set_defaults(func=configure_pmg)
 
     parser_analyze = subparsers.add_parser(
@@ -260,8 +260,9 @@ def main():
                                           help="Generate POTCARs")
     parser_potcar.add_argument("-f", "--functional", dest="functional",
                                type=str,
-                               choices=["LDA", "PBE", "PW91", "LDA_US"],
-                               default="PBE",
+                               choices=sorted(Potcar.FUNCTIONAL_CHOICES),
+                               default=SETTINGS.get("PMG_DEFAULT_FUNCTIONAL",
+                                                    "PBE"),
                                help="Functional to use. Unless otherwise "
                                     "stated (e.g., US), "
                                     "refers to PAW psuedopotential.")
@@ -275,6 +276,14 @@ def main():
                        type=str, nargs="+",
                        help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
+
+
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        # argcomplete not present.
+        pass
 
     args = parser.parse_args()
 

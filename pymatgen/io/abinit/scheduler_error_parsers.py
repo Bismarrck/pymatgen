@@ -3,14 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals, division, print_function
-<<<<<<< HEAD
-=======
 import re
 import abc
 import six
 
-from abc import ABCMeta, abstractproperty, abstractmethod
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+from abc import ABCMeta, abstractmethod
 
 """
 Error handlers for errors originating from the Submission systems.
@@ -26,14 +23,6 @@ __date__ = "May 2014"
 __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError', 'MemoryCancelError',
                   'NodeFailureError']
 
-<<<<<<< HEAD
-import re
-import abc
-import six
-
-from abc import ABCMeta, abstractproperty, abstractmethod
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 @six.add_metaclass(ABCMeta)
 class CorrectorProtocolScheduler(object):
@@ -42,7 +31,8 @@ class CorrectorProtocolScheduler(object):
     script generator method / ... should implement these methods.
     """
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def name(self):
         return str()
 
@@ -54,14 +44,8 @@ class CorrectorProtocolScheduler(object):
 
             nodes: list of node numbers that were found to cause problems
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @abstractmethod
     def increase_mem(self):
@@ -69,14 +53,8 @@ class CorrectorProtocolScheduler(object):
         Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
         due to a insufficient memory.
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @abstractmethod
     def increase_time(self):
@@ -84,14 +62,8 @@ class CorrectorProtocolScheduler(object):
         Method to increase te time for the calculation. It is called when a calculation seemed to
         have been crashed due to a time limit.
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @abstractmethod
     def increase_cpus(self):
@@ -99,14 +71,8 @@ class CorrectorProtocolScheduler(object):
         Method to increse the number of cpus being used in the calculation. It is called when a calculation seemed to
         have been crashed due to time or memory limits being broken.
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 @six.add_metaclass(ABCMeta)
@@ -116,7 +82,8 @@ class CorrectorProtocolApplication(object):
     script generator method / ... should implement these methods.
     """
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def name(self):
         return str()
 
@@ -126,28 +93,16 @@ class CorrectorProtocolApplication(object):
         Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
         due to a insufficient memory.
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @abstractmethod
     def speed_up(self):
         """
         Method to speed_up the calculation. It is called when a calculation seemed to time limits being broken.
 
-<<<<<<< HEAD
-        returns True is the memory could be increased False otherwise
-        """
-        return bool
-=======
         returns True if the memory could be increased False otherwise
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 @six.add_metaclass(ABCMeta)
@@ -301,13 +256,10 @@ class AbstractErrorParser(object):
         self.errors = []
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def error_definitions(self):
-<<<<<<< HEAD
-        return {}
-=======
         return dict()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @staticmethod
     def extract_metadata(lines, meta_filter):
@@ -331,11 +283,7 @@ class AbstractErrorParser(object):
         metadata = None
         for k in errmsg.keys():
             if self.files[k] is not None:
-<<<<<<< HEAD
-                # print 'parsing ', self.files[k], ' for ', errmsg[k]['string']
-=======
                 #print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 try:
                     with open(self.files[k], mode='r') as f:
                         lines = f.read().split('\n')
@@ -358,13 +306,9 @@ class AbstractErrorParser(object):
         """
         Parse for the occurens of all errors defined in ERRORS
         """
-<<<<<<< HEAD
-        for error in self.error_definitions:
-=======
         errors_tested = 0
         for error in self.error_definitions:
             errors_tested += 1
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             result = self.parse_single(self.error_definitions[error])
             if result[0]:
                 self.errors.append(error(result[1], result[2]))
@@ -373,11 +317,8 @@ class AbstractErrorParser(object):
             for error in self.errors:
                 print(error)
 
-<<<<<<< HEAD
-=======
         return errors_tested
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 class SlurmErrorParser(AbstractErrorParser):
     """
@@ -394,11 +335,7 @@ class SlurmErrorParser(AbstractErrorParser):
             },
             FullQueueError: {
                 'batch_err': {
-<<<<<<< HEAD
-                    'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
-=======
                     'string': "Job violates accounting/QOS policy",
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     'meta_filter': {}
                 }
             },
@@ -438,19 +375,11 @@ class SlurmErrorParser(AbstractErrorParser):
 class PBSErrorParser(AbstractErrorParser):
     """
     Implementation for the PBS scheduler
-<<<<<<< HEAD
-    """
-
-#=>> PBS: job killed: walltime 932 exceeded limit 900
-#=>> PBS: job killed: walltime 46 exceeded limit 30
-#=>> PBS: job killed: vmem 2085244kb exceeded limit 1945600kb
-=======
         PBS: job killed: walltime 932 exceeded limit 900
         PBS: job killed: walltime 46 exceeded limit 30
         PBS: job killed: vmem 2085244kb exceeded limit 1945600kb
     """
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @property
     def error_definitions(self):
         return {
@@ -458,11 +387,7 @@ class PBSErrorParser(AbstractErrorParser):
                 'out': {
                     'string': "job killed: walltime",
                     'meta_filter': {
-<<<<<<< HEAD
-                        'broken_limit': [r"job killed: walltime (\d+) exceeded limit (\d+)", 1]
-=======
                         'broken_limit': [r"=>> PBS: job killed: walltime (\d+) exceeded limit (\d+)", 2]
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     }
                 }
             },

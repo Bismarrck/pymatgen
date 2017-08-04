@@ -11,7 +11,7 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '3/28/15'
 
-import unittest2 as unittest
+import unittest
 import os
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
@@ -56,8 +56,8 @@ class PWInputTest(PymatgenTest):
 &CELL
 /
 ATOMIC_SPECIES
-  Li 6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
-  O 15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+  Li  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+  O  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
 ATOMIC_POSITIONS crystal
   Li 0.250000 0.250000 0.250000
   Li 0.750000 0.750000 0.750000

@@ -91,7 +91,7 @@ def setup_potcars(args):
 
     print("")
     print("PSP resources directory generated. It is recommended that you "
-          "run 'pmg config --add VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
+          "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
     print("Start a new terminal to ensure that your environment variables "
           "are properly set.")
 
@@ -164,7 +164,7 @@ def install_software(args):
 
     enum = None
     bader = None
-    if args.install == "enum":
+    if args.install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
         print("")

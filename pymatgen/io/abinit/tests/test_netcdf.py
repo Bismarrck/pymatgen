@@ -8,7 +8,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import os
-import unittest2 as unittest
+import unittest
 import numpy as np
 
 from pymatgen import Structure
@@ -76,7 +76,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
             for dimname, int_ref in ref_dims.items():
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_dimvalue(dimname)
-                self.assert_equal(value, int_ref)
+                self.assertArrayEqual(value, int_ref)
 
             # Test int variables
 <<<<<<< HEAD
@@ -86,7 +86,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assert_equal(value, int_ref)
+                self.assertArrayEqual(value, int_ref)
 
             # Test float variables
 <<<<<<< HEAD
@@ -96,7 +96,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assert_almost_equal(value, float_ref)
+                self.assertArrayAlmostEqual(value, float_ref)
             #assert 0
 
             # Reading non-existent variables or dims should raise

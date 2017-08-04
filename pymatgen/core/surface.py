@@ -4,22 +4,6 @@
 
 from __future__ import division, unicode_literals
 from functools import reduce
-<<<<<<< HEAD
-
-"""
-This module implements representations of slabs and surfaces, as well as
-algorithms for generating them.
-"""
-
-__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "6/10/14"
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 try:
     # New Py>=3.5 import
     from math import gcd
@@ -43,12 +27,6 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-<<<<<<< HEAD
-from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.util.coord_utils import in_coord_list
-from pymatgen.analysis.structure_matcher import StructureMatcher
-
-=======
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
@@ -73,7 +51,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "6/10/14"
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 logger = logging.getLogger(__name__)
@@ -185,6 +162,115 @@ class Slab(Structure):
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy)
+
+    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
+        """
+        Get a list of slabs that have been Tasker 2 corrected.
+
+        Args:
+            tol (float): Tolerance to determine if atoms are within same plane.
+                This is a fractional tolerance, not an absolute one.
+            same_species_only (bool): If True, only that are of the exact same
+                species as the atom at the outermost surface are considered for
+                moving. Otherwise, all atoms regardless of species that is
+                within tol are considered for moving. Default is True (usually
+                the desired behavior).
+
+        Returns:
+            ([Slab]) List of tasker 2 corrected slabs.
+        """
+        sites = list(self.sites)
+        slabs = []
+
+        sortedcsites = sorted(sites, key=lambda site: site.c)
+
+        # Determine what fraction the slab is of the total cell size in the
+        # c direction. Round to nearest rational number.
+        nlayers_total = int(round(self.lattice.c /
+                                  self.oriented_unit_cell.lattice.c))
+        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
+                                 * nlayers_total))
+        slab_ratio = nlayers_slab / nlayers_total
+
+        a = SpacegroupAnalyzer(self)
+        symm_structure = a.get_symmetrized_structure()
+
+        def equi_index(site):
+            for i, equi_sites in enumerate(symm_structure.equivalent_sites):
+                if site in equi_sites:
+                    return i
+            raise ValueError("Cannot determine equi index!")
+
+        for surface_site, shift in [(sortedcsites[0], slab_ratio),
+                                    (sortedcsites[-1], -slab_ratio)]:
+            tomove = []
+            fixed = []
+            for site in sites:
+                if abs(site.c - surface_site.c) < tol and (
+                        (not same_species_only) or
+                        site.species_and_occu == surface_site.species_and_occu):
+                    tomove.append(site)
+                else:
+                    fixed.append(site)
+
+            # Sort and group the sites by the species and symmetry equivalence
+            tomove = sorted(tomove, key=lambda s: equi_index(s))
+
+            grouped = [list(sites) for k, sites in itertools.groupby(
+                tomove, key=lambda s: equi_index(s))]
+
+            if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
+                warnings.warn("Odd number of sites to divide! Try changing "
+                              "the tolerance to ensure even division of "
+                              "sites or create supercells in a or b directions "
+                              "to allow for atoms to be moved!")
+                continue
+            combinations = []
+            for g in grouped:
+                combinations.append(
+                    [c for c in itertools.combinations(g, int(len(g) / 2))])
+
+            for selection in itertools.product(*combinations):
+                species = [site.species_and_occu for site in fixed]
+                fcoords = [site.frac_coords for site in fixed]
+
+                for s in tomove:
+                    species.append(s.species_and_occu)
+                    for group in selection:
+                        if s in group:
+                            fcoords.append(s.frac_coords)
+                            break
+                    else:
+                        # Move unselected atom to the opposite surface.
+                        fcoords.append(s.frac_coords + [0, 0, shift])
+
+                # sort by species to put all similar species together.
+                sp_fcoord = sorted(zip(species, fcoords), key=lambda x: x[0])
+                species = [x[0] for x in sp_fcoord]
+                fcoords = [x[1] for x in sp_fcoord]
+                slab = Slab(self.lattice, species, fcoords, self.miller_index,
+                            self.oriented_unit_cell, self.shift,
+                            self.scale_factor, energy=self.energy)
+                slabs.append(slab)
+        s = StructureMatcher()
+        unique = [ss[0] for ss in s.group_structures(slabs)]
+        return unique
+
+    def is_symmetric(self, symprec=0.1):
+        """
+        Checks if slab is symmetric, i.e., contains inversion symmetry.
+
+        Args:
+            symprec (float): Symmetry precision used for SpaceGroup analyzer.
+
+        Returns:
+            (bool) Whether slab contains inversion symmetry.
+        """
+        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
+                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+        sg = SpacegroupAnalyzer(self, symprec=symprec)
+        pg = sg.get_point_group_symbol()
+        return str(pg) in laue
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -298,7 +384,7 @@ class Slab(Structure):
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
         """
-        #Let's do the work in cartesian coords
+        # Let's do the work in cartesian coords
         center = np.sum([self[i].coords for i in indices], axis=0) / len(
             indices)
 
@@ -356,8 +442,8 @@ class Slab(Structure):
 class SlabGenerator(object):
 
     """
-    This class generates different slabs using shift values determined by where a
-    unique termination can be found along with other criterias such as where a
+    This class generates different slabs using shift values determined by where
+    a unique termination can be found along with other criterias such as where a
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
@@ -416,7 +502,7 @@ class SlabGenerator(object):
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
             min_slab_size (float): In Angstroms
-            min_vac_size (float): In Angstroms
+            min_vacuum_size (float): In Angstroms
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
@@ -440,13 +526,8 @@ class SlabGenerator(object):
                 usually sufficient.
         """
         latt = initial_structure.lattice
-<<<<<<< HEAD
-        d = abs(reduce(gcd, miller_index))
-        miller_index = tuple([int(i / d) for i in miller_index])
-=======
         miller_index = reduce_vector(miller_index)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-        #Calculate the surface normal using the reciprocal lattice vector.
+        # Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
@@ -461,7 +542,7 @@ class SlabGenerator(object):
                 # vector as one of the basis vectors.
                 slab_scale_factor.append(eye[i])
             else:
-                #Calculate projection of lattice vector onto surface normal.
+                # Calculate projection of lattice vector onto surface normal.
                 d = abs(np.dot(normal, latt.matrix[i])) / latt.abc[i]
                 non_orth_ind.append((i, d))
 
@@ -500,7 +581,7 @@ class SlabGenerator(object):
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -x[2]))
             slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
@@ -509,15 +590,12 @@ class SlabGenerator(object):
         if np.linalg.det(slab_scale_factor) < 0:
             slab_scale_factor *= -1
 
-<<<<<<< HEAD
-=======
         # Make sure the slab_scale_factor is reduced to avoid
         # unnecessarily large slabs
 
         reduced_scale_factor = [reduce_vector(v) for v in slab_scale_factor]
         slab_scale_factor = np.array(reduced_scale_factor)
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
@@ -563,7 +641,7 @@ class SlabGenerator(object):
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) +\
                       np.array([0, 0, -shift])[None, :]
-        frac_coords = frac_coords - np.floor(frac_coords)
+        frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, nlayers * c]
         frac_coords[:, 2] = frac_coords[:, 2] / nlayers
@@ -628,10 +706,10 @@ class SlabGenerator(object):
         z = linkage(condensed_m)
         clusters = fcluster(z, tol, criterion="distance")
 
-        #Generate dict of cluster# to c val - doesn't matter what the c is.
+        # Generate dict of cluster# to c val - doesn't matter what the c is.
         c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
 
-        #Put all c into the unit cell.
+        # Put all c into the unit cell.
         possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
 
         # Calculate the shifts
@@ -676,14 +754,15 @@ class SlabGenerator(object):
                                 c_ranges.add(c_range)
         return c_ranges
 
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0, symmetrize=False):
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
+                  symmetrize=False):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
         shifts are used to create the slabs however, if the user decides to take
         into account whether or not a termination will break any polyhedral
-        structure (bonds != None), this method will filter out any shift values
-        that do so.
+        structure (bonds is not None), this method will filter out any shift
+        values that do so.
 
         Args:
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
@@ -730,8 +809,8 @@ class SlabGenerator(object):
             if symmetrize:
                 slab = self.symmetrize_slab(g[0])
                 if original_formula != str(slab.composition.reduced_formula):
-                    warnings.warn("WARNING: Stoichiometry is no longer the same "\
-                                  "due to symmetrization")
+                    warnings.warn("WARNING: Stoichiometry is no longer the "
+                                  "same due to symmetrization")
                 new_slabs.append(slab)
             else:
                 new_slabs.append(g[0])
@@ -742,15 +821,18 @@ class SlabGenerator(object):
 
         """
         This method checks whether or not the two surfaces of the slab are
-        equivalent. If the point group of the slab has an inversion symmetry (ie.
-        belong to one of the Laue groups), then it is assumed that the surfaces
-        should be equivalent. Otherwise, sites at the bottom of the slab will be
-        removed until the slab is symmetric. Note that this method should only be
-        limited to elemental structures as the removal of sites can destroy the
-        stoichiometry of the slab. For non-elemental structures, use is_polar().
+        equivalent. If the point group of the slab has an inversion symmetry (
+        ie. belong to one of the Laue groups), then it is assumed that the
+        surfaces should be equivalent. Otherwise, sites at the bottom of the
+        slab will be removed until the slab is symmetric. Note that this method
+        should only be limited to elemental structures as the removal of sites
+        can destroy the stoichiometry of the slab. For non-elemental
+        structures, use is_polar().
+
         Arg:
             slab (Structure): A single slab structure
             tol (float): Tolerance for SpaceGroupanalyzer.
+
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
@@ -759,11 +841,7 @@ class SlabGenerator(object):
                 "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
 
         sg = SpacegroupAnalyzer(slab, symprec=tol)
-<<<<<<< HEAD
-        pg = sg.get_point_group()
-=======
         pg = sg.get_point_group_symbol()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         if str(pg) in laue:
             return slab
@@ -783,24 +861,19 @@ class SlabGenerator(object):
                 # Check if the altered surface is symmetric
 
                 sg = SpacegroupAnalyzer(slab, symprec=tol)
-<<<<<<< HEAD
-                pg = sg.get_point_group()
-=======
                 pg = sg.get_point_group_symbol()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
                 if str(pg) in laue:
                     asym = False
 
         if len(slab) < len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab size.")
+            warnings.warn("Too many sites removed, please use a larger slab "
+                          "size.")
 
         return slab
 
 
-<<<<<<< HEAD
-=======
-def get_recp_symmetry_operation(structure, symprec=0.001):
+def get_recp_symmetry_operation(structure, symprec=0.01):
     """
     Find the symmetric operations of the reciprocal lattice,
     to be used for hkl transformations
@@ -823,7 +896,6 @@ def get_recp_symmetry_operation(structure, symprec=0.001):
     return recp_symmops
 
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def get_symmetrically_distinct_miller_indices(structure, max_index):
     """
     Returns all symmetrically distinct indices below a certain max-index for
@@ -836,20 +908,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
             structure. All other indices are equivalent to one of these.
     """
 
-<<<<<<< HEAD
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
-    symm_ops = analyzer.get_symmetry_operations()
-=======
     symm_ops = get_recp_symmetry_operation(structure)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     unique_millers = []
 
     def is_already_analyzed(miller_index):
@@ -887,7 +946,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 unit cell structure.
         max_index (int): The maximum Miller index to go up to.
         min_slab_size (float): In Angstroms
-        min_vac_size (float): In Angstroms
+        min_vacuum_size (float): In Angstroms
         bonds ({(specie1, specie2): max_bond_dist}: bonds are
             specified as a dict of tuples: float of specie1, specie2
             and the max bonding distance. For example, PO4 groups may be
@@ -925,7 +984,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
 
-    for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
+    for miller in get_symmetrically_distinct_miller_indices(structure,
+                                                            max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
@@ -938,8 +998,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
     return all_slabs
 
-<<<<<<< HEAD
-=======
 
 def reduce_vector(vector):
 
@@ -949,4 +1007,3 @@ def reduce_vector(vector):
     vector = tuple([int(i / d) for i in vector])
 
     return vector
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b

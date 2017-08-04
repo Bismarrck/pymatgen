@@ -23,11 +23,7 @@ from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
-<<<<<<< HEAD
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
-=======
 from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -154,15 +150,13 @@ class SpinComparator(AbstractComparator):
         for s1 in sp1.keys():
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            found = False
             for s2 in sp2.keys():
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if (s1.symbol == s2.symbol and oxi1 == oxi2 and
                         spin2 == -spin1):
-                    found = True
                     break
-            if not found:
+            else:
                 return False
         return True
 
@@ -404,11 +398,7 @@ class StructureMatcher(MSONable):
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
             skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
-<<<<<<< HEAD
-            if abs(abs(det3x3(scale_m)) - supercell_size) < 0.5:
-=======
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -461,11 +451,7 @@ class StructureMatcher(MSONable):
 
         return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
-<<<<<<< HEAD
-    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, frac_tol=None):
-=======
     def _cart_dists(self, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -487,13 +473,10 @@ class StructureMatcher(MSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        #vectors are from s2 to s1
-<<<<<<< HEAD
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, frac_tol=frac_tol)
-=======
-        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True,
+        # vectors are from s2 to s1
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask,
+                                         return_d2=True,
                                          lll_frac_tol=lll_frac_tol)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         lin = LinearAssignment(d_2)
         s = lin.solution
         short_vecs = vecs[np.arange(len(s)), s]
@@ -679,7 +662,7 @@ class StructureMatcher(MSONable):
                              'have more sites than struct2')
 
         # check that a valid mapping exists
-        if not self._subset and mask.shape[1] != mask.shape[0]:
+        if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
         if LinearAssignment(mask).min_cost > 0:
@@ -698,15 +681,10 @@ class StructureMatcher(MSONable):
                 t = s1fc[s1i] - s2fc[s2_t_ind]
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
-<<<<<<< HEAD
-                    dist, t_adj, mapping = self._cart_dists(
-                        s1fc, t_s2fc, avg_l, mask, normalization, frac_tol)
-=======
                     inv_lll_abc = np.array(avg_l.get_lll_reduced_lattice().reciprocal_lattice.abc)
                     lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(
                         s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:
@@ -815,11 +793,12 @@ class StructureMatcher(MSONable):
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
 
-            #do quick check that compositions are compatible
+            # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v
                                        for k, v in s1_comp.items()})
-            if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
-                                      self._comparator.get_hash(s2_comp):
+            if (not self._subset) and (
+                    self._comparator.get_hash(mapped_comp) !=
+                    self._comparator.get_hash(s2_comp)):
                 continue
 
             mapped_struct = struct1.copy()
@@ -897,12 +876,8 @@ class StructureMatcher(MSONable):
                     best = m[0]
             return best
 
-<<<<<<< HEAD
-    def get_all_anonymous_mappings(self, struct1, struct2, niggli=True):
-=======
     def get_all_anonymous_mappings(self, struct1, struct2, niggli=True,
                                    include_dist=False):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. Returns a dictionary of species
@@ -911,11 +886,8 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
-<<<<<<< HEAD
-=======
             niggli (bool): Find niggli cell in preprocessing
             include_dist (bool): Return the maximin distance with each mapping
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Returns:
             list of species mappings that map struct1 to struct2.
@@ -925,19 +897,12 @@ class StructureMatcher(MSONable):
                                                               niggli)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
-<<<<<<< HEAD
-                                        break_on_match=True)
-
-        if matches:
-            return [m[0] for m in matches]
-=======
                                         break_on_match=not include_dist)
         if matches:
             if include_dist:
                 return [(m[0], m[1][0]) for m in matches]
             else:
                 return [m[0] for m in matches]
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def fit_anonymous(self, struct1, struct2, niggli=True):
         """

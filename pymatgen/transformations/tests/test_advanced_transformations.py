@@ -3,6 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest
+import os
+import json
+
+import numpy as np
+
+from pymatgen import Lattice, Structure, Specie
+from pymatgen.transformations.standard_transformations import \
+    OxidationStateDecorationTransformation, SubstitutionTransformation, \
+    OrderDisorderedStructureTransformation
+from pymatgen.transformations.advanced_transformations import \
+    SuperTransformation, EnumerateStructureTransformation, \
+    MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
+    SubstitutionPredictorTransformation, MagOrderingTransformation, \
+    DopingTransformation, _find_codopant, SlabTransformation
+from monty.os.path import which
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.surface import SlabGenerator
 
 """
 Created on Jul 24, 2012
@@ -16,34 +37,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
 
-import unittest2 as unittest
-import os
-import json
-
-import numpy as np
-
-<<<<<<< HEAD
-from pymatgen import Lattice, Structure
-=======
-from pymatgen import Lattice, Structure, Specie
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-from pymatgen.transformations.standard_transformations import \
-    OxidationStateDecorationTransformation, SubstitutionTransformation, \
-    OrderDisorderedStructureTransformation
-from pymatgen.transformations.advanced_transformations import \
-    SuperTransformation, EnumerateStructureTransformation, \
-    MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-<<<<<<< HEAD
-    SubstitutionPredictorTransformation, MagOrderingTransformation
-=======
-    SubstitutionPredictorTransformation, MagOrderingTransformation, \
-    DopingTransformation, _find_codopant
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-from monty.os.path import which
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.energy_models import IsingModel
-from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -63,7 +56,7 @@ def get_table():
     return lambda_table
 
 
-enumlib_present = which('multienum.x') and which('makestr.x')
+enumlib_present = which('enum.x') and which('makestr.x')
 
 
 class SuperTransformationTest(unittest.TestCase):
@@ -213,11 +206,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
                                                 lambda_table=get_table())
         d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
-<<<<<<< HEAD
-        self.assertEqual(t._threshold, 2,
-=======
         self.assertEqual(t.threshold, 2,
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                          'incorrect threshold passed through dict')
         self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
@@ -234,11 +223,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 3)
         f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-<<<<<<< HEAD
-        self.assertEqual(f.get_spacegroup_number(), 31)
-=======
         self.assertEqual(f.get_space_group_number(), 31)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5},
@@ -263,11 +248,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 2)
 
-<<<<<<< HEAD
-    def test_to_from_dict(self):
-=======
     def test_as_from_dict(self):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
         d = trans.as_dict()
         #Check json encodability
@@ -275,11 +256,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
-<<<<<<< HEAD
-        self.assertIsInstance(trans.emodel, SymmetryModel)
-=======
         self.assertIsInstance(trans.energy_model, SymmetryModel)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def test_zero_spin_case(self):
         #ensure that zero spin case maintains sites and formula
@@ -292,10 +269,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-=======
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class DopingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
@@ -324,9 +298,8 @@ class DopingTransformationTest(PymatgenTest):
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
             self.assertEqual(len(ss), nstructures)
-            if __name__ == '__main__':
-                for d in ss:
-                    self.assertEqual(d["structure"].charge, 0)
+            for d in ss:
+                self.assertEqual(d["structure"].charge, 0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
@@ -352,8 +325,33 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
         self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
 
+
+class SlabTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        s = self.get_structure("LiFePO4")
+        trans = SlabTransformation([0, 0, 1], 10, 10, shift = 0.25)
+        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
+        slab_from_gen = gen.get_slab(0.25)
+        slab_from_trans = trans.apply_transformation(s)
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, 
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
+        fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        trans = SlabTransformation([1, 1, 1], 10, 10)
+        slab_from_trans = trans.apply_transformation(fcc)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        slab_from_gen = gen.get_slab()
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
+                                    slab_from_trans.lattice.matrix)
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+                                    slab_from_trans.cart_coords)
+
+
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     unittest.main()

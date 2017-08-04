@@ -4,23 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module implements Compatibility corrections for mixing runs of different
-functionals.
-"""
-
+import os
+import warnings
 import six
 from six.moves import filter, map
-
-__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
-
-import os
 
 from collections import defaultdict
 
@@ -36,6 +23,22 @@ from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 import abc
+
+"""
+This module implements Compatibility corrections for mixing runs of different
+functionals.
+"""
+
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 19, 2012"
 
 
 class CompatibilityError(Exception):
@@ -274,6 +277,11 @@ class AnionCorrection(Correction):
                         correction += self.oxide_correction["oxide"] * \
                                       comp["O"]
                 else:
+                    warnings.warn(
+                        "No structure or oxide_type parameter present. Note"
+                        "that peroxide/superoxide corrections are not as "
+                        "reliable and relies only on detection of special"
+                        "formulas, e.g., Li2O2.")
                     rform = entry.composition.reduced_formula
 >>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                     if rform in UCorrection.common_peroxides:
@@ -564,8 +572,7 @@ class MaterialsProjectCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                  check_potcar_hash=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fp = os.path.join(module_dir, "MPCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -595,8 +602,7 @@ class MITCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fp = os.path.join(module_dir, "MITCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -626,8 +632,7 @@ class MITAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fp = os.path.join(module_dir, "MITCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITAqueousCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
@@ -658,8 +663,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                 check_potcar_hash=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fp = os.path.join(module_dir, "MPCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectAqueousCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),

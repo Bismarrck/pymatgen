@@ -10,7 +10,7 @@ This module provides classes for the Piezoelectric tensor
 """
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity.tensors import TensorBase
+from pymatgen.analysis.elasticity.tensors import Tensor
 from pymatgen.analysis.elasticity import voigt_map
 import numpy as np
 import warnings
@@ -25,7 +25,7 @@ __status__ = "Development"
 __date__ = "Feb, 2016"
 
 
-class PiezoTensor(TensorBase):
+class PiezoTensor(Tensor):
     """
     This class describes the 3x6 piezo tensor in Voigt-notation
     """
@@ -42,60 +42,8 @@ class PiezoTensor(TensorBase):
             input_matrix (3x3x3 array-like): the 3x6 array-like
                 representing the piezo tensor
         """
-        obj = TensorBase(input_array).view(cls)
-        if obj.shape != (3, 3, 3):
-            raise ValueError("Default piezo tensor constructor requires "
-                             "input argument to be the true 3x3x3 "
-                             "array.  To construct from a 3x6 array, use "
-                             "PiezoTensor.from_voigt")
+        obj = super(PiezoTensor, cls).__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")
-        return obj
-<<<<<<< HEAD
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-
-    @classmethod
-    def from_voigt(cls, voigt_matrix, tol=1e-2):
-        """
-        Constructor based on 3x6 voigt-notation tensor
-
-        Args:
-            voigt_matrix: (3x6 array-like): The Voigt notation 3x6 array-like
-                representing the piezo tensor
-        """
-        voigt_matrix = np.array(voigt_matrix)
-        if voigt_matrix.shape != (3, 6):
-            raise ValueError("PiezoTensor.from_voigt takes "
-                             "a 3x6 array-like as input.")
-        c = np.zeros((3, 3, 3))
-        for i in range(3):
-            for p in range(6):
-                j, k = voigt_map[p]
-                c[i, j, k] = c[i, k, j] = voigt_matrix[i, p]
-        return cls(c)
-
-    @property
-    def voigt(self):
-        """
-        Returns the 3x6 voigt notation tensor corresponding 
-        to the piezo tensor.
-
-        Args:
-            c_ijkl (3x3x3 array-like): third order tensor corresponding
-                to the piezo tensor
-            tol (float): tolerance for the symmetry test of the tensor
-        """
-        # Construct piezo tensor
-        c_ip = np.zeros((3, 6))
-        for i in range(3):
-            for p in range(6):
-                j, k = voigt_map[p]
-                c_ip[i, p] = self[i, j, k]
-
-        return c_ip
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        return obj.view(cls)

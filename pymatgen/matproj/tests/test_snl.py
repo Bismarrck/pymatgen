@@ -18,7 +18,7 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 import datetime
-import unittest2 as unittest
+import unittest
 import numpy as np
 
 from pymatgen import Structure, Molecule
@@ -93,6 +93,13 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.s, self.hulk, references=self.pmg)
 
     def test_references(self):
+        # An empty string should be OK
+        StructureNL(self.s, self.hulk, references="")
+
+        # An empty list should not work
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          references=[])
+
         # junk reference should not work
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
                           references=self.junk)
@@ -157,9 +164,10 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a, b, "__eq__() method is broken! false negative")
 
         # change the created at date, now they are no longer equal
+        created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
         c = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": self.s2},
-                        [self.valid_node, self.valid_node2])
+                        [self.valid_node, self.valid_node2], created_at)
         self.assertNotEqual(a, c, "__eq__() method is broken! false positive")
 
         # or try a different structure, those should not be equal

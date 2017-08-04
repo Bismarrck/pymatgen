@@ -15,31 +15,15 @@ import collections
 import warnings
 import shutil
 import copy
-<<<<<<< HEAD
-=======
 import tempfile
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 import numpy as np
 
 from pprint import pprint
 from six.moves import map, StringIO
-<<<<<<< HEAD
-from atomicfile import AtomicFile
-=======
-from pymatgen.util.io_utils import AtomicFile
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
-<<<<<<< HEAD
-from monty.string import list_strings, is_string
-from monty.operator import operator_from_str
-from monty.io import FileLock
-from monty.pprint import draw_tree
-from monty.termcolor import cprint, colored, cprint_map
-from monty.inspect import find_top_pyfile
-=======
 from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
@@ -47,21 +31,19 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map, get_terminal_size
 from monty.inspect import find_top_pyfile
 from monty.dev import deprecated
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from monty.json import MSONable
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 from pymatgen.serializers.json_coders import pmg_serialize
 from pymatgen.core.units import Memory
+from pymatgen.util.io_utils import AtomicFile
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork
-<<<<<<< HEAD
-=======
+from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork, DteWork
 from .events import EventsParser # autodoc_event_handlers
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
 
 import logging
@@ -152,11 +134,7 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
                 located either in the working directory or in the user configuration dir.
-<<<<<<< HEAD
-            pickle_procol: Pickle protocol version used for saving the status of the object.
-=======
             pickle_protocol: Pickle protocol version used for saving the status of the object.
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 -1 denotes the latest version supported by the python interpreter.
             task_class: The class of the :class:`Task`.
             work_class: The class of the :class:`Work`.
@@ -182,11 +160,7 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))
 
-<<<<<<< HEAD
-    def __init__(self, workdir, manager=None, pickle_protocol=-1):
-=======
     def __init__(self, workdir, manager=None, pickle_protocol=-1, remove=False):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Args:
             workdir: String specifying the directory where the works will be produced.
@@ -195,22 +169,14 @@ class Flow(Node, NodeContainer, MSONable):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-<<<<<<< HEAD
-            pickle_procol: Pickle protocol version used for saving the status of the object.
-                          -1 denotes the latest version supported by the python interpreter.
-=======
             pickle_protocol: Pickle protocol version used for saving the status of the object.
                           -1 denotes the latest version supported by the python interpreter.
             remove: attempt to remove working directory `workdir` if directory already exists.
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         super(Flow, self).__init__()
 
         if workdir is not None:
-<<<<<<< HEAD
-=======
             if remove and os.path.exists(workdir): shutil.rmtree(workdir)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             self.set_workdir(workdir)
 
         self.creation_date = time.asctime()
@@ -279,14 +245,11 @@ class Flow(Node, NodeContainer, MSONable):
         """Reconstruct the flow from the pickle file."""
         return cls.pickle_load(d["workdir"], **kwargs)
 
-<<<<<<< HEAD
-=======
     @classmethod
     def temporary_flow(cls, manager=None):
         """Return a Flow in a temporary directory. Useful for unit tests."""
         return cls(workdir=tempfile.mkdtemp(), manager=manager)
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def set_workdir(self, workdir, chroot=False):
         """
         Set the working directory. Cannot be set more than once unless chroot is True
@@ -300,8 +263,6 @@ class Flow(Node, NodeContainer, MSONable):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
-<<<<<<< HEAD
-=======
     def reload(self):
         """
         Reload the flow from the pickle file. Used when we are monitoring the flow
@@ -311,7 +272,6 @@ class Flow(Node, NodeContainer, MSONable):
         new = self.__class__.pickle_load(self.workdir)
         self = new
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     @classmethod
     def pickle_load(cls, filepath, spectator_mode=True, remove_lock=False):
         """
@@ -392,11 +352,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             flow.set_pyfile(__file__)
         """
-<<<<<<< HEAD
-        # TODO: Could use a frame hack to get the caller outside abinitio
-=======
         # TODO: Could use a frame hack to get the caller outside abinit
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # so that pyfile is automatically set when we __init__ it!
         self._pyfile = os.path.abspath(pyfile)
 
@@ -730,23 +686,6 @@ class Flow(Node, NodeContainer, MSONable):
                         else:
                             yield task
 
-<<<<<<< HEAD
-=======
-    @deprecated(message="show_inpvars will be removed in pymatgen 4.0. Use show_inputs")
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-    def show_inpvars(self, *varnames):
-        from abipy.htc.variable import InputVariable
-        lines = []
-        app = lines.append
-
-        for task in self.iflat_tasks():
-            app(str(task))
-            for name in varnames:
-                value = task.input.get(name)
-                app(str(InputVariable(name, value)))
-
-        return "\n".join(lines)
-
     def abivalidate_inputs(self):
         """
         Run ABINIT in dry mode to validate all the inputs of the flow.
@@ -877,11 +816,7 @@ class Flow(Node, NodeContainer, MSONable):
         for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
             try:
-<<<<<<< HEAD
-                task.fix_queue_critical()
-=======
                 print(task.fix_queue_critical())
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                 count += 1
             except FixQueueCriticalError:
                 logger.info("Not able to fix task %s" % task)
@@ -889,9 +824,6 @@ class Flow(Node, NodeContainer, MSONable):
         return count
 
     def show_info(self, **kwargs):
-<<<<<<< HEAD
-        """Print info on the flow i.e. total number of tasks, works, tasks grouped by class."""
-=======
         """
         Print info on the flow i.e. total number of tasks, works, tasks grouped by class.
 
@@ -904,7 +836,6 @@ class Flow(Node, NodeContainer, MSONable):
             ScrTask              2
             SigmaTask            6
         """
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         stream = kwargs.pop("stream", sys.stdout)
 
         lines = [str(self)]
@@ -926,17 +857,6 @@ class Flow(Node, NodeContainer, MSONable):
 
         Args:
             stream: File-like object, Default: sys.stdout
-<<<<<<< HEAD
-        """
-        stream = kwargs.pop("stream", sys.stdout)
-
-        lines = ["%s, num_tasks=%s, all_ok=%s" % (str(self), self.num_tasks, self.all_ok)]
-        for k, v in self.status_counter.items():
-            lines.append("    %s: %s" % (k, v))
-        lines.append("")
-
-        stream.write("\n".join(lines))
-=======
 
         Example:
 
@@ -954,7 +874,6 @@ class Flow(Node, NodeContainer, MSONable):
         stream.write("\n")
         stream.write("%s, num_tasks=%s, all_ok=%s\n" % (str(self), self.num_tasks, self.all_ok))
         stream.write("\n")
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def show_status(self, **kwargs):
         """
@@ -969,28 +888,18 @@ class Flow(Node, NodeContainer, MSONable):
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
         wslice = kwargs.pop("wslice", None)
-<<<<<<< HEAD
-=======
         verbose = kwargs.pop("verbose", 0)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         wlist = None
         if wslice is not None:
             # Convert range to list of work indices.
             wlist = list(range(wslice.start, wslice.step, wslice.stop))
-<<<<<<< HEAD
-        verbose = kwargs.pop("verbose", 0)
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         #has_colours = stream_has_colours(stream)
         has_colours = True
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
-<<<<<<< HEAD
-=======
             if nids and work.node_id not in nids: continue
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if wlist is not None and i in wlist: continue
@@ -999,11 +908,7 @@ class Flow(Node, NodeContainer, MSONable):
                 continue
 
             headers = ["Task", "Status", "Queue", "MPI|Omp|Gb",
-<<<<<<< HEAD
-                       "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time",
-=======
                        "Warn|Com", "Class", "Sub|Rest|Corr", "Time",
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
                        "Node_ID"]
             table = []
             tot_num_errors = 0
@@ -1026,18 +931,6 @@ class Flow(Node, NodeContainer, MSONable):
                     if timedelta is not None:
                         stime = str(timedelta) + "Q"
 
-<<<<<<< HEAD
-                events = "|".join(3*["NA"])
-                if report is not None:
-                    #events = "%03.d"|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
-                    events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
-
-                #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-
-                task_info = list(map(str, [task.__class__.__name__,
-                                 (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
-=======
                 events = "|".join(2*["NA"])
                 if report is not None:
                     events = '{:>4}|{:>3}'.format(*map(str, (
@@ -1048,7 +941,6 @@ class Flow(Node, NodeContainer, MSONable):
 
                 task_info = list(map(str, [task.__class__.__name__,
                                  (task.num_launches, task.num_restarts, task.num_corrections), stime, task.node_id]))
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
                 qinfo = "None"
                 if task.queue_id is not None:
@@ -1066,17 +958,6 @@ class Flow(Node, NodeContainer, MSONable):
                                   para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
-<<<<<<< HEAD
-            print(tabulate(table, headers=headers), file=stream)
-            if tot_num_errors:
-                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
-            print("", file=stream)
-
-        if self.all_ok:
-            print("\nall_ok reached\n", file=stream)
-
-    def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
-=======
             print(tabulate(table, headers=headers, tablefmt="grid"), file=stream)
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, "red", file=stream)
@@ -1157,32 +1038,10 @@ class Flow(Node, NodeContainer, MSONable):
             print(self.history.to_string(metadata=metadata))
 
     def show_inputs(self, varnames=None, nids=None, wslice=None, stream=sys.stdout):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Print the input of the tasks to the given stream.
 
         Args:
-<<<<<<< HEAD
-            stream:
-                File-like object, Default: sys.stdout
-            nids:
-                List of node identifiers. By defaults all nodes are shown
-            wslice: Slice object used to select works.
-        """
-        lines = []
-        for task in self.select_tasks(nids=nids, wslice=wslice):
-            s = task.make_input(with_header=True)
-
-            # Add info on dependencies.
-            if task.deps:
-                s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
-            else:
-                s += "\n\nDependencies: None"
-
-            lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
-
-        stream.writelines(lines)
-=======
             varnames:
                 List of Abinit variables. If not None, only the variable in varnames
                 are selected and printed.
@@ -1231,7 +1090,6 @@ class Flow(Node, NodeContainer, MSONable):
                 lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
             stream.writelines(lines)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     def listext(self, ext, stream=sys.stdout):
         """
@@ -1447,16 +1305,10 @@ class Flow(Node, NodeContainer, MSONable):
 
         return Editor(editor=editor).edit_files(files)
 
-<<<<<<< HEAD
-    def get_abitimer(self, nids=None):
-        """
-        Parse the timer data in the main output file(s) of Abinit.
-=======
     def parse_timing(self, nids=None):
         """
         Parse the timer data in the main output file(s) of Abinit.
         Requires timopt /= 0 in the input file (usually timopt = -1)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         Args:
             nids: optional list of node identifiers used to filter the tasks.
@@ -1503,10 +1355,6 @@ class Flow(Node, NodeContainer, MSONable):
             else:
                 app("get_envent_report returned None!")
 
-<<<<<<< HEAD
-
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             app("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
@@ -1534,8 +1382,6 @@ class Flow(Node, NodeContainer, MSONable):
 
         return stream.writelines(lines)
 
-<<<<<<< HEAD
-=======
     def debug(self, status=None, nids=None):
         """
         This method is usually used when the flow didn't completed succesfully
@@ -1625,7 +1471,6 @@ class Flow(Node, NodeContainer, MSONable):
 
         print("Number of tasks analyzed: %d" % ntasks)
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
     def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
@@ -1641,13 +1486,8 @@ class Flow(Node, NodeContainer, MSONable):
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
         if os.path.exists(self.pid_file):
-<<<<<<< HEAD
-            print("Found scheduler attached to this flow.")
-            print("Will send SIGKILL to the scheduler before cancelling the tasks!")
-=======
             cprint("Found scheduler attached to this flow.", "yellow")
             cprint("Sending SIGKILL to the scheduler before cancelling the tasks!", "yellow")
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
             with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())
@@ -1716,20 +1556,10 @@ class Flow(Node, NodeContainer, MSONable):
         for work in self:
             work.build(*args, **kwargs)
 
-<<<<<<< HEAD
-    def build_and_pickle_dump(self):
-        """
-        Build dirs and file of the `Flow` and save the object in pickle format.
-        Returns 0 if success
-        """
-        self.build()
-        return self.pickle_dump()
-=======
     def build_and_pickle_dump(self, abivalidate=False):
         """
         Build dirs and file of the `Flow` and save the object in pickle format.
         Returns 0 if success
-
 
         Args:
             abivalidate: If True, all the input files are validate by calling
@@ -1745,7 +1575,6 @@ class Flow(Node, NodeContainer, MSONable):
         for i, e in enumerate(errors):
             errlines.append("[%d] %s" % (i, e))
         raise ValueError("\n".join(errlines))
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     @check_spectator
     def pickle_dump(self):
@@ -1927,13 +1756,9 @@ class Flow(Node, NodeContainer, MSONable):
         convergence is achieved.
         """
         if not self.allocated:
-<<<<<<< HEAD
-            raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
-=======
             self.allocate()
             #raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
             return
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         for task in self.iflat_tasks():
             children = task.get_children()
@@ -1941,11 +1766,7 @@ class Flow(Node, NodeContainer, MSONable):
                 # Change the input so that output files are produced
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-<<<<<<< HEAD
-                task._set_inpvars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
-=======
                 task.set_vars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1965,11 +1786,7 @@ class Flow(Node, NodeContainer, MSONable):
                 for varname, abiext in smart_prtvars.items():
                     if abiext not in must_produce_abiexts:
                         print("%s: setting %s to -1" % (task, varname))
-<<<<<<< HEAD
-                        task._set_inpvars({varname: -1})
-=======
                         task.set_vars({varname: -1})
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -2023,11 +1840,11 @@ class Flow(Node, NodeContainer, MSONable):
         Return 0 if success
         """
         if self.finalized:
-            self.history.warning("Calling finalize on an alrady finalized flow.")
+            self.history.warning("Calling finalize on an already finalized flow.")
             return 1
 
-        self.history.warning("Calling flow.finalize.")
-        self.finalized = False
+        self.history.info("Calling flow.finalize.")
+        self.finalized = True
 
         if self.has_db:
             self.history.info("Saving results in database.")
@@ -2317,16 +2134,20 @@ class Flow(Node, NodeContainer, MSONable):
     #    if check_status: self.check_status()
     #    return abirobot(flow=self, ext=ext, nids=nids):
 
-    def plot_networkx(self, mode="network", with_edge_labels=False,
-<<<<<<< HEAD
-                      node_size="num_cores", node_label="name_class", layout_type="spring",
-                     **kwargs):
-=======
+    @add_fig_kwargs
+    def plot_networkx(self, mode="network", with_edge_labels=False, ax=None,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         """
         Use networkx to draw the flow with the connections among the nodes and
         the status of the tasks.
+
+        Args:
+            mode: `networkx` to show connections, `status` to group tasks by status.
+            with_edge_labels: True to draw edge labels.
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            node_size: By default, the size of the node is proportional to the number of cores used.
+            node_label: By default, the task class is used to label node.
+            layout_type: Get positions for all nodes using `layout_type`. e.g. pos = nx.spring_layout(g)
 
         .. warning::
 
@@ -2352,46 +2173,25 @@ class Flow(Node, NodeContainer, MSONable):
         pos = getattr(nx, layout_type + "_layout")(g)
 
         # Select function used to compute the size of the node
-<<<<<<< HEAD
-        make_node_size = dict(
-            num_cores=lambda task: 300 * task.manager.num_cores
-        )[node_size]
-
-        # Select function used to build the label
-        make_node_label = dict(
-            name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,
-        )[node_label]
-
-        labels = {task: make_node_label(task) for task in tasks}
-=======
         make_node_size = dict(num_cores=lambda task: 300 * task.manager.num_cores)[node_size]
 
         # Select function used to build the label
         make_node_label = dict(name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,)[node_label]
 
         labels = {task: make_node_label(task) for task in g.nodes()}
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels,
-<<<<<<< HEAD
-                             #node_color='#A0CBE2',
-                             # FIXME: This does not work as expected. Likely bug in networkx!
-                             node_color=[task.color_rgb for task in tasks],
-                             node_size=[make_node_size(task) for task in tasks],
-                             width=2, style="dotted", with_labels=True)
-=======
                              node_color=[task.color_rgb for task in g.nodes()],
                              node_size=[make_node_size(task) for task in g.nodes()],
-                             width=1, style="dotted", with_labels=True)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+                             width=1, style="dotted", with_labels=True, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
 
         elif mode == "status":
             # Group tasks by status.
@@ -2407,27 +2207,27 @@ class Flow(Node, NodeContainer, MSONable):
                                        nodelist=tasks,
                                        node_color=node_color,
                                        node_size=[make_node_size(task) for task in tasks],
-                                       alpha=0.5,
+                                       alpha=0.5, ax=ax
                                        #label=str(status),
                                        )
 
             # Draw edges.
-            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True) # edge_color='r')
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True, ax=ax) # edge_color='r')
 
             # Draw labels
-            nx.draw_networkx_labels(g, pos, labels, font_size=12)
+            nx.draw_networkx_labels(g, pos, labels, font_size=12, ax=ax)
 
             # Draw edge labels
             if with_edge_labels:
-                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels)
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
                 #label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal',
                 # alpha=1.0, bbox=None, ax=None, rotate=True, **kwds)
 
         else:
-            raise ValueError("Unknown value for mode: %s" % mode)
+            raise ValueError("Unknown value for mode: %s" % str(mode))
 
-        plt.axis('off')
-        plt.show()
+        ax.axis("off")
+        return fig
 
 
 class G0W0WithQptdmFlow(Flow):
@@ -2680,9 +2480,84 @@ class PhononFlow(Flow):
             if np.allclose(qpt, 0) and with_becs:
                 ph_work = BecWork.from_scf_task(scf_task)
             else:
-                ph_work = PhononWork.from_scf_task(scf_task, qpt=qpt)
+                ph_work = PhononWork.from_scf_task(scf_task, qpoints=qpt)
 
             flow.register_work(ph_work)
+
+        if allocate: flow.allocate()
+
+        return flow
+
+    def open_final_ddb(self):
+        """
+        Open the DDB file located in the output directory of the flow.
+
+        Return:
+            :class:`DdbFile` object, None if file could not be found or file is not readable.
+        """
+        ddb_path = self.outdir.has_abiext("DDB")
+        if not ddb_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
+            return None
+
+        from abipy.dfpt.ddb import DdbFile
+        try:
+            return DdbFile(ddb_path)
+        except Exception as exc:
+            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
+            return None
+
+    def finalize(self):
+        """This method is called when the flow is completed."""
+        # Merge all the out_DDB files found in work.outdir.
+        ddb_files = list(filter(None, [work.outdir.has_abiext("DDB") for work in self]))
+
+        # Final DDB file will be produced in the outdir of the work.
+        out_ddb = self.outdir.path_in("out_DDB")
+        desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
+
+        mrgddb = wrappers.Mrgddb(manager=self.manager, verbose=0)
+        mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+        print("Final DDB file available at %s" % out_ddb)
+
+        # Call the method of the super class.
+        retcode = super(PhononFlow, self).finalize()
+        #print("retcode", retcode)
+        #if retcode != 0: return retcode
+        return retcode
+
+
+class NonLinearCoeffFlow(Flow):
+    """
+    1) One workflow for the GS run.
+
+    2) nqpt works for electric field calculations. Each work contains
+       nirred tasks where nirred is the number of irreducible perturbations
+       for that particular q-point.
+    """
+    @classmethod
+    def from_scf_input(cls, workdir, scf_input, manager=None, allocate=True):
+        """
+        Create a `NonlinearFlow` for second order susceptibility calculations from an `AbinitInput` defining a ground-state run.
+
+        Args:
+            workdir: Working directory of the flow.
+            scf_input: :class:`AbinitInput` object with the parameters for the GS-SCF run.
+            manager: :class:`TaskManager` object. Read from `manager.yml` if None.
+            allocate: True if the flow should be allocated before returning.
+
+        Return:
+            :class:`NonlinearFlow` object.
+        """
+        flow = cls(workdir, manager=manager)
+
+        flow.register_scf_task(scf_input)
+        scf_task = flow[0][0]
+
+        nl_work = DteWork.from_scf_task(scf_task)
+
+        flow.register_work(nl_work)
 
         if allocate: flow.allocate()
 
@@ -2723,10 +2598,13 @@ class PhononFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(PhononFlow, self).finalize()
+        retcode = super(NonLinearCoeffFlow, self).finalize()
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode
+
+# Alias for compatibility reasons. For the time being, DO NOT REMOVE
+nonlinear_coeff_flow = NonLinearCoeffFlow
 
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False,
@@ -2790,11 +2668,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-<<<<<<< HEAD
-        #import tempfile
-        #tmp_dir = tempfile.mkdtemp()
-=======
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
@@ -2805,11 +2678,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
         )
 
-<<<<<<< HEAD
-        fake_task._set_inpvars(abivars)
-=======
         fake_task.set_vars(abivars)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         w.allocate()
         w.start(wait=True)
 
@@ -2906,7 +2775,7 @@ def phonon_conv_flow(workdir, scf_input, qpoints, params, manager=None, allocate
             work = flow.register_scf_task(gs_inp)
 
             # Add the PhononWork connected to this scf_task.
-            flow.register_work(PhononWork.from_scf_task(work[0], qpt=qpt))
+            flow.register_work(PhononWork.from_scf_task(work[0], qpoints=qpt))
 
     if allocate: flow.allocate()
     return flow
