@@ -34,11 +34,7 @@ class BorgQueenTest(unittest.TestCase):
 
     def test_get_data(self):
         data = self.queen.get_data()
-<<<<<<< HEAD
-        self.assertEqual(len(data), 5)
-=======
-        self.assertEqual(len(data), 7)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
+        self.assertEqual(len(data), 8)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

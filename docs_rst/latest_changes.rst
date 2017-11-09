@@ -1,8 +1,14 @@
 Change log
 ==========
 
-v2017.7.21
+v2017.11.6
 ----------
-* Misc bug fixes to elastic (J. Montaya), 
-* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be 
-  sufficiently flexible for a lot of non-DFT applications.
+* Better exception handling in EnumlibAdaptor and
+  EnumerateStructureTransformation.
+* Allow bypassing of ewald calculation in EnumerateStructureTransformation.
+* get_symmetry_operations API convenience method for PointGroupAnalyzer.
+* New DiscretizeOccupanciesTransformation to help automate ordering of
+  disordered structures.
+* Fix POTCAR check for POSCAR.
+* Minor updates to periodic table data.
+* Misc bug fixes.

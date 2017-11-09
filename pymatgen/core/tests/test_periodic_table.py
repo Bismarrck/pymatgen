@@ -86,7 +86,7 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid",
+                "vickers_hardness", "density_of_solid", "atomic_orbitals"
                 "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
                 "ionic_radii"]
@@ -115,6 +115,7 @@ class ElementTestCase(PymatgenTest):
         el = Element.Fe
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
         self.assertEqual(el.common_oxidation_states, (2, 3))
+        self.assertEqual(el.icsd_oxidation_states, (2, 3))
 
     def test_deepcopy(self):
         el1 = Element.Fe
@@ -309,7 +310,6 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
         self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
-
 class FuncTest(unittest.TestCase):
 
     def test_get_el_sp(self):
@@ -319,6 +319,9 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
+        self.assertEqual(get_el_sp(["Li+", "Mn3+"]),
+                         [Specie("Li", 1), Specie("Mn", 3)])
+
 
 if __name__ == "__main__":
     unittest.main()

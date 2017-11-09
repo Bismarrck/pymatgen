@@ -679,6 +679,30 @@ class OutcarTest(unittest.TestCase):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
+    def test_read_fermi_contact_shift(self):
+        filepath = os.path.join(test_dir, "OUTCAR_fc")
+        outcar = Outcar(filepath)
+        outcar.read_fermi_contact_shift()
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'fch'][0][0], -0.002)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'th'][0][0], -0.052)
+        self.assertAlmostEqual(outcar.data["fermi_contact_shift"][u'dh'][0][0], 0.0)
+
+    def test_drift(self):
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR"))
+        self.assertEqual(len(outcar.drift),5)
+        self.assertAlmostEqual(np.sum(outcar.drift),0)
+
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR.CL"))
+        self.assertEqual(len(outcar.drift), 79)
+        self.assertAlmostEqual(np.sum(outcar.drift),  0.448010)
+
+    def test_electrostatic_potential(self):
+
+        outcar = Outcar(os.path.join(test_dir,"OUTCAR"))
+        self.assertEqual(outcar.ngf,[54,30,54])
+        self.assertTrue(np.allclose(outcar.sampling_radii,[0.9748, 0.9791, 0.7215]))
+        self.assertTrue(np.allclose(outcar.electrostatic_potential,
+          [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621]))
 
 class BSVasprunTest(unittest.TestCase):
 
@@ -701,6 +725,8 @@ class BSVasprunTest(unittest.TestCase):
                          "wrong vbm bands")
         self.assertEqual(vbm['kpoint'].label, "\\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        d = vasprun.as_dict()
+        self.assertIn("eigenvalues", d["output"])
 
 
 class OszicarTest(unittest.TestCase):
@@ -846,6 +872,10 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 4)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
+        x.concatenate(os.path.join(test_dir, 'XDATCAR_4'))
+        self.assertEqual(len(x.structures), 8)
+        self.assertIsNotNone(x.get_string())
 
 
 class DynmatTest(unittest.TestCase):

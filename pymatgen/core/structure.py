@@ -33,7 +33,7 @@ from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_angle, all_distances, \
+from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
 
@@ -1439,6 +1439,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
         from pymatgen.io.xcrysden import XSF
+        from pymatgen.io.atat import Mcsqs
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1467,6 +1468,16 @@ class IStructure(SiteCollection, MSONable):
                     return s
             else:
                 return XSF(self).to_string()
+        elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
+            if filename:
+                with zopen(fname, "wt", encoding='ascii') as f:
+                    s = Mcsqs(self).to_string()
+                    f.write(s)
+                    return
+            else:
+                return Mcsqs(self).to_string()
         else:
             import ruamel.yaml as yaml
             if filename:
@@ -1505,6 +1516,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Poscar
         from pymatgen.io.cssr import Cssr
         from pymatgen.io.xcrysden import XSF
+        from pymatgen.io.atat import Mcsqs
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1523,6 +1535,8 @@ class IStructure(SiteCollection, MSONable):
             s = Structure.from_dict(d)
         elif fmt == "xsf":
             s = XSF.from_string(input_string).structure
+        elif fmt == "mcsqs":
+            s = Mcsqs.structure_from_string(input_string)
         else:
             raise ValueError("Unrecognized format `%s`!" % fmt)
 
@@ -1597,6 +1611,12 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
+        elif fnmatch(fname, "*rndstr.in*") \
+                or fnmatch(fname, "*lat.in*") \
+                or fnmatch(fname, "*bestsqs*"):
+            return cls.from_str(contents, fmt="mcsqs",
+                                primitive=primitive, sort=sort,
+                                merge_tol=merge_tol)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -2710,6 +2730,19 @@ class Structure(IStructure, collections.MutableSequence):
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
+
+    def add_oxidation_state_by_guess(self, *kwargs):
+        """
+        Decorates the structure with oxidation state, guessing
+        using Composition.oxi_state_guesses()
+
+        Args:
+            *kwargs: parameters to pass into oxi_state_guesses()
+        """
+        oxid_guess = self.composition.oxi_state_guesses(*kwargs)
+        oxid_guess = oxid_guess or \
+                     [dict([(e.symbol, 0) for e in self.composition])]
+        self.add_oxidation_state_by_element(oxid_guess[0])
 
     def add_spin_by_element(self, spins):
         """

@@ -17,19 +17,14 @@ from monty.design_patterns import singleton
 from monty.collections import AttrDict
 from enum import Enum
 from monty.json import MSONable
-<<<<<<< HEAD
-=======
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
 
-<<<<<<< HEAD
-=======
 def lattice_from_abivars(cls=None, *args, **kwargs):
     """
     Returns a `Lattice` object from a dictionary
@@ -216,7 +211,6 @@ def structure_to_abivars(structure, **kwargs):
     return d
 
 
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 def contract(s):
     """
     >>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
@@ -712,11 +706,7 @@ class KSampling(AbivarAble, MSONable):
         """
         sg = SpacegroupAnalyzer(structure)
         #sg.get_crystal_system()
-<<<<<<< HEAD
-        #sg.get_point_group()
-=======
         #sg.get_point_group_symbol()
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         # TODO
         nshiftk = 1
         #shiftk = 3*(0.5,) # this is the default
@@ -818,11 +808,7 @@ class KSampling(AbivarAble, MSONable):
         #    num_div = [i + i % 2 for i in num_div]
         #    style = KSamplingModes.monkhorst
 
-<<<<<<< HEAD
-        comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
-=======
         comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
 
         return cls(
             mode="monkhorst", num_kpts=0, kpts=[num_div], kpt_shifts=shifts,
@@ -1165,12 +1151,7 @@ class Screening(AbivarAble):
             raise NotImplementedError("Hilber transform not coded yet")
             self.hilbert = hilbert
 
-<<<<<<< HEAD
-        # Default values
-        # TODO Change abinit defaults
-=======
         # Default values (equivalent to those used in Abinit8)
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.gwpara=2
         self.awtr  =1
         self.symchi=1
@@ -1357,16 +1338,6 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-<<<<<<< HEAD
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
-                 exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
-        """
-        Args:
-            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
-                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
-            nband: Max band index used in the e-h  basis set.
-            soenergy: Scissors energy in Hartree.
-=======
     def __init__(self, bs_loband, nband, mbpt_sciss, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
@@ -1375,7 +1346,6 @@ class ExcHamiltonian(AbivarAble):
                 Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband
             nband: Max band index used in the e-h  basis set.
             mbpt_sciss: Scissors energy in Hartree.
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             coulomb_mode: Treatment of the Coulomb term.
             ecuteps: Cutoff energy for W in Hartree.
             mdf_epsinf: Macroscopic dielectric function :math:`\\epsilon_\\inf` used in
@@ -1397,11 +1367,7 @@ class ExcHamiltonian(AbivarAble):
 
         self.bs_loband = bs_loband
         self.nband  = nband
-<<<<<<< HEAD
-        self.soenergy = soenergy
-=======
         self.mbpt_sciss = mbpt_sciss
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
         self.coulomb_mode = coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
@@ -1424,15 +1390,9 @@ class ExcHamiltonian(AbivarAble):
         #    self.kwargs["chksymbreak"] = 0
 
         # Consistency check
-<<<<<<< HEAD
-        if any(bs_loband < 0): 
-            raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
-        if any(bs_loband >= nband): 
-=======
         if any(bs_loband < 0):
             raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
         if any(bs_loband >= nband):
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
@@ -1461,15 +1421,9 @@ class ExcHamiltonian(AbivarAble):
             bs_calctype=1,
             bs_loband=self.bs_loband,
             #nband=self.nband,
-<<<<<<< HEAD
-            soenergy=self.soenergy,
-            ecuteps=self.ecuteps,
-            bs_algorithm = self._ALGO2VAR[self.algo],
-=======
             mbpt_sciss=self.mbpt_sciss,
             ecuteps=self.ecuteps,
             bs_algorithm=self._ALGO2VAR[self.algo],
->>>>>>> a41cc069c865a5d0f35d0731f92c547467395b1b
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
